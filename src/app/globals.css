@@ -24,3 +24,12 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+.backdrop-blur-md {
+  backdrop-filter: blur(12px);
+}
+@import url('https://fonts.googleapis.com/css2?family=Poppins&display=swap');
+@font-face {
+  font-family: 'Avenir LT STD';
+  src: url('/fonts/AvenirLTStd-Roman.woff2') format('woff2');
+}
