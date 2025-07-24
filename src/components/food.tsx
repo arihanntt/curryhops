@@ -1,21 +1,36 @@
 'use client';
 
-import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
 
 export default function FoodMenuHero() {
   const [offsetY, setOffsetY] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
   const bgRef = useRef(null);
 
-  // Mobile fallback parallax effect
+  // Detect mobile and handle scroll for parallax effect
   useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
     const handleScroll = () => {
       if (window.innerWidth < 768) {
         setOffsetY(window.scrollY * 0.25); // Adjust parallax strength
       }
     };
+
+    // Set initial mobile state
+    handleResize();
+
+    // Add event listeners
+    window.addEventListener('resize', handleResize);
     window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+
+    // Cleanup
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('scroll', handleScroll);
+    };
   }, []);
 
   return (
@@ -23,24 +38,16 @@ export default function FoodMenuHero() {
       {/* Parallax Background */}
       <div
         ref={bgRef}
-        className="absolute inset-0 will-change-transform transform-gpu"
+        className="absolute inset-0 will-change-transform"
         style={{
           zIndex: 0,
-          transform: window.innerWidth < 768 ? `translateY(${offsetY}px)` : 'none',
+          transform: isMobile ? `translateY(${offsetY}px)` : 'none',
+          backgroundImage: 'url(/images/foodbg.jpg)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundAttachment: isMobile ? 'scroll' : 'fixed', // Fixed for desktop, scroll for mobile
         }}
-      >
-        <Image
-          src="/images/foodbg.jpg"
-          alt="Background"
-          fill
-          className="object-cover"
-          style={{
-            backgroundAttachment: window.innerWidth >= 768 ? 'fixed' : 'scroll',
-            backgroundPosition: 'center',
-          }}
-          priority
-        />
-      </div>
+      />
 
       {/* Dark Overlay */}
       <div className="absolute inset-0 bg-black/50 z-10" />
