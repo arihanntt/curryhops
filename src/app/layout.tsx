@@ -4,7 +4,7 @@ import { Poppins, Playfair_Display, Great_Vibes } from 'next/font/google';
 import { Italiana } from 'next/font/google';
 import { Arapey } from 'next/font/google';
 import { Dancing_Script } from 'next/font/google';
-
+import Preloader from '../components/Preloader';
 import "./globals.css";
 
 // Font declarations with CSS variable bindings
@@ -82,6 +82,7 @@ export default function RootLayout({
       `}
     >
       <body className="antialiased">
+        <Preloader />
         {children}
       </body>
     </html>

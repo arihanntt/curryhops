@@ -37,17 +37,16 @@ export default function FoodMenuHero() {
     <section className="relative h-[70vh] w-full overflow-hidden">
       {/* Parallax Background */}
       <div
-        ref={bgRef}
-        className="absolute inset-0 will-change-transform"
-        style={{
-          zIndex: 0,
-          transform: isMobile ? `translateY(${offsetY}px)` : 'none',
-          backgroundImage: 'url(/images/foodbg.jpg)',
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundAttachment: isMobile ? 'scroll' : 'fixed', // Fixed for desktop, scroll for mobile
-        }}
-      />
+  ref={bgRef}
+  className="absolute inset-0"
+  style={{
+    zIndex: 0,
+    backgroundImage: 'url(/images/foodbg.jpg)',
+    backgroundSize: 'cover',
+    backgroundPosition: 'center',
+    backgroundRepeat: 'no-repeat',
+  }}
+/>
 
       {/* Dark Overlay */}
       <div className="absolute inset-0 bg-black/50 z-10" />

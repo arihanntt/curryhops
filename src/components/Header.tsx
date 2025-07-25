@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import { FiMenu, FiX } from 'react-icons/fi';
+import PhoneNav from './PhoneNav';
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -63,7 +64,7 @@ export default function Header() {
               height={scrolled ? 60 : 85}
               priority
               className={`transition-all duration-300 object-contain ${
-                scrolled ? 'h-12' : 'h-16'
+                scrolled ? 'h-14 sm:h-14' : 'h-13 sm:h-18'
               } w-auto`}
             />
           </Link>
@@ -106,18 +107,20 @@ export default function Header() {
           </nav>
         </div>
 
-        {/* Right Side: Book a Table Button and Mobile Menu Button */}
+        {/* Right Side: Reservation Button (Desktop Only), PhoneNav (Mobile Only), and Mobile Menu Button */}
         <div className="flex items-center space-x-4">
           <Link
-            href="/book"
-            className={`hidden lg:block font-medium px-6 py-2 rounded-full relative overflow-hidden bg-[#F4A948] ${
-              scrolled ? 'text-[#0F1927]' : 'text-[#FFFFFF]'
-            } hover:bg-[#e69b3a] transition-colors duration-300 group`}
+            href="/reservation"
+            className={`hidden lg:block ml-6 px-5 py-2 border border-[#F4A948] font-semibold transition-all duration-300 ${
+              scrolled ? 'text-black hover:bg-[#F4A948] hover:text-black' : 'text-white hover:bg-[#F4A948] hover:text-black'
+            }`}
             style={{ fontFamily: "'Avenir Next', 'Avenir', sans-serif" }}
           >
-            <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/50 to-transparent translate-x-[-150%] group-hover:translate-x-[150%] transition-transform duration-500 ease-in-out" />
-            <span className="relative z-10">Book a Table</span>
+            RESERVATION
           </Link>
+          <div className="lg:hidden">
+            <PhoneNav scrolled={scrolled} />
+          </div>
           <button
             className={`lg:hidden z-50 focus:outline-none ${
               scrolled ? 'text-[#0F1927]' : 'text-[#FFEFDB]'
@@ -152,12 +155,12 @@ export default function Header() {
             </Link>
           ))}
           <Link
-            href="/book"
-            className="text-2xl font-light text-[#FFEFDB] hover:text-[#F4A948] transition-colors"
+            href="/reservation"
+            className="inline-block mt-6 border border-[#F4A948] px-6 py-2 text-white font-semibold hover:bg-[#F4A948] hover:text-black transition-all"
             onClick={toggleMenu}
             style={{ fontFamily: "'Poppins', 'Avenir Next', sans-serif" }}
           >
-            Book a Table
+            RESERVATION
           </Link>
         </div>
       </div>

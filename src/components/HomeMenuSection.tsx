@@ -25,7 +25,7 @@ export default function HomeMenuSection() {
         src="/images/bg-texture.jpg" // replace with your background texture
         alt="Background Texture"
         fill
-        className="object-cover opacity-70 z-0"
+        className="object-cover opacity-30 z-0"
       />
 
       {/* 🧁 Title Centered */}

@@ -1,125 +1,79 @@
 'use client';
 
 import Image from 'next/image';
-import { useEffect, useState } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
+import { useEffect, useState } from 'react';
 
 export default function About() {
-  const [hasMounted, setHasMounted] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const { scrollY } = useScroll();
 
-  // Define scroll-based Y transforms for parallax
-  const guitarY = useTransform(scrollY, [0, 600], [0, 100]);
-  const beerY = useTransform(scrollY, [0, 600], [0, -80]);
-  const dishesY = useTransform(scrollY, [0, 600], [0, 60]);
+  const swirlY = useTransform(scrollY, [0, 600], [0, 40]);
+  const wavesY = useTransform(scrollY, [0, 600], [0, -30]);
 
-  useEffect(() => {
-    setHasMounted(true);
-  }, []);
+  useEffect(() => setMounted(true), []);
 
   return (
-    <section className="relative bg-[#060617] text-[#FFEFDB] py-24 px-6 md:px-12 lg:px-20 z-10 mt-[-5rem] overflow-hidden">
-      {/* Parallax Background Images */}
-      {hasMounted && (
+    <section
+      className="relative bg-[#0c0f0f] text-white px-6 md:px-20 pt-20 pb-16 overflow-hidden z-10 mt-[-5rem]"
+    >
+      {/* Decorative SVGs */}
+      {mounted && (
         <>
-          {/* Guitar Right */}
           <motion.div
-            style={{ y: guitarY }}
-            className="hidden md:block absolute right-[-10px] bottom-50 w-64 md:w-72 opacity-10 pointer-events-none z-0"
-          >
-            <Image
-              src="/images/guitar1.png"
-              alt="Guitar"
-              width={288}
-              height={288}
-              className="w-full h-auto"
-            />
-          </motion.div>
+  style={{ y: swirlY }}
+  animate={{ rotate: [0, 5, -5, 0] }}
+  transition={{ repeat: Infinity, duration: 8, ease: "easeInOut" }}
+  className="hidden md:block absolute right-[45%] top-14 opacity-20 z-0"
+>
+  <Image src="/images/swirl.svg" alt="Decor" width={500} height={500} />
+</motion.div>
 
-          {/* Beer Left */}
-          <motion.div
-            style={{ y: beerY }}
-            className="hidden md:block absolute left-[-100px] top-24 w-52 md:w-60 opacity-10 pointer-events-none z-0"
-          >
-            <Image
-              src="/images/beer1.png"
-              alt="Beer"
-              width={240}
-              height={240}
-              className="w-full h-auto"
-            />
-          </motion.div>
 
-          {/* Dishes Center (Bottom) */}
-          <motion.div
-            style={{ y: dishesY }}
-            className="hidden md:block absolute left-1/2 bottom-[-60px] transform -translate-x-1/2 w-52 md:w-64 opacity-10 pointer-events-none z-0"
-          >
-            <Image
-              src="/images/dishes1.png"
-              alt="Dishes"
-              width={256}
-              height={256}
-              className="w-full h-auto"
-            />
-          </motion.div>
+          
         </>
       )}
 
-      {/* Main Content */}
-      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-14 md:gap-20 items-center relative z-10">
+      <div className="max-w-7xl mx-auto grid md:grid-cols-2 items-center gap-10 relative z-10">
         {/* Left: Text */}
-        <div className="space-y-8 text-center md:text-left flex flex-col items-center md:items-start">
+        <div className="space-y-5">
           <p
-            className="text-[#F4A948] italic text-5xl"
-            style={{ fontFamily: "'Dancing Script', cursive" }}
-          >
-            About Our Restaurant
-          </p>
-          <blockquote
-            className="text-2xl md:text-3xl font-semibold leading-snug"
-            style={{ fontFamily: "'Avenir LT STD', sans-serif" }}
-          >
-            Our pub is always fun atmosphere, <br className="hidden md:inline" />
-            the freshest beer and delicious food. <br className="hidden md:inline" />
-            You always want to come back again.
-          </blockquote>
+  className="text-[#D9B68A] italic text-3xl md:text-4xl"
+  style={{ fontFamily: "'Great Vibes', cursive" }}
+>
+  About Us
+</p>
+
+<h2 className="text-2xl md:text-4xl font-bold leading-snug">
+  A Journey of Flavors <br />
+  <span className="text-[#D9B68A]">Born in India</span>
+</h2>
+
+<p className="text-gray-300 leading-relaxed text-sm md:text-base">
+  Our kitchen brings together time-honored recipes from the heart of India — from the rich curries of the north
+  to the fiery tandoors and delicate street bites. Each dish is a celebration of culture, crafted with fresh
+  ingredients and traditional spices.
+</p>
+<p className="text-gray-300 leading-relaxed text-sm md:text-base">
+  Whether you crave buttery naan, sizzling kebabs, or soul-warming chai, our food is a tribute to Indian hospitality — warm, vibrant, and unforgettable.
+</p>
+
+
+          <button className="border px-6 py-2 mt-2 border-white hover:bg-white hover:text-black transition text-sm">
+            View More
+          </button>
         </div>
 
-        {/* Right: Feature Icons */}
-        <div className="grid grid-cols-1 gap-8 justify-items-center md:grid-cols-3 md:text-left md:justify-items-start text-center">
-          <div className="flex flex-col items-center md:items-start space-y-3">
-            <Image
-              src="/images/music.png"
-              alt="Live Music"
-              width={64}
-              height={64}
-              className="object-contain"
-            />
-            <span className="font-semibold text-white text-sm sm:text-base">Live Music</span>
-          </div>
+        {/* Right: Image */}
+        <div className="relative w-full h-full rounded-lg overflow-hidden">
+          <Image
+  src="/images/about-image.jpg"
+  alt="About Dish"
+  width={700}
+  height={700}
+  className="rounded-xl w-full h-[500px] object-cover shadow-xl"
+/>
 
-          <div className="flex flex-col items-center md:items-start space-y-3">
-            <Image
-              src="/images/dishes.png"
-              alt="Amazing Dishes"
-              width={64}
-              height={64}
-              className="object-contain"
-            />
-            <span className="font-semibold text-white text-sm sm:text-base">Amazing Dishes</span>
-          </div>
-
-          <div className="flex flex-col items-center md:items-start space-y-3">
-            <Image
-              src="/images/beer.png"
-              alt="Craft Beer"
-              width={64}
-              height={64}
-              className="object-contain"
-            />
-            <span className="font-semibold text-white text-sm sm:text-base">Craft Beer</span>
-          </div>
         </div>
       </div>
     </section>
