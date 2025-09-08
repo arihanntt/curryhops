@@ -1,82 +1,116 @@
 'use client';
 
 import Image from 'next/image';
-import React from 'react';
+import React, { useState } from 'react';
 
 export default function HomeMenuSection() {
-  const menuItems = [
-  { name: 'Aloo Paratha', desc: 'Stuffed flatbread with spiced potato, served with butter & curd', price: '₹129' },
-  { name: 'Chole Bhature', desc: 'Fluffy bhature with spicy chickpeas', price: '₹149' },
-  { name: 'Paneer Paratha', desc: 'Stuffed paneer paratha with pickle & curd', price: '₹149' },
-  { name: 'Lassi', desc: 'Traditional Punjabi yogurt drink, sweet or salty', price: '₹89' },
-  { name: 'Pindi Chana', desc: 'Tangy and spicy chickpeas curry', price: '₹139' },
-  { name: 'Amritsari Kulcha', desc: 'Crispy stuffed kulcha with chana and chutney', price: '₹159' },
-  { name: 'Besan Chilla', desc: 'Gram flour pancakes with onion & spices', price: '₹99' },
-  { name: 'Poha', desc: 'Flattened rice with mustard seeds and veggies', price: '₹89' },
-  { name: 'Halwa Puri', desc: 'Soft puris served with suji halwa', price: '₹129' },
-  { name: 'Masala Chai', desc: 'Spiced Indian tea with milk and sugar', price: '₹49' },
-];
+  const menuData: Record<string, { name: string; desc: string; price: string }[]> = {
+    Breakfast: [
+      { name: 'Aloo Paratha', desc: 'Stuffed flatbread with spiced potato, served with butter & curd', price: '₹129' },
+      { name: 'Paneer Paratha', desc: 'Stuffed paneer paratha with pickle & curd', price: '₹149' },
+      { name: 'Besan Chilla', desc: 'Gram flour pancakes with onion & spices', price: '₹99' },
+      { name: 'Poha', desc: 'Flattened rice with mustard seeds and veggies', price: '₹89' },
+      { name: 'Halwa Puri', desc: 'Soft puris served with suji halwa', price: '₹129' },
+    ],
+    Lunch: [
+      { name: 'Chole Bhature', desc: 'Fluffy bhature with spicy chickpeas', price: '₹149' },
+      { name: 'Pindi Chana', desc: 'Tangy and spicy chickpeas curry', price: '₹139' },
+      { name: 'Amritsari Kulcha', desc: 'Crispy stuffed kulcha with chana and chutney', price: '₹159' },
+    ],
+    Drinks: [
+      { name: 'Lassi', desc: 'Traditional Punjabi yogurt drink, sweet or salty', price: '₹89' },
+      { name: 'Masala Chai', desc: 'Spiced Indian tea with milk and sugar', price: '₹49' },
+    ],
+    Desserts: [
+      { name: 'Gulab Jamun', desc: 'Deep-fried milk balls soaked in sugar syrup', price: '₹99' },
+      { name: 'Rasmalai', desc: 'Soft paneer patties in creamy saffron milk', price: '₹149' },
+      { name: 'Kheer', desc: 'Rice pudding flavored with cardamom & nuts', price: '₹129' },
+    ],
+  };
 
+  const categories = Object.keys(menuData);
+  const [activeCategory, setActiveCategory] = useState<string>('Breakfast');
+
+  const menuItems = menuData[activeCategory];
+  const leftItems = menuItems.slice(0, Math.ceil(menuItems.length / 2));
+  const rightItems = menuItems.slice(Math.ceil(menuItems.length / 2));
 
   return (
-    <section className="relative bg-[#f9f5f0] py-24 px-6 md:px-20 overflow-hidden font-['Raleway']">
-      {/* 🔳 Background Texture Image */}
-      <Image
-        src="/images/bg-texture.jpg" // replace with your background texture
-        alt="Background Texture"
-        fill
-        className="object-cover opacity-30 z-0"
-      />
-
-      {/* 🧁 Title Centered */}
-      <div className="relative z-10 text-center max-w-3xl mx-auto mb-16">
-        <p className="italic text-gray-500 mb-2 font-['Playfair_Display']">
-          Enjoy a complete food experience
-        </p>
-        <h2 className="text-4xl md:text-5xl font-bold font-['Raleway'] tracking-wide text-gray-600">
-          OUR DELICIOUS MENU
-        </h2>
+    <section className="relative bg-[#f9f5f0] py-20 px-4 sm:px-6 md:px-20 font-['Playfair_Display']">
+      {/* 🔳 Optional Background Overlay */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <Image
+          src="/images/overlay-left.png"
+          alt="Overlay Left"
+          width={400}
+          height={400}
+          className="absolute left-10 top-1/3 opacity-20"
+        />
+        <Image
+          src="/images/overlay-right.png"
+          alt="Overlay Right"
+          width={500}
+          height={500}
+          className="absolute right-16 top-1/2 opacity-20"
+        />
       </div>
 
-      {/* 🍰 Menu and Image Section */}
-      <div className="relative z-10 flex flex-col md:flex-row items-center gap-10">
-        {/* Left Side */}
-        <div className="md:w-1/2 w-full relative flex justify-center md:justify-start">
-          <h2 className="absolute text-[120px] md:text-[80px] font-bold text-gray-500 z-0 leading-none top-[0%] left-[3%] md:block hidden font-['Playfair_Display'] tracking-tight">
-            BREAK<br />FAST
-          </h2>
+      {/* 🏷️ Section Title */}
+      <div className="text-center mb-12 relative z-10">
+        <h2 className="text-3xl sm:text-4xl md:text-5xl text-gray-900 tracking-wide">
+          Restaurant Menu
+        </h2>
 
-          <Image
-            src="/images/menu-visual.png"
-            alt="Dessert visual"
-            width={500}
-            height={500}
-            className="relative z-10 -mt-10"
-          />
+        {/* 🔘 Category Tabs */}
+        <div className="flex flex-wrap justify-center gap-3 sm:gap-6 mt-6">
+          {categories.map((cat) => (
+            <button
+              key={cat}
+              onClick={() => setActiveCategory(cat)}
+              className={`px-4 sm:px-6 py-1 border rounded-full transition ${
+                activeCategory === cat
+                  ? 'border-[#c9a84e] text-[#c9a84e] bg-[#fff9ef] font-medium'
+                  : 'border-gray-400 text-gray-700 hover:bg-[#f1e9e0]'
+              }`}
+            >
+              {cat}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* 🍴 Two Column Menu Layout */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8 max-w-5xl mx-auto relative z-10">
+        {/* Left Side */}
+        <div className="space-y-6">
+          {leftItems.map((item, i) => (
+            <div
+              key={i}
+              className="flex justify-between items-start border-b border-dotted border-gray-400 pb-2"
+            >
+              <div>
+                <h4 className="font-semibold text-lg text-gray-900">{item.name}</h4>
+                <p className="text-sm text-gray-600">{item.desc}</p>
+              </div>
+              <span className="font-semibold text-gray-800 whitespace-nowrap">{item.price}</span>
+            </div>
+          ))}
         </div>
 
         {/* Right Side */}
-        <div className="md:w-1/2 w-full">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-y-6 gap-x-8">
-            {menuItems.map((item, index) => (
-              <div
-                key={index}
-                className="flex justify-between border-b pb-3 border-gray-300 group hover:bg-[#f1e9e0] hover:shadow-sm px-2 transition-all rounded"
-              >
-                <div>
-                  <h4 className="font-semibold text-lg text-black">{item.name}</h4>
-                  <p className="text-sm text-gray-600">{item.desc}</p>
-                </div>
-                <span className="font-semibold text-black">{item.price}</span>
+        <div className="space-y-6">
+          {rightItems.map((item, i) => (
+            <div
+              key={i}
+              className="flex justify-between items-start border-b border-dotted border-gray-400 pb-2"
+            >
+              <div>
+                <h4 className="font-semibold text-lg text-gray-900">{item.name}</h4>
+                <p className="text-sm text-gray-600">{item.desc}</p>
               </div>
-            ))}
-          </div>
-
-          <div className="mt-10 text-center md:text-left">
-            <button className="border border-black text-black px-6 py-2 rounded-full hover:bg-black hover:text-white transition-all">
-              SEE MORE
-            </button>
-          </div>
+              <span className="font-semibold text-gray-800 whitespace-nowrap">{item.price}</span>
+            </div>
+          ))}
         </div>
       </div>
     </section>

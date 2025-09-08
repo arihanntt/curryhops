@@ -33,3 +33,43 @@ body {
   font-family: 'Avenir LT STD';
   src: url('/fonts/AvenirLTStd-Roman.woff2') format('woff2');
 }
+
+/* Combine all inline styles, global-styles-inline-css, weisber-theme-style-inline-css, etc. */
+:root {
+  --black: #262022;
+  --black-darker: #000000;
+  --black-text: rgba(38, 32, 34, 1);
+  --black-light: rgba(38, 32, 34, .3);
+  --gray: #F6F3EE;
+  --gray-lighter: rgba(246, 243, 238, .5);
+  --white: #FFFFFF;
+  --white-text: rgba(255, 255, 255, .75);
+  --main: #ba9f5d;
+  --second: #2d694c;
+  --main-darker: #9c813f;
+  --main-lighter: rgba(186, 159, 93, .5);
+  --red: #d4473a;
+  --font-main: 'Mulish' !important;
+  --font-headers: 'Catamaran' !important;
+  --font-subheaders: 'Mrs Saint Delafield' !important;
+}
+
+/* Copy all <style> tags content here, e.g., from wp-emoji-styles-inline-css, global-styles-inline-css, etc. */
+img.wp-smiley, img.emoji { /* ... */ }
+/* ... all other styles ... */
+
+/* Custom VC styles */
+.vc_custom_1555890526528 { background-image: url(/images/wood.jpg); /* Update paths */ }
+/* ... */
+
+/* Theme styles */
+.page-header { background-image: url(/images/inner_HEADER_new_01.jpg) !important; }
+/* ... */
+
+/* Add @font-face for weisber-fontello */
+@font-face {
+  font-family: 'weisber-fontello';
+  src: url('/fonts/ltx-weisber.eot?1.1.9');
+  /* Add all formats */
+}
+/* ... */

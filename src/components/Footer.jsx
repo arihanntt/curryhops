@@ -8,9 +8,21 @@ export default function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="bg-[#212127] text-[#75758A] px-6 pt-16 pb-8 font-sans tracking-normal leading-relaxed">
-      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 text-center gap-12">
-        {/* Our Address - Left Centered */}
+    <footer className="relative text-[#d1cfcf] px-6 pt-16 pb-8 font-sans tracking-normal leading-relaxed bg-[#1b1414]">
+      {/* Background PNG (black one you provided) */}
+      <div className="absolute inset-0 opacity-200 pointer-events-none">
+        <Image
+          src="/images/footer-bg.png" // <-- place your black PNG here
+          alt="Footer background"
+          fill
+          style={{ objectFit: 'cover' }}
+          className="z-0"
+        />
+      </div>
+
+      {/* Content Layer */}
+      <div className="relative z-10 max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 text-center gap-12">
+        {/* Our Address */}
         <div className="flex flex-col items-center text-center">
           <h4 className="text-white font-semibold mb-3 text-base">Our Address</h4>
           <p className="text-sm leading-6">
@@ -34,10 +46,9 @@ export default function Footer() {
             height={60}
             className="mb-3"
           />
-          <p className="text-sm max-w-md mb-5 leading-6 text-gray-500">
-            Curry n Hops blends rich Indian flavors with a rustic, inviting vibe. From street-style bites to bold tandoori grills, we serve tradition with a modern twist.
-
-
+          <p className="text-sm max-w-md mb-5 leading-6 text-gray-300">
+            Curry n Hops blends rich Indian flavors with a rustic, inviting vibe.
+            From street-style bites to bold tandoori grills, we serve tradition with a modern twist.
           </p>
 
           {/* Newsletter */}
@@ -46,21 +57,21 @@ export default function Footer() {
               <input
                 type="email"
                 placeholder="Subscribe Our Newsletter"
-                className="bg-transparent text-sm text-black outline-none w-full placeholder:text-gray-500"
+                className="bg-transparent text-sm text-white outline-none w-full placeholder:text-gray-400"
               />
-              <button type="submit" className="text-[#E6B877] text-lg ml-2 hover:text-black transition">→</button>
+              <button type="submit" className="text-[#E6B877] text-lg ml-2 hover:text-white transition">→</button>
             </div>
           </form>
 
           {/* Social Icons */}
-          <div className="flex space-x-6 mt-6 text-xl text-black">
+          <div className="flex space-x-6 mt-6 text-xl text-white">
             <a href="#" aria-label="Instagram"><FaInstagram className="hover:text-[#E6B877] transition" /></a>
             <a href="#" aria-label="Tripadvisor"><FaTripadvisor className="hover:text-[#E6B877] transition" /></a>
             <a href="#" aria-label="Twitter"><FaTwitter className="hover:text-[#E6B877] transition" /></a>
           </div>
         </div>
 
-        {/* Private Dining - Right Centered */}
+        {/* Private Dining */}
         <div className="flex flex-col items-center text-center">
           <h4 className="text-white font-semibold mb-3 text-base">Private Dining</h4>
           <p className="text-sm leading-6">
@@ -77,17 +88,17 @@ export default function Footer() {
       </div>
 
       {/* Bottom Footer */}
-      <div className="mt-12 border-t border-gray-300 pt-6 text-center">
+      <div className="relative z-10 mt-12 border-t border-gray-700 pt-6 text-center">
         <div className="flex justify-center flex-wrap gap-6 text-sm font-semibold text-white mb-2">
-          {['About', 'Menu', 'Gallery', 'Blog', 'Shop'].map((item) => (
+          {['About', 'Menu', 'Blog', 'Contact'].map((item) => (
             <Link key={item} href="#" className="hover:text-[#E6B877] transition">
               {item}
             </Link>
           ))}
         </div>
-        <p className="text-sm text-gray-300">
-          © {currentYear} Babette, With Love by{' '}
-          <Link href="https://7oroof.com" className="text-[#E6B877] hover:underline">7oroof.com</Link>
+        <p className="text-sm text-gray-400">
+          © {currentYear} Curry & hops, With Love by{' '}
+          <Link href="https://drixestudio.services" className="text-[#E6B877] hover:underline">Drixe studio</Link>
         </p>
       </div>
     </footer>

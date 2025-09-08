@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+import Link from 'next/link';
 
 const items = [
   {
@@ -9,6 +10,7 @@ const items = [
     description:
       'Juicy kebabs, smoky paneer tikka, and sizzling tandoori delights straight from the clay oven.',
     image: '/images/tandoori.jpg',
+    price: '₹199',
   },
   {
     title: 'SIGNATURE INDIAN CURRIES',
@@ -16,6 +18,7 @@ const items = [
     description:
       'Rich, aromatic gravies like butter chicken, paneer butter masala, and spicy chettinad, served with fresh naan.',
     image: '/images/curries.jpg',
+    price: '₹149',
   },
   {
     title: 'TRADITIONAL INDIAN DRINKS',
@@ -23,68 +26,74 @@ const items = [
     description:
       'Cool off with refreshing lassi, masala chai, jaljeera, or thandai—crafted with love and tradition.',
     image: '/images/drinks.jpg',
+    price: '₹49',
   },
 ];
 
 export default function Gallery() {
   return (
     <section
-      className="relative py-24 px-6 md:px-12 lg:px-20"
+      className="relative py-24 px-6 md:px-10 lg:px-20"
       style={{
         backgroundImage: "url('/images/texture-bg.jpg')",
-        backgroundSize: 'cover',
+        backgroundSize: 'contain',
+        backgroundRepeat: 'repeat',
         backgroundPosition: 'center',
       }}
     >
       {/* Heading Section */}
       <div className="relative z-10 max-w-7xl mx-auto text-center mb-16">
         <h2
-          className="text-black text-4xl md:text-5xl font-semibold mb-4"
+          className="text-white text-4xl md:text-5xl font-semibold mb-4"
           style={{ fontFamily: "'Avenir LT STD', sans-serif" }}
         >
-          Our Selections
+          TRY OUR SPECIAL DISHES
         </h2>
-        <p
-          className="text-black text-lg md:text-xl max-w-2xl mx-auto"
-          style={{ fontFamily: "'Poppins', 'Avenir Next', sans-serif" }}
-        >
-          Experience a curated selection of dishes that elevate every moment.
-        </p>
       </div>
 
-      {/* Gallery Cards */}
+      {/* Cards */}
       <div className="relative z-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10 max-w-7xl mx-auto">
         {items.map((item, index) => (
           <div
             key={index}
-            className="relative aspect-[3/4] rounded-lg overflow-hidden shadow-xl group"
+            className="rounded-lg shadow-lg overflow-hidden flex flex-col"
           >
-            {/* Background Image */}
-            <Image
-              src={item.image}
-              alt={item.title}
-              fill
-              className="object-cover transition-transform duration-500 group-hover:scale-105"
-              priority
-            />
+            {/* Image with Price Tag */}
+            <div className="relative w-full h-72">
+              <Image
+                src={item.image}
+                alt={item.title}
+                fill
+                className="object-cover"
+              />
+              {/* Price Badge */}
+              <div className="absolute top-3 right-3 bg-red-600 text-white text-sm font-semibold px-4 py-2 rounded-full shadow-lg">
+                {item.price}
+              </div>
+            </div>
 
-            {/* Overlay */}
-            <div className="absolute inset-0 bg-black/40" />
-
-            {/* Text Content */}
-            <div className="absolute inset-0 p-6 flex flex-col justify-end text-white z-10">
-              <h3
-                className="text-2xl md:text-3xl font-light mb-2"
-                style={{ fontFamily: "'Poppins', 'Avenir Next', sans-serif" }}
+            {/* Content */}
+            <div className="bg-black p-6 text-center flex flex-col flex-grow">
+              <p
+                className="text-[#C5A253] italic mb-2 text-lg"
+                style={{ fontFamily: "'Great Vibes', cursive" }}
               >
-                {item.title}
-              </h3>
-              <p className="text-sm uppercase tracking-wide mb-4 text-[#F4A948]">
                 {item.subtitle}
               </p>
-              <p className="text-sm leading-relaxed text-[#fefefe]/90">
+              <h3 className="text-2xl font-bold mb-3 text-white">
+                {item.title}
+              </h3>
+              <p className="text-gray-300 text-sm flex-grow">
                 {item.description}
               </p>
+
+              {/* Button linking to /menu */}
+              <Link
+                href="/menu"
+                className="mt-6 inline-block bg-[#C5A253] text-black px-6 py-2 rounded-full font-medium hover:bg-[#a78439] transition"
+              >
+                Explore more
+              </Link>
             </div>
           </div>
         ))}
