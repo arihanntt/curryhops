@@ -5,7 +5,15 @@ import Link from "next/link";
 import { blogPosts } from "@/data/blogData";
 import { notFound } from "next/navigation";
 
-export default function BlogPostPage({ params }: { params: { id: string } }) {
+
+
+interface PageProps {
+  params: {
+    id: string;
+  };
+}
+
+export default function BlogPostPage({ params }: PageProps) {
   const post = blogPosts.find((p) => p.id === parseInt(params.id));
 
   if (!post) {
@@ -60,7 +68,7 @@ export default function BlogPostPage({ params }: { params: { id: string } }) {
                 return (
                   <blockquote
                     key={index}
-                    className="border-2 border-[#E6B877] p-6 my-8 rounded-lg text-center text-lg italic text-black bg-gradient-to-br"
+                    className="border-2 border-[#E6B877] p-6 my-8 rounded-lg text-center text-lg italic text-black bg-gradient-to-br from-white via-gray-100 to-gray-200"
                   >
                     <span className="text-[#E6B877] text-4xl">“</span>
                     {block.text}
@@ -83,7 +91,7 @@ export default function BlogPostPage({ params }: { params: { id: string } }) {
                     key={index}
                     className="list-disc pl-6 space-y-2 text-gray-800"
                   >
-                    {block.items.map((item: string, i: number) => (
+                    {block.items?.map((item: string, i: number) => (
                       <li key={i} className="marker:text-[#E6B877]">
                         {item}
                       </li>
