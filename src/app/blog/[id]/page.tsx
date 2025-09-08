@@ -5,15 +5,15 @@ import Link from "next/link";
 import { blogPosts, BlogPost } from "@/data/blogData";
 import { notFound } from "next/navigation";
 
-interface PageProps {
-  params: {
-    id: string;
-  };
-}
+export default async function BlogPostPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
 
-export default function BlogPostPage({ params }: PageProps) {
   const post: BlogPost | undefined = blogPosts.find(
-    (p) => p.id === parseInt(params.id)
+    (p) => p.id === parseInt(id)
   );
 
   if (!post) {
@@ -36,10 +36,7 @@ export default function BlogPostPage({ params }: PageProps) {
           priority
           className="object-cover"
         />
-        {/* Dark overlay */}
         <div className="absolute inset-0 bg-black/60"></div>
-
-        {/* Centered content */}
         <div className="relative z-10 text-center text-white">
           <h1 className="text-4xl md:text-5xl font-bold mb-4">{post.title}</h1>
           <p className="text-sm">
@@ -63,7 +60,6 @@ export default function BlogPostPage({ params }: PageProps) {
             switch (block.type) {
               case "paragraph":
                 return <p key={index}>{block.text}</p>;
-
               case "quote":
                 return (
                   <blockquote
@@ -74,7 +70,6 @@ export default function BlogPostPage({ params }: PageProps) {
                     {block.text}
                   </blockquote>
                 );
-
               case "heading":
                 return (
                   <h2
@@ -84,7 +79,6 @@ export default function BlogPostPage({ params }: PageProps) {
                     {block.text}
                   </h2>
                 );
-
               case "list":
                 return (
                   <ul
@@ -98,7 +92,6 @@ export default function BlogPostPage({ params }: PageProps) {
                     ))}
                   </ul>
                 );
-
               default:
                 return null;
             }
