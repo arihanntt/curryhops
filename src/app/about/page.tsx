@@ -1,4 +1,3 @@
-// pages/faq.js
 "use client";
 import { useState, useEffect } from "react";
 
@@ -43,10 +42,10 @@ const faqs = [
 ];
 
 export default function FAQPage() {
-  const [openIndex, setOpenIndex] = useState(null);
+  const [openIndex, setOpenIndex] = useState<number | null>(null);
   const [offsetY, setOffsetY] = useState(0);
 
-  const toggleFAQ = (index) => {
+  const toggleFAQ = (index: number) => {
     setOpenIndex(openIndex === index ? null : index);
   };
 
@@ -84,7 +83,7 @@ export default function FAQPage() {
         {faqs.map((faq, index) => (
           <div
             key={index}
-            className="mb-4 border border-gray-200 shadow-sm" // removed rounded-lg
+            className="mb-4 border border-gray-200 shadow-sm"
           >
             <button
               onClick={() => toggleFAQ(index)}
