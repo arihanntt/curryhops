@@ -2,10 +2,8 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { blogPosts } from "@/data/blogData";
+import { blogPosts, BlogPost } from "@/data/blogData";
 import { notFound } from "next/navigation";
-
-
 
 interface PageProps {
   params: {
@@ -14,7 +12,9 @@ interface PageProps {
 }
 
 export default function BlogPostPage({ params }: PageProps) {
-  const post = blogPosts.find((p) => p.id === parseInt(params.id));
+  const post: BlogPost | undefined = blogPosts.find(
+    (p) => p.id === parseInt(params.id)
+  );
 
   if (!post) {
     notFound();
