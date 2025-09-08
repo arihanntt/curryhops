@@ -2,8 +2,8 @@
 
 import Image from "next/image";
 import { useEffect } from "react";
-import { usePathname, useSearchParams, Suspense } from "next/navigation";
-import React from "react";
+import { usePathname, useSearchParams } from "next/navigation";
+import React, { Suspense } from "react";
 
 function MenuContent() {
   const pathname = usePathname();
