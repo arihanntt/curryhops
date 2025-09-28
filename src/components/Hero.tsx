@@ -21,7 +21,7 @@ export default function Hero() {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    let ripples: { x: number; y: number; radius: number }[] = [];
+    const ripples: { x: number; y: number; radius: number }[] = [];
 
     const draw = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
