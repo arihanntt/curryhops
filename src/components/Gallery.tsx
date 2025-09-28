@@ -1,32 +1,32 @@
-'use client';
+"use client";
 
-import Image from 'next/image';
-import Link from 'next/link';
+import Image from "next/image";
+import Link from "next/link";
 
 const items = [
   {
-    title: 'AUTHENTIC TANDOORI PLATTERS',
-    subtitle: 'From ₹199 / Plate',
+    title: "AUTHENTIC TANDOORI PLATTERS",
+    subtitle: "From ₹199 / Plate",
     description:
-      'Juicy kebabs, smoky paneer tikka, and sizzling tandoori delights straight from the clay oven.',
-    image: '/images/tandoori.jpg',
-    price: '₹199',
+      "Juicy kebabs, smoky paneer tikka, and sizzling tandoori delights straight from the clay oven.",
+    image: "/images/tandoori.jpg",
+    price: "₹199",
   },
   {
-    title: 'SIGNATURE INDIAN CURRIES',
-    subtitle: 'From ₹149 / Bowl',
+    title: "SIGNATURE INDIAN CURRIES",
+    subtitle: "From ₹149 / Bowl",
     description:
-      'Rich, aromatic gravies like butter chicken, paneer butter masala, and spicy chettinad, served with fresh naan.',
-    image: '/images/curries.jpg',
-    price: '₹149',
+      "Rich, aromatic gravies like butter chicken, paneer butter masala, and spicy chettinad, served with fresh naan.",
+    image: "/images/curries.jpg",
+    price: "₹149",
   },
   {
-    title: 'TRADITIONAL INDIAN DRINKS',
-    subtitle: 'From ₹49 / Glass',
+    title: "TRADITIONAL INDIAN DRINKS",
+    subtitle: "From ₹49 / Glass",
     description:
-      'Cool off with refreshing lassi, masala chai, jaljeera, or thandai—crafted with love and tradition.',
-    image: '/images/drinks.jpg',
-    price: '₹49',
+      "Cool off with refreshing lassi, masala chai, jaljeera, or thandai—crafted with love and tradition.",
+    image: "/images/drinks.jpg",
+    price: "₹49",
   },
 ];
 
@@ -36,9 +36,9 @@ export default function Gallery() {
       className="relative py-24 px-6 md:px-10 lg:px-20"
       style={{
         backgroundImage: "url('/images/texture-bg.jpg')",
-        backgroundSize: 'contain',
-        backgroundRepeat: 'repeat',
-        backgroundPosition: 'center',
+        backgroundSize: "contain",
+        backgroundRepeat: "repeat",
+        backgroundPosition: "center",
       }}
     >
       {/* Heading Section */}
@@ -52,7 +52,7 @@ export default function Gallery() {
       </div>
 
       {/* Cards */}
-      <div className="relative z-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10 max-w-7xl mx-auto">
+      <div className="relative z-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10 max-w-7xl mx-auto mb-16">
         {items.map((item, index) => (
           <div
             key={index}
@@ -98,6 +98,21 @@ export default function Gallery() {
           </div>
         ))}
       </div>
+
+      {/* Banner Image Placeholder */}
+     {/* Banner Image Placeholder */}
+<div className="relative z-10 max-w-7xl mx-auto">
+  <div className="w-full rounded-lg overflow-hidden shadow-xl">
+    <Image
+      src="/images/beer-banner.jpg" // replace with your banner
+      alt="Banner"
+      width={1200}   // set your banner’s actual width
+      height={300}   // set your banner’s actual height
+      className="w-full h-auto object-contain" // keeps full image, no zoom
+    />
+  </div>
+</div>
+
     </section>
   );
 }
