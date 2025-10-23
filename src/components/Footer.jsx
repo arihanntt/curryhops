@@ -26,8 +26,8 @@ export default function Footer() {
         <div className="flex flex-col items-center text-center">
           <h4 className="text-white font-semibold mb-3 text-base">Our Address</h4>
           <p className="text-sm leading-6">
-            22 Alnahas Building, 2 AlBahr St, Tanta<br />
-            Al-Gharbia Governorate, Egypt
+            G-Block, Aerocity, Near International Airport<br />
+            Punjab 140306
           </p>
           <Link
             href="#"
@@ -75,8 +75,8 @@ export default function Footer() {
         <div className="flex flex-col items-center text-center">
           <h4 className="text-white font-semibold mb-3 text-base">Private Dining</h4>
           <p className="text-sm leading-6">
-            Main Email: <a href="mailto:Elroyale@7oroof.com" className="hover:text-white">Elroyale@7oroof.com</a><br />
-            Phone: 02 0101236547
+            Main Email: <a href="mailto:curryandhops@gmail.com" className="hover:text-white">curryandhops@gmail.com</a><br />
+            Phone: +91 7503308133
           </p>
           <Link
             href="#"

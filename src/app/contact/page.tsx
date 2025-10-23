@@ -102,17 +102,17 @@ export default function ContactPage() {
             </h2>
             <ul className="mb-6 space-y-2">
               <li>
-                <strong>Address:</strong> 40 Park Ave, Brooklyn, New York 70250
+                <strong>Address:</strong> G-BLOCK, Aerocity, near International Airport, Punjab 140306
               </li>
               <li>
-                <strong>Phone:</strong> 000-111-2222
+                <strong>Phone:</strong> +91 7503308133
               </li>
               <li>
-                <strong>Email:</strong> contact@dina.com
+                <strong>Email:</strong> curryandhops@gmail.com
               </li>
             </ul>
             <iframe
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3021.991481508665!2d-73.98648268459303!3d40.75318287932764!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNDDCsDQ1JzExLjUiTiA3M8KwNTknMTMuMyJX!5e0!3m2!1sen!2sus!4v1635190737425!5m2!1sen!2sus"
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3433.046680120312!2d76.76377807536895!3d30.632641974632676!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x390febfa4f7a4b0b%3A0xd8223d3266382fa5!2sDomino&#39;s%20Pizza%20%7C%20Aero%20Arcade%2C%20Mohali!5e0!3m2!1sen!2sin!4v1760984782524!5m2!1sen!2sin"
               width="100%"
               height="350"
               style={{ border: 0 }}

@@ -30,7 +30,7 @@ export default function About() {
               width={60}
               height={60}
             />
-            <p className="font-semibold">Live Music</p>
+            <p className="font-semibold">Live Events</p>
           </div>
 
           {/* Feature 2 */}

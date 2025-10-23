@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -10,7 +11,6 @@ const items = [
     description:
       "Juicy kebabs, smoky paneer tikka, and sizzling tandoori delights straight from the clay oven.",
     image: "/images/tandoori.jpg",
-    price: "₹199",
   },
   {
     title: "SIGNATURE INDIAN CURRIES",
@@ -18,7 +18,6 @@ const items = [
     description:
       "Rich, aromatic gravies like butter chicken, paneer butter masala, and spicy chettinad, served with fresh naan.",
     image: "/images/curries.jpg",
-    price: "₹149",
   },
   {
     title: "TRADITIONAL INDIAN DRINKS",
@@ -26,11 +25,27 @@ const items = [
     description:
       "Cool off with refreshing lassi, masala chai, jaljeera, or thandai—crafted with love and tradition.",
     image: "/images/drinks.jpg",
-    price: "₹49",
   },
 ];
 
 export default function Gallery() {
+  const [bannerUrl, setBannerUrl] = useState("/images/beer-banner.jpg");
+
+  useEffect(() => {
+    async function fetchBanner() {
+      try {
+        const res = await fetch("/api/banner");
+        if (res.ok) {
+          const data = await res.json();
+          if (data?.imageUrl) setBannerUrl(data.imageUrl);
+        }
+      } catch (err) {
+        console.error("Error fetching banner:", err);
+      }
+    }
+    fetchBanner();
+  }, []);
+
   return (
     <section
       className="relative py-24 px-6 md:px-10 lg:px-20"
@@ -58,7 +73,7 @@ export default function Gallery() {
             key={index}
             className="rounded-lg shadow-lg overflow-hidden flex flex-col"
           >
-            {/* Image with Price Tag */}
+            {/* Image */}
             <div className="relative w-full h-72">
               <Image
                 src={item.image}
@@ -66,10 +81,6 @@ export default function Gallery() {
                 fill
                 className="object-cover"
               />
-              {/* Price Badge */}
-              <div className="absolute top-3 right-3 bg-red-600 text-white text-sm font-semibold px-4 py-2 rounded-full shadow-lg">
-                {item.price}
-              </div>
             </div>
 
             {/* Content */}
@@ -99,20 +110,20 @@ export default function Gallery() {
         ))}
       </div>
 
-      {/* Banner Image Placeholder */}
-     {/* Banner Image Placeholder */}
-<div className="relative z-10 max-w-7xl mx-auto">
-  <div className="w-full rounded-lg overflow-hidden shadow-xl">
-    <Image
-      src="/images/beer-banner.jpg" // replace with your banner
-      alt="Banner"
-      width={1200}   // set your banner’s actual width
-      height={300}   // set your banner’s actual height
-      className="w-full h-auto object-contain" // keeps full image, no zoom
-    />
-  </div>
-</div>
-
+      {/* Clickable Banner (fetched from backend) */}
+      <div className="relative z-10 max-w-7xl mx-auto">
+        <div className="w-full rounded-lg overflow-hidden shadow-xl">
+          <Link href="/events">
+            <Image
+              src={bannerUrl}
+              alt="Banner"
+              width={1200}
+              height={300}
+              className="w-full h-auto object-contain hover:opacity-90 transition"
+            />
+          </Link>
+        </div>
+      </div>
     </section>
   );
 }
