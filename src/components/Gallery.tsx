@@ -48,7 +48,7 @@ export default function Gallery() {
 
   return (
     <section
-      className="relative py-24 px-6 md:px-10 lg:px-20"
+      className="relative py-24 px-6 md:px-10 lg:px-20 overflow-hidden"
       style={{
         backgroundImage: "url('/images/texture-bg.jpg')",
         backgroundSize: "contain",
@@ -56,6 +56,9 @@ export default function Gallery() {
         backgroundPosition: "center",
       }}
     >
+      {/* === Black Overlay === */}
+      <div className="absolute inset-0 bg-black/50 z-0" />
+
       {/* Heading Section */}
       <div className="relative z-10 max-w-7xl mx-auto text-center mb-16">
         <h2
