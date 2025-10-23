@@ -113,7 +113,7 @@ export default function Gallery() {
       {/* Clickable Banner (fetched from backend) */}
       <div className="relative z-10 max-w-7xl mx-auto">
         <div className="w-full rounded-lg overflow-hidden shadow-xl">
-          <Link href="/events">
+          <Link href="/menu">
             <Image
               src={bannerUrl}
               alt="Banner"

@@ -100,7 +100,7 @@ export default function Hero() {
         </h1>
 
         {/* Button */}
-        <button className="mt-2 bg-green-700 rounded-full text-sm sm:text-lg md:text-xl lg:text-2xl font-bold uppercase hover:bg-green-800 transition px-6 sm:px-8 md:px-10 lg:px-12 py-2 sm:py-3 md:py-4 drop-shadow-[2px_4px_10px_rgba(0,0,0,0.4)]">
+        <button className="mt-2 bg-gradient-to-r from-[#0f1c2e] via-[#142c46] to-[#1f3d5c] rounded-full text-sm sm:text-lg md:text-xl lg:text-2xl font-bold uppercase hover:bg-green-800 transition px-6 sm:px-8 md:px-10 lg:px-12 py-2 sm:py-3 md:py-4 drop-shadow-[2px_4px_10px_rgba(0,0,0,0.4)]">
           BOOK A TABLE
         </button>
       </div>
