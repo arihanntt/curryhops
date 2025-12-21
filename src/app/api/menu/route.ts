@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/mongodb";
 import Menu from "@/models/Menu";
-
 export const dynamic = "force-dynamic";
+
 
 const DEFAULT_MENU = {
   sections: [

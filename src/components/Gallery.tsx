@@ -34,7 +34,7 @@ export default function Gallery() {
   useEffect(() => {
     async function fetchBanner() {
       try {
-        const res = await fetch("/api/banner");
+        const res = await fetch("/api/banner", { cache: "no-store" });
         if (res.ok) {
           const data = await res.json();
           if (data?.imageUrl) setBannerUrl(data.imageUrl);
@@ -61,10 +61,7 @@ export default function Gallery() {
 
       {/* Heading */}
       <div className="relative z-10 max-w-7xl mx-auto text-center mb-16">
-        <h2
-          className="text-white text-4xl md:text-5xl font-semibold mb-4"
-          style={{ fontFamily: "'Avenir LT STD', sans-serif" }}
-        >
+        <h2 className="text-white text-4xl md:text-5xl font-semibold mb-4">
           TRY OUR SPECIAL DISHES
         </h2>
       </div>
@@ -86,10 +83,7 @@ export default function Gallery() {
             </div>
 
             <div className="bg-black p-6 text-center flex flex-col flex-grow">
-              <p
-                className="text-[#C5A253] italic mb-2 text-lg"
-                style={{ fontFamily: "'Great Vibes', cursive" }}
-              >
+              <p className="text-[#C5A253] italic mb-2 text-lg">
                 {item.subtitle}
               </p>
               <h3 className="text-2xl font-bold mb-3 text-white">
@@ -110,13 +104,13 @@ export default function Gallery() {
         ))}
       </div>
 
-      {/* Clickable Banner (FORCED 6.4:1 RATIO) */}
+      {/* Clickable Banner */}
       <div className="relative z-10 max-w-7xl mx-auto">
         <div className="w-full rounded-lg overflow-hidden shadow-xl">
           <Link href="/menu">
             <div className="relative w-full aspect-[32/5] overflow-hidden">
               <Image
-                src={bannerUrl}
+                src={`${bannerUrl}?v=${Date.now()}`}
                 alt="Banner"
                 fill
                 className="object-cover hover:opacity-90 transition"
