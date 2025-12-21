@@ -8,13 +8,14 @@ import MenuPdfButton from "@/components/MenuPdfButton";
 import { useState } from "react";
 
 function MenuContent() {
-    const [menu, setMenu] = useState<any>(null);
+    const [menu, setMenu] = useState<any[]>([]);
 
-  useEffect(() => {
-    fetch("/api/menu")
-      .then((res) => res.json())
-      .then((data) => setMenu(data));
-  }, []);
+
+useEffect(() => {
+  fetch("/api/menu", { cache: "no-store" })
+    .then((res) => res.json())
+    .then((data) => setMenu(data));
+}, []);
 
   const pathname = usePathname();
   const params = useSearchParams();
@@ -84,22 +85,24 @@ function MenuContent() {
       </section>
 
             {/* Menu Sections (From Admin / MongoDB) */}
-      {menu && (
-        <div className="space-y-0 pb-20">
-          {menu.sections.map((section: any) => (
-            <MenuSection
-              key={section.id}
-              id={section.id}
-              title={section.title}
-              bgImage={`/images/${section.id}-bg.jpg`}
-              sectionBg="/images/menu-texture.jpg"
-              items={section.items}
-            />
-          ))}
-        </div>
-      )}
+     {menu.length > 0 && (
+  <div className="space-y-0 pb-20">
+    {menu.map((section: any) => (
+      <MenuSection
+        key={section._id}
+        id={section.category.toLowerCase()}
+        title={section.category}
+        bgImage={`/images/${section.category.toLowerCase()}-bg.jpg`}
+        sectionBg="/images/menu-texture.jpg"
+        items={section.items}
+      />
+    ))}
+  </div>
+)}
 
-      <MenuPdfButton />
+<div className="mt-20 pb-32">
+  <MenuPdfButton />
+</div>
 
     </main>
   );
