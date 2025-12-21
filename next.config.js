@@ -7,9 +7,7 @@ const nextConfig = {
   },
 
   // 👇 ADD THIS (fixes Vercel build error)
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
+  
 };
 
 module.exports = nextConfig;
