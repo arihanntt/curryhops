@@ -5,7 +5,9 @@ import Pdf from "@/models/Pdf";
 export async function GET() {
   await connectDB();
 
-  const pdf = await Pdf.findOne();
+  const pdf = await Pdf.findOne().sort({ createdAt: -1 });
 
-  return NextResponse.json(pdf);
+  return NextResponse.json({
+    url: pdf?.url || null,
+  });
 }

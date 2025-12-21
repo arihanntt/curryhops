@@ -2,12 +2,12 @@
 const nextConfig = {
   experimental: {
     serverActions: {
-      bodySizeLimit: "10mb", // keep this
+      bodySizeLimit: "10mb",
     },
   },
-
-  // 👇 ADD THIS (fixes Vercel build error)
-  
+  images: {
+    domains: ["res.cloudinary.com"],
+  },
 };
 
 module.exports = nextConfig;

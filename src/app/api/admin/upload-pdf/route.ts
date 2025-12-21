@@ -1,44 +1,43 @@
-export const runtime = "nodejs";
-
 import { NextResponse } from "next/server";
+import { v2 as cloudinary } from "cloudinary";
 import { connectDB } from "@/lib/mongodb";
 import Pdf from "@/models/Pdf";
-import fs from "fs";
-import path from "path";
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME!,
+  api_key: process.env.CLOUDINARY_API_KEY!,
+  api_secret: process.env.CLOUDINARY_API_SECRET!,
+});
 
 export async function POST(req: Request) {
-  try {
-    await connectDB();
+  await connectDB();
 
-    const formData = await req.formData();
-    const file = formData.get("pdf");
+  const formData = await req.formData();
+  const file = formData.get("pdf") as File | null;
 
-    if (!file || !(file instanceof File)) {
-      return NextResponse.json(
-        { error: "No PDF file received" },
-        { status: 400 }
-      );
-    }
-
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
-
-    const uploadDir = path.join(process.cwd(), "public/uploads");
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir, { recursive: true });
-    }
-
-    fs.writeFileSync(path.join(uploadDir, "menu.pdf"), buffer);
-
-    const url = "/uploads/menu.pdf";
-    await Pdf.findOneAndUpdate({}, { url }, { upsert: true });
-
-    return NextResponse.json({ success: true, url });
-  } catch (err) {
-    console.error("UPLOAD ERROR:", err);
-    return NextResponse.json(
-      { error: "Upload failed" },
-      { status: 500 }
-    );
+  if (!file) {
+    return NextResponse.json({ error: "No PDF selected" }, { status: 400 });
   }
+
+  const buffer = Buffer.from(await file.arrayBuffer());
+
+  const result: any = await new Promise((resolve, reject) => {
+    cloudinary.uploader.upload_stream(
+      {
+        resource_type: "raw", // ✅ MUST BE RAW
+        folder: "menu",
+        public_id: `menu-${Date.now()}`,
+      },
+      (error, uploadResult) => {
+        if (error) reject(error);
+        else resolve(uploadResult);
+      }
+    ).end(buffer);
+  });
+
+  // Save only latest PDF
+  await Pdf.deleteMany({});
+  await Pdf.create({ url: result.secure_url });
+
+  return NextResponse.json({ success: true });
 }

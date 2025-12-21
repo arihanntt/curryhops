@@ -1,4 +1,5 @@
 "use client";
+
 import { useEffect, useState } from "react";
 import Image from "next/image";
 
@@ -12,12 +13,19 @@ export default function AdminBannerPage() {
     fetch("/api/banner")
       .then((res) => res.json())
       .then((data) => {
-        if (data?.imageUrl) setCurrentBanner(data.imageUrl);
+        if (data?.imageUrl) {
+          setCurrentBanner(data.imageUrl);
+        }
+      })
+      .catch(() => {
+        setMsg("❌ Failed to load current banner");
       });
   }, []);
 
   async function uploadBanner(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    if (loading) return;
+
     setMsg("");
 
     const form = e.currentTarget;
@@ -30,7 +38,7 @@ export default function AdminBannerPage() {
 
     const file = fileInput.files[0];
 
-    // Create image to check ratio
+    // Validate image ratio before upload
     const img = new window.Image();
     const objectUrl = URL.createObjectURL(file);
     img.src = objectUrl;
@@ -38,7 +46,7 @@ export default function AdminBannerPage() {
     img.onload = async () => {
       const ratio = img.width / img.height;
 
-      // ✅ Enforce ~6.4 : 1 ratio
+      // Enforce ~6.4 : 1 ratio
       if (ratio < 6.2 || ratio > 6.6) {
         setMsg(
           "❌ Invalid banner size. Please upload a wide banner (~6.4:1). Example: 1536×240 or 1920×300."
@@ -48,27 +56,35 @@ export default function AdminBannerPage() {
       }
 
       URL.revokeObjectURL(objectUrl);
-
-      // Upload banner
       setLoading(true);
 
       const formData = new FormData();
       formData.append("banner", file);
 
-      const res = await fetch("/api/admin/upload-banner", {
-        method: "POST",
-        body: formData,
-      });
+      try {
+        const res = await fetch("/api/admin/upload-banner", {
+          method: "POST",
+          body: formData,
+        });
 
-      if (res.ok) {
-        const data = await res.json();
-        setCurrentBanner(data.imageUrl);
-        setMsg("✅ Banner updated successfully");
-        form.reset();
-      } else {
-        setMsg("❌ Upload failed");
+        if (res.ok) {
+          const data = await res.json();
+          setCurrentBanner(data.imageUrl);
+          setMsg("✅ Banner updated successfully");
+          form.reset();
+        } else {
+          setMsg("❌ Upload failed");
+        }
+      } catch {
+        setMsg("❌ Upload error");
       }
 
+      setLoading(false);
+    };
+
+    img.onerror = () => {
+      setMsg("❌ Failed to read image file");
+      URL.revokeObjectURL(objectUrl);
       setLoading(false);
     };
   }
@@ -79,9 +95,9 @@ export default function AdminBannerPage() {
 
       {/* Current Banner Preview */}
       {currentBanner && (
-        <div className="mb-6">
+        <div className="mb-8">
           <p className="text-gray-400 mb-2">Current banner:</p>
-          <div className="relative w-full max-w-4xl aspect-[32/5] border border-gray-800 rounded-lg overflow-hidden">
+          <div className="relative w-full max-w-5xl aspect-[32/5] border border-gray-800 rounded-lg overflow-hidden">
             <Image
               src={currentBanner}
               alt="Current Banner"
@@ -95,17 +111,16 @@ export default function AdminBannerPage() {
       {/* Upload Form */}
       <form
         onSubmit={uploadBanner}
-        className="max-w-md border border-gray-800 rounded-xl p-6"
+        className="max-w-md border border-gray-800 rounded-xl p-6 bg-[#0f0f0f]"
       >
         <label className="block text-sm text-gray-400 mb-2">
-          Upload new banner (≈ 6.4 : 1 ratio only)
+          Upload new banner (≈ 6.4 : 1 ratio)
         </label>
 
         <input
           type="file"
           name="banner"
           accept="image/*"
-          required
           className="mb-4 text-gray-300"
         />
 
@@ -118,12 +133,12 @@ export default function AdminBannerPage() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-amber-500 text-black py-3 rounded-lg"
+          className="w-full bg-amber-500 hover:bg-amber-600 disabled:opacity-60 text-black py-3 rounded-lg transition"
         >
           {loading ? "Uploading..." : "Upload Banner"}
         </button>
 
-        {msg && <p className="mt-4 text-gray-300">{msg}</p>}
+        {msg && <p className="mt-4 text-sm text-gray-300">{msg}</p>}
       </form>
     </div>
   );

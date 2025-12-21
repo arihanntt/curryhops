@@ -1,17 +1,27 @@
 "use client";
+
 import { useState } from "react";
 
-export default function AdminPdfPage() {
+export default function AdminMenuPage() {
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState("");
 
-  async function uploadPdf(e: any) {
+  async function handleUpload(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    setLoading(true);
     setMsg("");
 
+    const form = e.currentTarget;
+    const input = form.elements.namedItem("pdf") as HTMLInputElement;
+
+    if (!input.files || input.files.length === 0) {
+      setMsg("❌ Please select a PDF first");
+      return;
+    }
+
+    setLoading(true);
+
     const formData = new FormData();
-    formData.append("pdf", e.target.pdf.files[0]);
+    formData.append("pdf", input.files[0]);
 
     const res = await fetch("/api/admin/upload-pdf", {
       method: "POST",
@@ -19,34 +29,38 @@ export default function AdminPdfPage() {
     });
 
     setLoading(false);
-    setMsg(res.ok ? "✅ PDF updated successfully" : "❌ Upload failed");
+
+    if (res.ok) {
+      setMsg("✅ Menu PDF updated successfully");
+      form.reset();
+    } else {
+      setMsg("❌ Upload failed");
+    }
   }
 
   return (
-    <div className="min-h-screen bg-black text-white p-10">
-      <h1 className="text-3xl font-bold mb-6">
-        Upload Menu PDF
-      </h1>
+    <div className="max-w-lg mx-auto p-10">
+      <h1 className="text-3xl font-bold mb-6">Upload Menu PDF</h1>
 
-      <form className="max-w-md border border-gray-800 rounded-xl p-6">
+      <form onSubmit={handleUpload} className="space-y-4">
         <input
           type="file"
           name="pdf"
           accept="application/pdf"
           required
-          className="mb-4 text-gray-300"
+          className="border p-2 w-full"
         />
 
         <button
+          type="submit"
           disabled={loading}
-          onClick={uploadPdf}
-          className="w-full bg-amber-500 text-black py-3 rounded-lg"
+          className="bg-black text-white px-6 py-3 rounded w-full"
         >
           {loading ? "Uploading..." : "Upload PDF"}
         </button>
-
-        {msg && <p className="mt-4 text-gray-300">{msg}</p>}
       </form>
+
+      {msg && <p className="mt-4">{msg}</p>}
     </div>
   );
 }
