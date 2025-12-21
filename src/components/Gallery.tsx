@@ -56,10 +56,10 @@ export default function Gallery() {
         backgroundPosition: "center",
       }}
     >
-      {/* === Black Overlay === */}
+      {/* Black Overlay */}
       <div className="absolute inset-0 bg-black/50 z-0" />
 
-      {/* Heading Section */}
+      {/* Heading */}
       <div className="relative z-10 max-w-7xl mx-auto text-center mb-16">
         <h2
           className="text-white text-4xl md:text-5xl font-semibold mb-4"
@@ -76,7 +76,6 @@ export default function Gallery() {
             key={index}
             className="rounded-lg shadow-lg overflow-hidden flex flex-col"
           >
-            {/* Image */}
             <div className="relative w-full h-72">
               <Image
                 src={item.image}
@@ -86,7 +85,6 @@ export default function Gallery() {
               />
             </div>
 
-            {/* Content */}
             <div className="bg-black p-6 text-center flex flex-col flex-grow">
               <p
                 className="text-[#C5A253] italic mb-2 text-lg"
@@ -101,7 +99,6 @@ export default function Gallery() {
                 {item.description}
               </p>
 
-              {/* Button linking to /menu */}
               <Link
                 href="/menu"
                 className="mt-6 inline-block bg-[#C5A253] text-black px-6 py-2 rounded-full font-medium hover:bg-[#a78439] transition"
@@ -113,17 +110,18 @@ export default function Gallery() {
         ))}
       </div>
 
-      {/* Clickable Banner (fetched from backend) */}
+      {/* Clickable Banner (FORCED 6.4:1 RATIO) */}
       <div className="relative z-10 max-w-7xl mx-auto">
         <div className="w-full rounded-lg overflow-hidden shadow-xl">
           <Link href="/menu">
-            <Image
-              src={bannerUrl}
-              alt="Banner"
-              width={1200}
-              height={300}
-              className="w-full h-auto object-contain hover:opacity-90 transition"
-            />
+            <div className="relative w-full aspect-[32/5] overflow-hidden">
+              <Image
+                src={bannerUrl}
+                alt="Banner"
+                fill
+                className="object-cover hover:opacity-90 transition"
+              />
+            </div>
           </Link>
         </div>
       </div>

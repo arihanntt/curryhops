@@ -5,16 +5,28 @@ import Preloader from "./Preloader";
 import Header from "./Header";
 import Footer from "./Footer";
 
-export default function LayoutClient({ children }: { children: React.ReactNode }) {
+export default function LayoutClient({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const pathname = usePathname();
+
   const isHome = pathname === "/";
+  const isAdmin = pathname.startsWith("/admin");
 
   return (
     <>
+      {/* Preloader can stay global */}
       <Preloader />
-      {!isHome && <Header />}
+
+      {/* Header only on NON-home & NON-admin pages */}
+      {!isHome && !isAdmin && <Header />}
+
       <main>{children}</main>
-      {!isHome && <Footer />}
+
+      {/* Footer only on NON-home & NON-admin pages */}
+      {!isHome && !isAdmin && <Footer />}
     </>
   );
 }
