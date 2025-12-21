@@ -21,6 +21,7 @@ type Slot = {
 export default function AdminBookings() {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [slots, setSlots] = useState<Slot[]>([]);
+  const [loading, setLoading] = useState(false);
 
   const [slotDate, setSlotDate] = useState("");
   const [slotHour, setSlotHour] = useState("18:00");
@@ -44,9 +45,15 @@ export default function AdminBookings() {
     setSlots(data);
   };
 
+  const refreshAll = async () => {
+    setLoading(true);
+    await loadBookings();
+    await loadSlots();
+    setLoading(false);
+  };
+
   useEffect(() => {
-    loadBookings();
-    loadSlots();
+    refreshAll();
   }, []);
 
   /* ================= SAVE SLOT ================= */
@@ -79,7 +86,18 @@ export default function AdminBookings() {
   return (
     <div className="min-h-screen bg-black text-white px-4 py-6 space-y-8">
 
-      <h1 className="text-2xl font-bold">Admin · Bookings</h1>
+      {/* Header + Refresh */}
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-bold">Admin · Bookings</h1>
+
+        <button
+          onClick={refreshAll}
+          disabled={loading}
+          className="rounded-full border border-white/20 px-4 py-2 text-sm hover:bg-white/10 disabled:opacity-50"
+        >
+          {loading ? "Refreshing..." : "🔄 Refresh"}
+        </button>
+      </div>
 
       {/* ===== SLOT CONTROL ===== */}
       <section className="border border-white/10 rounded-xl p-4 space-y-3">

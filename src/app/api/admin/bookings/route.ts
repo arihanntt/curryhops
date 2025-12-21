@@ -5,7 +5,9 @@ import Booking from "@/models/Booking";
 export async function GET() {
   await connectDB();
 
-  const bookings = await Booking.find().sort({ createdAt: -1 });
+  const bookings = await Booking.find()
+    .sort({ createdAt: -1 })
+    .lean();
 
   return NextResponse.json(bookings, {
     headers: { "Cache-Control": "no-store" },

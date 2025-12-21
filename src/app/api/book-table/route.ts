@@ -7,14 +7,17 @@ export async function POST(req: Request) {
 
   const body = await req.json();
 
-  await Booking.create({
+  const booking = await Booking.create({
     name: body.name,
     phone: body.phone,
     date: body.date,
     time: body.time,
     people: body.people,
-    status: "pending",
   });
 
-  return NextResponse.json({ success: true });
+  // 👇 THIS IS IMPORTANT
+  return NextResponse.json({
+    success: true,
+    bookingId: booking._id,
+  });
 }
