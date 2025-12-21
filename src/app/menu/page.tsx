@@ -74,10 +74,19 @@ function MenuContent() {
         />
         <div className="absolute inset-0 bg-black/30" />
         <div className="relative z-10 text-center">
-          <h2 className="font-playfair text-5xl md:text-6xl text-white mb-6">
-            The Menu
-          </h2>
-          <div className="w-20 h-1 bg-amber-400 mx-auto" />
+          <div className="relative z-10 text-center flex flex-col items-center gap-6">
+  <h2 className="font-playfair text-5xl md:text-6xl text-white">
+    The Menu
+  </h2>
+
+  <div className="w-20 h-1 bg-amber-400 mx-auto" />
+
+  {/* PDF Button */}
+  <MenuPdfButton />
+</div>
+
+          
+          
         </div>
       </section>
 
@@ -120,9 +129,7 @@ function MenuContent() {
 
 
       {/* PDF Button spacing */}
-      <div className="mt-20 pb-32">
-        <MenuPdfButton />
-      </div>
+   
     </main>
   );
 }
