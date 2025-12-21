@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/mongodb";
 import Booking from "@/models/Booking";
 
+export const dynamic = "force-dynamic";
+
 export async function POST(req: Request) {
   await connectDB();
 
@@ -15,7 +17,6 @@ export async function POST(req: Request) {
     people: body.people,
   });
 
-  // 👇 THIS IS IMPORTANT
   return NextResponse.json({
     success: true,
     bookingId: booking._id,
