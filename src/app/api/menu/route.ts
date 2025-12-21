@@ -2,28 +2,14 @@ import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/mongodb";
 import Menu from "@/models/Menu";
 
+export const dynamic = "force-dynamic";
+
 const DEFAULT_MENU = {
   sections: [
-    {
-      id: "breakfast",
-      title: "Breakfast",
-      items: [],
-    },
-    {
-      id: "lunch",
-      title: "Lunch",
-      items: [],
-    },
-    {
-      id: "dinner",
-      title: "Dinner",
-      items: [],
-    },
-    {
-      id: "drinks",
-      title: "Drinks",
-      items: [],
-    },
+    { id: "breakfast", title: "Breakfast", items: [] },
+    { id: "lunch", title: "Lunch", items: [] },
+    { id: "dinner", title: "Dinner", items: [] },
+    { id: "drinks", title: "Drinks", items: [] },
   ],
 };
 
