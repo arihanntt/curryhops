@@ -5,7 +5,6 @@ import Image from "next/image";
 import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { FiMenu, FiX, FiChevronRight } from "react-icons/fi";
-import { FaUser, FaShoppingBag } from "react-icons/fa";
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -66,7 +65,7 @@ export default function Header() {
           isMenuOpen ? "translate-x-0" : "translate-x-full"
         }`}
       >
-        {/* Sidebar Header with Close Button */}
+        {/* Sidebar Header */}
         <div className="flex items-center justify-between px-6 pt-6 pb-4 border-b border-gray-800">
           <Image
             src="/images/logo-light.png"
@@ -104,12 +103,8 @@ export default function Header() {
           ))}
         </nav>
 
-        {/* Bottom Bar */}
-        <div className="flex items-center justify-between border-t border-gray-700 px-6 py-5">
-          
-
-          
-        </div>
+        {/* Bottom Spacer (future icons / CTA can go here) */}
+        <div className="border-t border-gray-700 px-6 py-5" />
       </div>
     </header>
   );
