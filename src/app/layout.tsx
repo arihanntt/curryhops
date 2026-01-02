@@ -5,6 +5,7 @@ import { Dancing_Script } from "next/font/google";
 import "./globals.css";
 import LayoutClient from "../components/LayoutClient";
 import { siteMetadata } from "./metadata";
+import RestaurantSchema from "@/components/RestaurantSchema"; // 👈 ADD THIS
 
 // Fonts
 const poppins = Poppins({
@@ -74,6 +75,7 @@ export default function RootLayout({
       `}
     >
       <body className="antialiased">
+        <RestaurantSchema /> {/* 👈 ADD THIS */}
         <LayoutClient>{children}</LayoutClient>
       </body>
     </html>

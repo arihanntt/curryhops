@@ -1,18 +1,17 @@
-// Define the content block interface
+// Content block interface
 interface ContentBlock {
   type: "paragraph" | "quote" | "heading" | "list";
   text?: string;
   items?: string[];
 }
 
-// Define the blog post interface
+// Blog post interface
 export interface BlogPost {
   id: number;
   title: string;
   category: string;
   date: string;
   comments: number;
-  image: string;
   excerpt: string;
   author: string;
   readTime: string;
@@ -24,262 +23,177 @@ export interface BlogPost {
 export const blogPosts: BlogPost[] = [
   {
     id: 1,
-    title: "Mastering Craft Beer Brewing: Innovations of 2025",
-    category: "Craft Beer",
-    date: "Sep 08, 2025 10:30 PM IST",
-    comments: 18,
-    image: "/images/blogbeer.jpg",
+    title: "What Makes a Modern Indian Bistro Different from a Traditional Restaurant?",
+    category: "Indian Dining",
+    date: "Aug 28, 2025",
+    comments: 14,
     excerpt:
-      "Unveil the groundbreaking techniques redefining craft beer in 2025, from AI-driven fermentation to eco-conscious hop cultivation and sustainable brewing practices.",
-    author: "John Doe",
-    readTime: "7 min",
-    tags: ["craft beer", "brewing", "innovation", "sustainability"],
+      "Modern Indian bistros blend regional flavours, contemporary techniques, and relaxed dining. Here’s how they differ from traditional Indian restaurants and why diners in Mohali are embracing the shift.",
+    author: "Curry & Hops Team",
+    readTime: "6 min",
+    tags: ["indian bistro", "modern indian food", "mohali restaurants"],
     featured: true,
     content: [
       {
         type: "paragraph",
-        text: "Craft beer brewing is undergoing a massive transformation in 2025, driven by a fusion of cutting-edge technology and a renewed commitment to sustainability. Breweries are leveraging AI to optimize fermentation processes, ensuring richer flavors and higher efficiency, while adopting eco-friendly practices to reduce their carbon footprint."
+        text: "Indian dining has evolved rapidly over the last decade. While traditional restaurants focus on familiarity and legacy recipes, modern Indian bistros experiment with presentation, portioning, and flavour balance — without losing authenticity."
       },
       {
         type: "heading",
-        text: "The Role of AI in Modern Brewing"
+        text: "Tradition Meets Contemporary Technique"
       },
       {
         type: "paragraph",
-        text: "Artificial intelligence is revolutionizing yeast selection and fermentation timing. Advanced algorithms analyze environmental factors and yeast behavior, predicting the perfect conditions for each brew, resulting in consistent quality and unique flavor profiles."
+        text: "At a modern Indian bistro, classic dishes are refined rather than replaced. Butter chicken may arrive with a lighter sauce, dal makhani may be slow-cooked with precise timing, and plating is treated with the same care as flavour."
       },
       {
         type: "quote",
-        text: "Vivamus tristique ligula quis orci malesuada tincidunt. Praesent magna purus, pharetra eu eleifend non, euismod vitae leo."
+        text: "Modern Indian food isn’t about changing flavours — it’s about respecting them with intention."
       },
       {
         type: "heading",
-        text: "Sustainable Hop Cultivation"
+        text: "A More Relaxed Dining Experience"
       },
       {
         type: "paragraph",
-        text: "Hop farmers are turning to vertical farming and organic methods to grow resilient crops. These techniques not only conserve water but also enhance the natural aroma of hops, offering brewers a sustainable ingredient source."
+        text: "Unlike formal fine dining or noisy casual eateries, bistros strike a balance. They are designed for long conversations, craft drinks, and meals that feel indulgent yet comfortable."
       },
       {
         type: "list",
         items: [
-          "AI-driven yeast optimization for flavor enhancement",
-          "Vertical farming for water-efficient hop growth",
-          "Eco-friendly packaging to reduce waste",
-          "Carbon-neutral brewing facilities"
+          "Smaller, thoughtfully designed menus",
+          "Better ingredient sourcing",
+          "Balanced spice levels",
+          "Craft beverages paired with food"
         ]
-      },
-      {
-        type: "paragraph",
-        text: "These advancements are setting new standards in the industry, blending tradition with innovation to create beers that taste better and benefit the planet."
       }
     ]
   },
+
   {
     id: 2,
-    title: "Sustainable Gastronomy: How 2025 Chefs Redefine Fine Dining",
-    category: "Food & Sustainability",
-    date: "Sep 07, 2025 08:15 PM IST",
-    comments: 26,
-    image: "/images/blogbeer.jpg",
+    title: "Why Craft Beer Pairs Surprisingly Well with Indian Food",
+    category: "Craft Beer",
+    date: "Aug 22, 2025",
+    comments: 21,
     excerpt:
-      "Farm-to-table is evolving into seed-to-soil-to-plate. Explore how chefs embrace regenerative farming, zero-waste kitchens, and AI-powered menu engineering to redefine fine dining.",
-    author: "Emma Lee",
-    readTime: "9 min",
-    tags: ["fine dining", "sustainability", "AI menus", "regenerative farming"],
+      "Indian food is bold, layered, and complex — exactly why craft beer works so well with it. We break down flavour pairings that actually make sense.",
+    author: "Head Brewer, Curry & Hops",
+    readTime: "7 min",
+    tags: ["craft beer india", "beer with indian food", "brewery mohali"],
     featured: true,
     content: [
       {
         type: "paragraph",
-        text: "Fine dining in 2025 transcends mere taste and presentation, becoming a movement rooted in ecological responsibility. Chefs are pioneering regenerative farming techniques, ensuring that every dish reflects a commitment to the environment, while zero-waste kitchens turn leftovers into culinary masterpieces."
+        text: "For years, Indian food has been paired almost exclusively with spirits or wine. But craft beer, when brewed with intention, complements Indian spices better than most people expect."
       },
       {
         type: "heading",
-        text: "Zero-Waste Kitchens: A New Culinary Frontier"
+        text: "Balancing Spice with Malt"
       },
       {
         type: "paragraph",
-        text: "Innovative chefs are transforming kitchen waste into valuable resources. Onion skins are simmered into rich broths, citrus peels are distilled into zesty cocktails, and vegetable trimmings are dehydrated for seasoning, creating a closed-loop system that minimizes waste."
+        text: "Malty beers help soften heat, while hops cut through richness. A wheat beer works beautifully with tandoori starters, while a mild ale pairs well with creamy gravies."
       },
       {
         type: "quote",
-        text: "A dish isn’t truly elegant unless it respects the soil it came from."
+        text: "The right beer doesn’t overpower Indian food — it refreshes the palate."
       },
       {
         type: "heading",
-        text: "AI-Powered Menu Engineering"
+        text: "Breaking Old Pairing Myths"
       },
       {
         type: "paragraph",
-        text: "Artificial intelligence is reshaping menus by adapting to real-time ingredient availability and guest preferences. AI systems suggest substitutions based on freshness and even personalize dishes using biometric data for tailored nutrition."
+        text: "Indian cuisine isn’t one-dimensional. From smoky kebabs to slow-cooked dals, craft beer offers versatility that adapts to diverse flavour profiles."
       },
       {
         type: "list",
         items: [
-          "Real-time ingredient substitution for peak freshness",
-          "Biometric-based menu personalization",
-          "AI-predicted flavor pairings for innovative dishes"
+          "Wheat beers with grilled dishes",
+          "Light ales with North Indian curries",
+          "Low-bitterness brews for spice-heavy meals"
         ]
-      },
-      {
-        type: "paragraph",
-        text: "This synergy of sustainability and technology has elevated fine dining into a responsible, luxurious experience that honors both the palate and the planet."
       }
     ]
   },
+
   {
     id: 3,
-    title: "The Future of Coffee: Smart Brews and Climate-Resilient Beans",
-    category: "Coffee Culture",
-    date: "Sep 05, 2025 11:00 AM IST",
-    comments: 33,
-    image: "/images/blogbeer1.jpg",
+    title: "Behind the Scenes: How a Restaurant Menu Is Actually Designed",
+    category: "Restaurant Stories",
+    date: "Aug 15, 2025",
+    comments: 11,
     excerpt:
-      "Coffee isn’t just a beverage; in 2025 it’s a data-driven ecosystem. From blockchain-tracked beans to AI baristas, see how the daily cup is being reimagined amid climate challenges.",
-    author: "Raj Patel",
-    readTime: "8 min",
-    tags: ["coffee", "blockchain", "AI barista", "climate resilience"],
+      "A restaurant menu is more than a list of dishes. From costing to flavour balance, here’s what goes into designing a menu that actually works.",
+    author: "Curry & Hops Kitchen",
+    readTime: "5 min",
+    tags: ["restaurant menu design", "indian restaurant kitchen"],
     featured: false,
     content: [
       {
         type: "paragraph",
-        text: "Coffee enthusiasts are witnessing a golden age in 2025, where the humble bean is fortified against climate change through gene-edited hybrids, ensuring robust flavors even as global temperatures rise."
+        text: "Most diners never see the weeks of testing that go into a menu. Every dish must work individually and collectively, balancing spice, texture, and preparation time."
       },
       {
         type: "heading",
-        text: "Blockchain Coffee Supply Chains"
+        text: "Costing, Consistency, and Creativity"
       },
       {
         type: "paragraph",
-        text: "Blockchain technology allows consumers to trace every step of the coffee journey, from Ethiopian highlands to their morning brew, ensuring ethical sourcing and fair trade practices with a simple QR code scan."
+        text: "Ingredients must be sourced consistently, prices must stay reasonable, and dishes must remain exciting. It’s a constant negotiation between creativity and practicality."
       },
       {
         type: "quote",
-        text: "Transparency is the new luxury in coffee."
+        text: "A good menu is one the kitchen can execute perfectly, every single day."
       },
       {
         type: "heading",
-        text: "Rise of the AI Barista"
+        text: "Why Fewer Dishes Often Work Better"
       },
       {
         type: "paragraph",
-        text: "AI baristas are redefining the coffee experience, crafting foam art tailored to individual tastes and adjusting brew strength based on mood data collected from wearable devices."
-      },
-      {
-        type: "list",
-        items: [
-          "AI-crafted foam art for personalized cups",
-          "Mood-based brewing adjustments",
-          "Voice-activated orders with precision pouring"
-        ]
-      },
-      {
-        type: "paragraph",
-        text: "This blend of sustainability, traceability, and personalization transforms the daily coffee ritual into a sophisticated, tech-enhanced experience."
+        text: "Smaller menus allow chefs to focus on quality. Each dish earns its place and is refined over time rather than rushed into rotation."
       }
     ]
   },
+
   {
     id: 4,
-    title: "The Craft of Cocktails: Molecular Mixology in 2025",
-    category: "Cocktails & Bars",
-    date: "Sep 04, 2025 09:45 PM IST",
-    comments: 21,
-    image: "/images/blogbeer.jpg",
+    title: "Dining in Mohali: What Locals Look for in a Great Restaurant",
+    category: "Local Dining",
+    date: "Aug 08, 2025",
+    comments: 19,
     excerpt:
-      "Molecular mixology takes center stage, with cocktails infused with nanotech bubbles, edible holograms, and AI-designed flavor profiles for an immersive bar experience.",
-    author: "Sophia Green",
-    readTime: "10 min",
-    tags: ["cocktails", "mixology", "nanotech", "AI flavor"],
+      "From ambience to consistency, here’s what diners in Mohali actually value when choosing where to eat — beyond Instagram aesthetics.",
+    author: "Curry & Hops Team",
+    readTime: "6 min",
+    tags: ["restaurants in mohali", "best places to eat mohali"],
     featured: false,
     content: [
       {
         type: "paragraph",
-        text: "Bars in 2025 have evolved into immersive laboratories where cocktails are not just drinks but multi-sensory narratives, crafted with precision using molecular techniques and cutting-edge technology."
+        text: "Mohali’s dining scene has matured. Diners now value consistency, comfort, and genuine hospitality over gimmicks."
       },
       {
         type: "heading",
-        text: "Nanotech Infusions"
+        text: "Food That Feels Familiar Yet Refined"
       },
       {
         type: "paragraph",
-        text: "Nanotechnology enables bartenders to encapsulate aromas within tiny bubbles, releasing layered flavors that evolve with each sip, creating a dynamic drinking experience."
+        text: "People want flavours they recognise — just executed better. Overly experimental menus rarely sustain long-term loyalty."
       },
       {
         type: "quote",
-        text: "Each drink is not just consumed, but experienced as a narrative of evolving tastes."
+        text: "The best restaurants feel dependable, not trendy."
       },
       {
         type: "heading",
-        text: "AI Mixologists"
+        text: "Why Ambience Still Matters"
       },
       {
         type: "paragraph",
-        text: "AI systems design custom cocktails by analyzing guest DNA and emotional states, offering personalized drinks that adapt to the moment, even in virtual metaverse lounges."
-      },
-      {
-        type: "list",
-        items: [
-          "DNA-based custom cocktail creation",
-          "Emotion-responsive drink adjustments",
-          "Virtual bartenders in metaverse bars"
-        ]
-      },
-      {
-        type: "paragraph",
-        text: "Molecular mixology blends science and art, delivering cocktails that are as much about memory-making as they are about taste."
-      }
-    ]
-  },
-  {
-    id: 5,
-    title: "Beyond Traditional Wine: The Bioengineered Vintages of 2025",
-    category: "Wine & Spirits",
-    date: "Sep 02, 2025 05:20 PM IST",
-    comments: 29,
-    image: "/images/blogbeer1.jpg",
-    excerpt:
-      "From lab-grown grapes to AI-sommelier pairings, the wine industry is rewriting centuries of tradition with bold bioengineering and digital innovation.",
-    author: "Lucas Martin",
-    readTime: "12 min",
-    tags: ["wine", "bioengineering", "AI sommelier", "future of wine"],
-    featured: true,
-    content: [
-      {
-        type: "paragraph",
-        text: "Wine, a symbol of heritage, is being reimagined in 2025 through biotechnology and digital tools, preserving its soul while pushing the boundaries of flavor and production."
-      },
-      {
-        type: "heading",
-        text: "Lab-Grown Grapes & Yeast Engineering"
-      },
-      {
-        type: "paragraph",
-        text: "Bioengineers are cultivating yeast strains that enhance wine aromas and developing lab-grown grapes resilient to climate shifts, opening new flavor frontiers."
-      },
-      {
-        type: "quote",
-        text: "Tomorrow’s grand cru may be designed in a lab, but still tell the story of the land."
-      },
-      {
-        type: "heading",
-        text: "AI Sommeliers & Personalized Pairings"
-      },
-      {
-        type: "paragraph",
-        text: "AI sommeliers scan dishes to suggest perfect wine matches and monitor cellar conditions, ensuring each bottle reaches its peak flavor potential."
-      },
-      {
-        type: "list",
-        items: [
-          "Dish-scanning for instant wine pairing",
-          "Custom wine blending via flavor fingerprinting",
-          "AI-monitored cellars for optimal aging"
-        ]
-      },
-      {
-        type: "paragraph",
-        text: "This fusion of tradition and technology ensures wine remains a timeless indulgence while adapting to the demands of a modern world."
+        text: "Lighting, seating, and sound design all influence how long guests stay — and whether they return."
       }
     ]
   }
