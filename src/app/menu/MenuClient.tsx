@@ -1,13 +1,11 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
-import React, { Suspense } from "react";
 import MenuPdfButton from "@/components/MenuPdfButton";
 import MenuSchema from "@/components/MenuSchema";
 import type { MenuSection } from "@/types/menu";
-
 
 type MenuItem = {
   name: string;
@@ -16,131 +14,166 @@ type MenuItem = {
 };
 
 type MenuSectionType = {
-  _id: string;
-  category: string;
+  title: string;
   items: MenuItem[];
 };
 
+/* ---------------- MENU GROUP DEFINITIONS ---------------- */
+
+const FOOD_CATEGORIES = [
+  "quick bites",
+  "salad",
+  "appetizers",
+  "pizza",
+  "pasta",
+  "main course",
+  "biryani",
+  "breads",
+  "rice and noodles",
+  "dessert",
+];
+
+const BAR_CATEGORIES = [
+  "signature cocktails",
+  "classics",
+  "our liit's",
+  "beer cocktails",
+  "coffee",
+  "hot cocktails",
+  "rum",
+  "gin",
+  "vodka",
+  "indian whisky",
+  "indian single malts",
+  "scotch",
+  "japanese whisky",
+  "rye/bourbon whiskeys",
+  "canadian / irish whisky",
+  "cognac/brandy",
+  "liquers",
+  "aperitif",
+  "red wine",
+  "rose wine & sparkling wine",
+  "white wine",
+  "sangria",
+  "champagne",
+  "shots & shooters",
+  "fresh juices",
+  "soft drinks",
+];
+
+/* ---------------- MAIN CONTENT ---------------- */
+
 function MenuContent() {
-  const [menu, setMenu] = useState<{ sections: MenuSection[] }>({
-  sections: [],
-});
+  const [menu, setMenu] = useState<{ sections: MenuSectionType[] }>({
+    sections: [],
+  });
 
+  const [menuType, setMenuType] = useState<"food" | "bar">("food");
 
-  // Fetch menu from MongoDB
   useEffect(() => {
     fetch("/api/menu", { cache: "no-store" })
       .then((res) => res.json())
-      .then((data) => {
-        setMenu(data);
-      });
+      .then((data) => setMenu(data));
   }, []);
 
   const pathname = usePathname();
   const params = useSearchParams();
 
-  // Scroll to section
+  /* Scroll to section */
   useEffect(() => {
     const hash = window.location.hash?.replace("#", "");
-    if (hash) {
-      const el = document.getElementById(hash.toLowerCase());
-      if (el) {
-        setTimeout(() => {
-          el.scrollIntoView({ behavior: "smooth", block: "start" });
-        }, 200);
-      }
-      return;
-    }
+    if (!hash) return;
 
-    const parts = pathname.split("/").filter(Boolean);
-    const target = parts.length > 1 ? parts[parts.length - 1] : null;
-
-    if (target) {
-      const el = document.getElementById(target.toLowerCase());
-      if (el) {
-        setTimeout(() => {
-          el.scrollIntoView({ behavior: "smooth", block: "start" });
-        }, 200);
-      }
+    const el = document.getElementById(hash.toLowerCase());
+    if (el) {
+      setTimeout(() => {
+        el.scrollIntoView({ behavior: "smooth" });
+      }, 200);
     }
   }, [pathname, params]);
 
- return (
-  <main className="font-poppins text-gray-800 bg-white">
+  /* Filter sections based on menu type */
+  const filteredSections = menu.sections.filter((section) => {
+    const title = section.title.toLowerCase();
 
-    {/* Menu structured data for SEO */}
-    {menu.sections.length > 0 && (
-      <MenuSchema sections={menu.sections} />
-    )}
-      {/* Hero */}
+    return menuType === "food"
+      ? FOOD_CATEGORIES.includes(title)
+      : BAR_CATEGORIES.includes(title);
+  });
+
+  return (
+    <main className="font-poppins text-gray-800 bg-white">
+      {filteredSections.length > 0 && (
+        <MenuSchema sections={filteredSections as any} />
+      )}
+
+      {/* HERO */}
       <section className="relative h-96 flex items-center justify-center">
         <Image
           src="/images/restaurant-dinner-black.webp"
-          alt="Hero Background"
+          alt="Curry & Hops Menu"
           fill
           className="object-cover"
           priority
         />
-        <div className="absolute inset-0 bg-black/30" />
-        <div className="relative z-10 text-center">
-          <div className="relative z-10 text-center flex flex-col items-center gap-6">
-  <h1 className="font-playfair text-5xl md:text-6xl text-white">
-  Menu
-</h1>
-  <div className="w-20 h-1 bg-amber-400 mx-auto" />
+        <div className="absolute inset-0 bg-black/40" />
+        <div className="relative z-10 text-center space-y-6">
+          <h1 className="font-playfair text-5xl md:text-6xl text-white">
+            Menu
+          </h1>
 
-  {/* PDF Button */}
-  <MenuPdfButton />
-</div>
+          {/* MENU TOGGLE */}
+          <div className="flex gap-4 justify-center">
+            <button
+              onClick={() => setMenuType("food")}
+              className={`px-6 py-2 border ${
+                menuType === "food"
+                  ? "bg-amber-500 text-white"
+                  : "bg-white text-black"
+              }`}
+            >
+              Food Menu
+            </button>
 
-          
-          
+            <button
+              onClick={() => setMenuType("bar")}
+              className={`px-6 py-2 border ${
+                menuType === "bar"
+                  ? "bg-amber-500 text-white"
+                  : "bg-white text-black"
+              }`}
+            >
+              Bar Menu
+            </button>
+          </div>
+
+          <MenuPdfButton />
         </div>
       </section>
 
-      {/* Intro */}
-      <section className="py-20 px-4 max-w-4xl mx-auto text-center">
-        <p className="text-sm uppercase tracking-widest text-amber-600 mb-2">
-          Eat with us
-        </p>
-        <h3 className="font-playfair text-3xl md:text-4xl mb-6">
-          Curry & Hops Menu
-        </h3>
-        <div className="w-16 h-0.5 bg-amber-400 mx-auto mb-8" />
-        <p className="text-gray-600 leading-relaxed">
-          Curry & Hops is a casual destination for brisk breakfasts and weekend
-          brunches, post-shop pit stops and working lunches, dinner dates and
-          after work cocktails. Take a look inside the menus and whet your
-          appetite for Indian delights.
-        </p>
-      </section>
+      {/* MENU SECTIONS */}
+      <div className="pb-20">
+        {filteredSections.map((section, index) => {
+          const slug = section.title.toLowerCase().replace(/\s+/g, "-");
 
-      {/* Menu Sections */}
-      {menu.sections.length > 0 && (
-  <div className="pb-20">
-    {menu.sections.map((section: any, index: number) => {
-      const slug = section.title?.toLowerCase() || `section-${index}`;
-
-      return (
-        <MenuSection
-          key={index}
-          id={slug}
-          title={section.title || "Menu"}
-          bgImage={`/images/${slug}-bg.jpg`}
-          sectionBg="/images/menu-texture.jpg"
-          items={section.items || []}
-        />
-      );
-    })}
-  </div>
-)}
-
-
-      {/* PDF Button spacing */}
-   
+          return (
+            <MenuSection
+              key={index}
+              id={slug}
+              title={section.title}
+              bgImage={`/images/${slug}-bg.jpg`}
+              sectionBg="/images/menu-texture.jpg"
+              items={section.items}
+            />
+          );
+        })}
+      </div>
     </main>
   );
 }
+
+/* ---------------- SECTION COMPONENT ---------------- */
 
 function MenuSection({
   id,
@@ -161,21 +194,14 @@ function MenuSection({
       className="bg-cover bg-center py-12"
       style={{ backgroundImage: `url(${sectionBg})` }}
     >
-      {/* Section Header */}
-      <div className="relative min-h-[300px] flex items-center justify-center mb-12">
-        <Image
-  src={bgImage}
-  alt={`${title} at Curry & Hops Indian Bistro in Mohali`}
-  fill
-  className="object-cover"
-/>
+      <div className="relative min-h-[280px] flex items-center justify-center mb-12">
+        <Image src={bgImage} alt={title} fill className="object-cover" />
         <div className="absolute inset-0 bg-black/40" />
         <h2 className="relative z-10 font-playfair text-4xl text-white">
           {title}
         </h2>
       </div>
 
-      {/* Items */}
       <div className="max-w-6xl mx-auto px-4 grid md:grid-cols-2 gap-x-12 gap-y-10">
         {items.map((item, idx) => (
           <div key={idx}>

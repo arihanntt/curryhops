@@ -1,16 +1,27 @@
 import mongoose from "mongoose";
 
-const ItemSchema = new mongoose.Schema({
-  name: String,
-  desc: String,
-  price: String,
-});
+const ItemSchema = new mongoose.Schema(
+  {
+    name: String,
+    price: String,
+    desc: String,
+  },
+  { _id: false }
+);
 
-const SectionSchema = new mongoose.Schema({
-  id: String,
-  title: String,
-  items: [ItemSchema],
-});
+const SectionSchema = new mongoose.Schema(
+  {
+    id: { type: String, required: true },
+    title: { type: String, required: true },
+    menuType: {
+      type: String,
+      enum: ["food", "bar"],
+      required: true,
+    },
+    items: [ItemSchema],
+  },
+  { _id: false }
+);
 
 const MenuSchema = new mongoose.Schema(
   {

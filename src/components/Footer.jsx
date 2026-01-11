@@ -76,7 +76,7 @@ export default function Footer() {
           <h4 className="text-white font-semibold mb-3 text-base">Private Dining</h4>
           <p className="text-sm leading-6">
             Main Email: <a href="mailto:curryandhops@gmail.com" className="hover:text-white">curryandhops@gmail.com</a><br />
-            Phone: +91 7503308133
+            Phone: +91 8699966565
           </p>
           <Link
             href="#"

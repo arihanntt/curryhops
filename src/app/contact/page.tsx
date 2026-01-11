@@ -102,10 +102,10 @@ export default function ContactPage() {
             </h2>
             <ul className="mb-6 space-y-2">
               <li>
-                <strong>Address:</strong> G-BLOCK, Aerocity, near International Airport, Punjab 140306
+                <strong>Address:</strong> SCO 41 42, Aero Arcade Mohali Punjab Pin 140603
               </li>
               <li>
-                <strong>Phone:</strong> +91 7503308133
+                <strong>Phone:</strong> +91 8699966565
               </li>
               <li>
                 <strong>Email:</strong> curryandhops@gmail.com
