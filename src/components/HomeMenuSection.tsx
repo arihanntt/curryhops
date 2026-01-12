@@ -5,35 +5,26 @@ import Image from 'next/image';
 export default function HomeMenuSection() {
   const menuItems = [
     {
-      name: 'Aloo Paratha',
-      desc: 'Stuffed flatbread with spiced potato, served with butter & curd',
-      price: '₹129',
+      name: 'Long island iced tea',
+      desc: 'Vodka, Rum, Tequila, Gin, Triple sec, Lime juice, Coke',
+      price: '₹299',
     },
     {
-      name: 'Paneer Paratha',
-      desc: 'Stuffed paneer paratha with pickle & curd',
-      price: '₹149',
+      name: 'Tokyo Iced Tea',
+      desc: 'Vodka, Rum, Gin, Triple sec, Melon liquor, Sweet and sour, top up with lemonade',
+      price: '₹299',
     },
     {
-      name: 'Chole Bhature',
-      desc: 'Fluffy bhature with spicy chickpeas',
-      price: '₹149',
+      name: 'Texas Iced Tea',
+      desc: 'Vodka, Rum, Tequila, Gin, Triple sec, Whiskey, Sweet & Sour, Coke',
+      price: '₹299',
     },
     {
-      name: 'Amritsari Kulcha',
-      desc: 'Crispy stuffed kulcha with chana and chutney',
-      price: '₹159',
+      name: 'Hawaiian Iced Tea',
+      desc: 'Vodka, Rum, Tequila, Gin, Triple sec , Sweet & Sour, Pineapple juice',
+      price: '₹299',
     },
-    {
-      name: 'Lassi',
-      desc: 'Traditional Punjabi yogurt drink, sweet or salty',
-      price: '₹89',
-    },
-    {
-      name: 'Gulab Jamun',
-      desc: 'Soft milk dumplings soaked in sugar syrup',
-      price: '₹99',
-    },
+   
   ];
 
   const leftItems = menuItems.slice(0, Math.ceil(menuItems.length / 2));
@@ -62,7 +53,8 @@ export default function HomeMenuSection() {
       {/* Section Title */}
       <div className="text-center mb-14 relative z-10">
         <h2 className="text-3xl sm:text-4xl md:text-5xl text-gray-900 tracking-wide">
-          Featured Dishes
+          
+Our Liit's
         </h2>
         <div className="w-16 h-0.5 bg-[#c9a84e] mx-auto mt-4" />
       </div>

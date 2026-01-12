@@ -3,6 +3,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { motion, Variants, useScroll, useTransform } from 'framer-motion';
+import { useRef } from 'react';
 
 const buttonVariants: Variants = {
   hover: {
@@ -15,15 +16,36 @@ const buttonVariants: Variants = {
 };
 
 export default function Hero() {
-  const { scrollY } = useScroll();
-  const y = useTransform(scrollY, [0, 300], [0, -100]);
+  const ref = useRef(null);
+  
+  // Track scroll progress specifically for this section
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ["start start", "end start"]
+  });
+
+  // PARALLAX MAGIC: 
+  // As we scroll down (0 to 1), move the image DOWN by 30% of its height.
+  // This counters the upward movement of the scroll, making it feel "stuck".
+  const y = useTransform(scrollYProgress, [0, 1], ["0%", "30%"]);
+  
+  // Optional: Fade out the image slightly as it scrolls away for focus
+  const opacity = useTransform(scrollYProgress, [0, 0.8], [1, 0.5]);
 
   return (
-    <section className="relative flex items-center justify-center min-h-[120vh] bg-gray-900 text-white overflow-hidden pt-40 sm:pt-48 md:pt-44 pb-20">
+    <section 
+      ref={ref}
+      className="relative flex items-center justify-center min-h-[120vh] bg-gray-900 text-white overflow-hidden pt-40 sm:pt-48 md:pt-44 pb-20"
+    >
       {/* Parallax Background */}
       <motion.div
-        className="absolute inset-0"
-        style={{ y, position: 'absolute', clipPath: 'inset(0 0 0 0)', scale: 1.1 }}
+        className="absolute inset-0 z-0"
+        style={{ 
+          y, 
+          opacity,
+          // Scale slightly up to prevent white gaps at edges during movement
+          scale: 1.15 
+        }}
       >
         <Image
           src="/images/hero-bg.jpg"
@@ -34,10 +56,10 @@ export default function Hero() {
         />
       </motion.div>
 
-      {/* Overlay */}
-      <div className="absolute inset-0 bg-black opacity-50"></div>
+      {/* Overlay - Stays fixed to container to darken image */}
+      <div className="absolute inset-0 bg-black/50 z-0"></div>
 
-      {/* Content */}
+      {/* Content - Z-Index 10 ensures it sits above the image/overlay */}
       <div className="relative z-10 text-center px-6 max-w-6xl w-full mx-auto flex flex-col items-center">
         <h2
           className="text-xl sm:text-2xl font-normal italic mb-0 text-white"
@@ -74,10 +96,10 @@ export default function Hero() {
             />
             <h3 className="text-base sm:text-lg font-semibold mb-1">Write us</h3>
             <a 
-              href="mailto:info@resturant.com" 
+              href="curryandhops@gmail.com" 
               className="underline hover:text-[#F4A948] transition-colors text-sm sm:text-base break-words"
             >
-              info@resturant.com
+              curryandhops@gmail.com
             </a>
           </div>
 
@@ -92,10 +114,10 @@ export default function Hero() {
             />
             <h3 className="text-base sm:text-lg font-semibold mb-1">Find us</h3>
             <a 
-              href="https://maps.google.com" 
+              href="https://share.google/BOwblttjXrFsb9jtD" 
               className="underline hover:text-[#F4A948] transition-colors text-sm sm:text-base break-words"
             >
-              123 Spice Street, Foodville
+              Gmada Aerocity, Sahibzada Ajit Singh Nagar
             </a>
           </div>
 
@@ -110,15 +132,13 @@ export default function Hero() {
             />
             <h3 className="text-base sm:text-lg font-semibold mb-1">Call us</h3>
             <a 
-              href="tel:+023351569887" 
+              href="tel:+918699966565" 
               className="underline hover:text-[#F4A948] transition-colors text-sm sm:text-base break-words"
             >
-              +02 3351569887
+              +91 8699966565
             </a>
           </div>
         </div>
-
-       
       </div>
     </section>
   );

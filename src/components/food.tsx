@@ -1,73 +1,68 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useRef } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
+import { motion, useScroll, useTransform } from 'framer-motion';
 
 export default function FoodMenuHero() {
-  const [offsetY, setOffsetY] = useState(0);
-  const [isMobile, setIsMobile] = useState(false);
-  const bgRef = useRef<HTMLDivElement | null>(null);
+  const ref = useRef(null);
+  
+  // Track scroll progress for this specific section
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ["start start", "end start"]
+  });
 
-  // Detect mobile and handle scroll for parallax effect
-  useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-
-    const handleScroll = () => {
-      if (window.innerWidth < 768) {
-        setOffsetY(window.scrollY * 0.25);
-      }
-    };
-
-    handleResize();
-
-    window.addEventListener('resize', handleResize);
-    window.addEventListener('scroll', handleScroll);
-
-    return () => {
-      window.removeEventListener('resize', handleResize);
-      window.removeEventListener('scroll', handleScroll);
-    };
-  }, []);
+  // PARALLAX EFFECT:
+  // As you scroll down (0 -> 1), move the background image DOWN by 20%.
+  // This creates the "stuck" depth effect.
+  const y = useTransform(scrollYProgress, [0, 1], ["0%", "20%"]);
 
   return (
-    <section className="relative h-[70vh] w-full overflow-hidden">
-      {/* Background */}
-      <div
-        ref={bgRef}
-        className="absolute inset-0"
-        style={{
-          zIndex: 0,
-          backgroundImage: 'url(/images/foodbg.jpg)',
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat',
-          transform: isMobile ? `translateY(${offsetY}px)` : undefined,
+    <section 
+      ref={ref} 
+      className="relative h-[70vh] w-full overflow-hidden flex items-center justify-center"
+    >
+      {/* Parallax Background */}
+      <motion.div 
+        className="absolute inset-0 z-0"
+        style={{ 
+          y,
+          // Scale image up slightly so no gaps appear when it moves
+          scale: 1.15 
         }}
-      />
+      >
+        <Image
+          src="/images/foodbg.jpg" // Ensure this image path is correct in your public folder
+          alt="Menu Background"
+          fill
+          className="object-cover"
+          priority
+        />
+      </motion.div>
 
       {/* Dark Overlay */}
       <div className="absolute inset-0 bg-black/50 z-10" />
 
       {/* Content */}
-      <div className="absolute inset-0 z-20 flex flex-col items-center justify-center text-center px-4">
+      <div className="relative z-20 flex flex-col items-center justify-center text-center px-4 w-full max-w-4xl mx-auto">
         <p
-          className="text-white text-lg mb-2"
+          className="text-white text-lg md:text-xl mb-2"
           style={{ fontFamily: 'var(--font-vibes)' }}
         >
           Delicious plates for you
         </p>
 
         <h1
-          className="text-white text-5xl md:text-4xl font-bold mb-6"
+          className="text-white text-5xl md:text-6xl font-bold mb-6 tracking-wide"
           style={{ fontFamily: 'var(--font-poppins)' }}
         >
           MENU
         </h1>
 
         <p
-          className="text-white max-w-2xl mx-auto text-base md:text-lg leading-relaxed mb-8 italic"
+          className="text-gray-200 max-w-2xl mx-auto text-base md:text-lg leading-relaxed mb-10 italic font-light"
           style={{ fontFamily: 'var(--font-playfair)' }}
         >
           Experience the bold, authentic flavors of India — from rich curries and smoky tandoori
@@ -75,15 +70,15 @@ export default function FoodMenuHero() {
         </p>
 
         {/* Buttons */}
-        <div className="flex gap-4 flex-wrap justify-center">
+        <div className="flex flex-col sm:flex-row gap-5 w-full sm:w-auto">
           <Link href="/menu?type=food">
-            <button className="text-white border border-white px-6 py-2 rounded-full hover:bg-white hover:text-black transition-all">
+            <button className="w-full sm:w-auto text-white border border-white px-8 py-3 rounded-full hover:bg-white hover:text-black transition-all uppercase tracking-widest text-sm font-semibold">
               Food Menu
             </button>
           </Link>
 
           <Link href="/menu?type=bar">
-            <button className="text-white border border-white px-6 py-2 rounded-full hover:bg-white hover:text-black transition-all">
+            <button className="w-full sm:w-auto text-white border border-white px-8 py-3 rounded-full hover:bg-white hover:text-black transition-all uppercase tracking-widest text-sm font-semibold">
               Bar Menu
             </button>
           </Link>
