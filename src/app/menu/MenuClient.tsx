@@ -5,6 +5,7 @@ import { useEffect, useState, Suspense } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import MenuPdfButton from "@/components/MenuPdfButton";
 import MenuSchema from "@/components/MenuSchema";
+import { ChevronDownIcon } from "@heroicons/react/24/outline"; // install @heroicons/react if not already
 
 type MenuItem = {
   name: string;
@@ -61,11 +62,8 @@ const BAR_CATEGORIES = [
   "soft drinks",
 ];
 
-/* ────────────────────────────────────────────────
-   ★ CENTRAL PLACE FOR ALL CATEGORY BACKGROUND IMAGES ★
-───────────────────────────────────────────────── */
+/* ---------------- BACKGROUND IMAGES ---------------- */
 const CATEGORY_BACKGROUNDS: Record<string, string> = {
-  // Food (unchanged)
   "quick bites": "https://images.pexels.com/photos/3023476/pexels-photo-3023476.jpeg",
   "salad": "https://images.pexels.com/photos/1213710/pexels-photo-1213710.jpeg",
   "appetizers": "https://images.pexels.com/photos/33430558/pexels-photo-33430558.jpeg",
@@ -77,7 +75,6 @@ const CATEGORY_BACKGROUNDS: Record<string, string> = {
   "rice and noodles": "/images/rice-noodles-bg.jpg",
   "dessert": "https://images.pexels.com/photos/13215194/pexels-photo-13215194.jpeg",
 
-  // Bar (unchanged)
   "signature cocktails": "https://images.pexels.com/photos/19051904/pexels-photo-19051904.jpeg",
   "classics": "https://images.pexels.com/photos/2531186/pexels-photo-2531186.jpeg",
   "our liit's": "https://images.pexels.com/photos/12208200/pexels-photo-12208200.jpeg",
@@ -118,6 +115,7 @@ function MenuContent() {
 
   const [menuType, setMenuType] = useState<"food" | "bar">("food");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [isFabOpen, setIsFabOpen] = useState(false);
 
   // Reset filter when switching Food ↔ Bar
   useEffect(() => {
@@ -160,6 +158,11 @@ function MenuContent() {
     selectedCategory === "all"
       ? filteredSections
       : filteredSections.filter((s) => s.title === selectedCategory);
+
+  const handleCategorySelect = (category: string) => {
+    setSelectedCategory(category);
+    setIsFabOpen(false);
+  };
 
   return (
     <main className="font-poppins text-gray-800 bg-white">
@@ -237,47 +240,101 @@ function MenuContent() {
         </div>
       </section>
 
-      {/* MENU SECTIONS with Centered & Styled Dropdown */}
-      <div className="pb-20">
-        {/* Sticky Dropdown – centered & premium look */}
-        <div className="sticky top-0 z-20 bg-white/95 backdrop-blur-lg border-b border-gray-200/80 shadow-sm">
-          <div className="max-w-5xl mx-auto px-6 py-5 flex justify-center">
-            <div className="w-full max-w-lg">
-              <label
-                htmlFor="category-filter"
-                className="block text-sm font-medium text-gray-700 mb-2 text-center"
-              >
-                Browse Category
-              </label>
-              <select
-                id="category-filter"
-                value={selectedCategory}
-                onChange={(e) => setSelectedCategory(e.target.value)}
+      {/* MENU SECTIONS */}
+      <div className="pb-20 relative">
+        {/* Normal (non-sticky) Top Category Dropdown */}
+        <div className="max-w-5xl mx-auto px-6 py-6 flex justify-center">
+          <div className="w-full max-w-lg">
+            <label
+              htmlFor="category-filter"
+              className="block text-sm font-medium text-gray-700 mb-2 text-center"
+            >
+              Browse Category
+            </label>
+            <select
+              id="category-filter"
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value)}
+              className="
+                w-full px-5 py-3.5
+                bg-white border-2 border-amber-200 rounded-xl
+                text-gray-900 text-base md:text-lg font-medium
+                focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500
+                shadow-md hover:shadow-lg hover:border-amber-400
+                transition-all duration-200 cursor-pointer
+                appearance-none
+                bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIiIGhlaWdodD0iOCIgdmlld0JveD0iMCAwIDEyIDgiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTExIDFMNiA3TDEgMS41IiBzdHJva2U9IiM4QjU1MzQiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PC9zdmc+')] bg-no-repeat bg-right-4 bg-center
+              "
+            >
+              <option value="all">All Items</option>
+              {filteredSections.map((section) => (
+                <option key={section.title} value={section.title}>
+                  {section.title}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        {/* Floating Mini Category Selector on right side */}
+        <div className="fixed bottom-6 right-6 z-50 md:bottom-10 md:right-10">
+          <div className="relative">
+            {/* Small floating button */}
+            <button
+              onClick={() => setIsFabOpen(!isFabOpen)}
+              className="
+                flex items-center justify-center w-14 h-14 rounded-full
+                bg-amber-600 text-white shadow-2xl hover:bg-amber-700 active:scale-95
+                transition-all duration-300 border-2 border-amber-300/50
+              "
+              aria-label="Quick category selector"
+            >
+              <ChevronDownIcon className="w-7 h-7" />
+            </button>
+
+            {/* Expanded dropdown */}
+            {isFabOpen && (
+              <div
                 className="
-                  w-full
-                  px-5 py-3.5
-                  bg-white border-2 border-amber-200 rounded-xl
-                  text-gray-900 text-base md:text-lg font-medium
-                  focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500
-                  shadow-md hover:shadow-lg hover:border-amber-400
-                  transition-all duration-200 cursor-pointer
-                  appearance-none
-                  bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIiIGhlaWdodD0iOCIgdmlld0JveD0iMCAwIDEyIDgiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTExIDFMNiA3TDEgMS41IiBzdHJva2U9IiM4QjU1MzQiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PC9zdmc+')] bg-no-repeat bg-right-4 bg-center
+                  absolute bottom-full right-0 mb-4 w-64
+                  bg-white rounded-xl shadow-2xl border border-amber-200/50
+                  overflow-hidden transform origin-bottom-right
+                  animate-fade-in-up
                 "
               >
-                <option value="all">All Items</option>
-                {filteredSections.map((section) => (
-                  <option key={section.title} value={section.title}>
-                    {section.title}
-                  </option>
-                ))}
-              </select>
-            </div>
+                <div className="max-h-80 overflow-y-auto py-2">
+                  <button
+                    onClick={() => handleCategorySelect("all")}
+                    className={`
+                      w-full px-5 py-3 text-left text-sm
+                      ${selectedCategory === "all" ? "bg-amber-100 text-amber-900 font-semibold" : "hover:bg-amber-50"}
+                      transition-colors
+                    `}
+                  >
+                    All Items
+                  </button>
+
+                  {filteredSections.map((section) => (
+                    <button
+                      key={section.title}
+                      onClick={() => handleCategorySelect(section.title)}
+                      className={`
+                        w-full px-5 py-3 text-left text-sm
+                        ${selectedCategory === section.title ? "bg-amber-100 text-amber-900 font-semibold" : "hover:bg-amber-50"}
+                        transition-colors
+                      `}
+                    >
+                      {section.title}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
         {/* Displayed Sections */}
-        <div className="transition-opacity duration-400 pt-4">
+        <div className="transition-opacity duration-400">
           {displayedSections.length > 0 ? (
             displayedSections.map((section, index) => {
               const slug = section.title.toLowerCase().replace(/\s+/g, "-");
