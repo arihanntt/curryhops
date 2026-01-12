@@ -56,7 +56,17 @@ export default function AdminDashboard() {
             View and manage bookings
           </p>
         </Link>
-
+<Link
+  href="/admin/events"
+  className="rounded-xl border border-gray-800 p-6 hover:border-amber-500 transition"
+>
+  <h2 className="text-xl font-semibold mb-2 text-amber-400">
+    🎉 Events Manager
+  </h2>
+  <p className="text-gray-400">
+    Add, edit & publish events
+  </p>
+</Link>
       </div>
     </div>
   );
