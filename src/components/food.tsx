@@ -6,7 +6,7 @@ import Link from 'next/link';
 export default function FoodMenuHero() {
   const [offsetY, setOffsetY] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
-  const bgRef = useRef(null);
+  const bgRef = useRef<HTMLDivElement | null>(null);
 
   // Detect mobile and handle scroll for parallax effect
   useEffect(() => {
@@ -16,7 +16,7 @@ export default function FoodMenuHero() {
 
     const handleScroll = () => {
       if (window.innerWidth < 768) {
-        setOffsetY(window.scrollY * 0.25); // Adjust parallax strength
+        setOffsetY(window.scrollY * 0.25);
       }
     };
 
@@ -33,7 +33,7 @@ export default function FoodMenuHero() {
 
   return (
     <section className="relative h-[70vh] w-full overflow-hidden">
-      {/* Parallax Background */}
+      {/* Background */}
       <div
         ref={bgRef}
         className="absolute inset-0"
@@ -43,6 +43,7 @@ export default function FoodMenuHero() {
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat',
+          transform: isMobile ? `translateY(${offsetY}px)` : undefined,
         }}
       />
 
@@ -62,22 +63,31 @@ export default function FoodMenuHero() {
           className="text-white text-5xl md:text-4xl font-bold mb-6"
           style={{ fontFamily: 'var(--font-poppins)' }}
         >
-          FOOD MENU
+          MENU
         </h1>
 
         <p
           className="text-white max-w-2xl mx-auto text-base md:text-lg leading-relaxed mb-8 italic"
           style={{ fontFamily: 'var(--font-playfair)' }}
         >
-          Experience the bold, authentic flavors of India — from rich curries and smoky tandoori to vibrant street-style bites, all crafted with tradition and passion.
+          Experience the bold, authentic flavors of India — from rich curries and smoky tandoori
+          to vibrant street-style bites, all crafted with tradition and passion.
         </p>
 
-        {/* Button with Link */}
-        <Link href="/menu">
-          <button className="text-white border border-white px-6 py-2 rounded-full hover:bg-white hover:text-black transition-all">
-            FULL LIST
-          </button>
-        </Link>
+        {/* Buttons */}
+        <div className="flex gap-4 flex-wrap justify-center">
+          <Link href="/menu?type=food">
+            <button className="text-white border border-white px-6 py-2 rounded-full hover:bg-white hover:text-black transition-all">
+              Food Menu
+            </button>
+          </Link>
+
+          <Link href="/menu?type=bar">
+            <button className="text-white border border-white px-6 py-2 rounded-full hover:bg-white hover:text-black transition-all">
+              Bar Menu
+            </button>
+          </Link>
+        </div>
       </div>
     </section>
   );

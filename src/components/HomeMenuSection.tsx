@@ -1,43 +1,47 @@
 'use client';
 
 import Image from 'next/image';
-import React, { useState } from 'react';
 
 export default function HomeMenuSection() {
-  const menuData: Record<string, { name: string; desc: string; price: string }[]> = {
-    Breakfast: [
-      { name: 'Aloo Paratha', desc: 'Stuffed flatbread with spiced potato, served with butter & curd', price: '₹129' },
-      { name: 'Paneer Paratha', desc: 'Stuffed paneer paratha with pickle & curd', price: '₹149' },
-      { name: 'Besan Chilla', desc: 'Gram flour pancakes with onion & spices', price: '₹99' },
-      { name: 'Poha', desc: 'Flattened rice with mustard seeds and veggies', price: '₹89' },
-      { name: 'Halwa Puri', desc: 'Soft puris served with suji halwa', price: '₹129' },
-    ],
-    Lunch: [
-      { name: 'Chole Bhature', desc: 'Fluffy bhature with spicy chickpeas', price: '₹149' },
-      { name: 'Pindi Chana', desc: 'Tangy and spicy chickpeas curry', price: '₹139' },
-      { name: 'Amritsari Kulcha', desc: 'Crispy stuffed kulcha with chana and chutney', price: '₹159' },
-    ],
-    Drinks: [
-      { name: 'Lassi', desc: 'Traditional Punjabi yogurt drink, sweet or salty', price: '₹89' },
-      { name: 'Masala Chai', desc: 'Spiced Indian tea with milk and sugar', price: '₹49' },
-    ],
-    Desserts: [
-      { name: 'Gulab Jamun', desc: 'Deep-fried milk balls soaked in sugar syrup', price: '₹99' },
-      { name: 'Rasmalai', desc: 'Soft paneer patties in creamy saffron milk', price: '₹149' },
-      { name: 'Kheer', desc: 'Rice pudding flavored with cardamom & nuts', price: '₹129' },
-    ],
-  };
+  const menuItems = [
+    {
+      name: 'Aloo Paratha',
+      desc: 'Stuffed flatbread with spiced potato, served with butter & curd',
+      price: '₹129',
+    },
+    {
+      name: 'Paneer Paratha',
+      desc: 'Stuffed paneer paratha with pickle & curd',
+      price: '₹149',
+    },
+    {
+      name: 'Chole Bhature',
+      desc: 'Fluffy bhature with spicy chickpeas',
+      price: '₹149',
+    },
+    {
+      name: 'Amritsari Kulcha',
+      desc: 'Crispy stuffed kulcha with chana and chutney',
+      price: '₹159',
+    },
+    {
+      name: 'Lassi',
+      desc: 'Traditional Punjabi yogurt drink, sweet or salty',
+      price: '₹89',
+    },
+    {
+      name: 'Gulab Jamun',
+      desc: 'Soft milk dumplings soaked in sugar syrup',
+      price: '₹99',
+    },
+  ];
 
-  const categories = Object.keys(menuData);
-  const [activeCategory, setActiveCategory] = useState<string>('Breakfast');
-
-  const menuItems = menuData[activeCategory];
   const leftItems = menuItems.slice(0, Math.ceil(menuItems.length / 2));
   const rightItems = menuItems.slice(Math.ceil(menuItems.length / 2));
 
   return (
     <section className="relative bg-[#f9f5f0] py-20 px-4 sm:px-6 md:px-20 font-['Playfair_Display']">
-      {/* 🔳 Optional Background Overlay */}
+      {/* Background Overlays */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <Image
           src="/images/overlay-left.png"
@@ -55,33 +59,17 @@ export default function HomeMenuSection() {
         />
       </div>
 
-      {/* 🏷️ Section Title */}
-      <div className="text-center mb-12 relative z-10">
+      {/* Section Title */}
+      <div className="text-center mb-14 relative z-10">
         <h2 className="text-3xl sm:text-4xl md:text-5xl text-gray-900 tracking-wide">
-          Restaurant Menu
+          Featured Dishes
         </h2>
-
-        {/* 🔘 Category Tabs */}
-        <div className="flex flex-wrap justify-center gap-3 sm:gap-6 mt-6">
-          {categories.map((cat) => (
-            <button
-              key={cat}
-              onClick={() => setActiveCategory(cat)}
-              className={`px-4 sm:px-6 py-1 border rounded-full transition ${
-                activeCategory === cat
-                  ? 'border-[#c9a84e] text-[#c9a84e] bg-[#fff9ef] font-medium'
-                  : 'border-gray-400 text-gray-700 hover:bg-[#f1e9e0]'
-              }`}
-            >
-              {cat}
-            </button>
-          ))}
-        </div>
+        <div className="w-16 h-0.5 bg-[#c9a84e] mx-auto mt-4" />
       </div>
 
-      {/* 🍴 Two Column Menu Layout */}
+      {/* Two Column Menu */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8 max-w-5xl mx-auto relative z-10">
-        {/* Left Side */}
+        {/* Left Column */}
         <div className="space-y-6">
           {leftItems.map((item, i) => (
             <div
@@ -89,15 +77,19 @@ export default function HomeMenuSection() {
               className="flex justify-between items-start border-b border-dotted border-gray-400 pb-2"
             >
               <div>
-                <h4 className="font-semibold text-lg text-gray-900">{item.name}</h4>
+                <h4 className="font-semibold text-lg text-gray-900">
+                  {item.name}
+                </h4>
                 <p className="text-sm text-gray-600">{item.desc}</p>
               </div>
-              <span className="font-semibold text-gray-800 whitespace-nowrap">{item.price}</span>
+              <span className="font-semibold text-gray-800 whitespace-nowrap">
+                {item.price}
+              </span>
             </div>
           ))}
         </div>
 
-        {/* Right Side */}
+        {/* Right Column */}
         <div className="space-y-6">
           {rightItems.map((item, i) => (
             <div
@@ -105,10 +97,14 @@ export default function HomeMenuSection() {
               className="flex justify-between items-start border-b border-dotted border-gray-400 pb-2"
             >
               <div>
-                <h4 className="font-semibold text-lg text-gray-900">{item.name}</h4>
+                <h4 className="font-semibold text-lg text-gray-900">
+                  {item.name}
+                </h4>
                 <p className="text-sm text-gray-600">{item.desc}</p>
               </div>
-              <span className="font-semibold text-gray-800 whitespace-nowrap">{item.price}</span>
+              <span className="font-semibold text-gray-800 whitespace-nowrap">
+                {item.price}
+              </span>
             </div>
           ))}
         </div>

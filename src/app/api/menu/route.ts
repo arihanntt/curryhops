@@ -4,9 +4,11 @@ import Menu from "@/models/Menu";
 
 export const dynamic = "force-dynamic";
 
+/* ---------------- DEFAULT STRUCTURE ---------------- */
+
 const DEFAULT_MENU = {
   sections: [
-    // FOOD (unchanged)
+    // FOOD
     { id: "quick-bites", title: "Quick Bites", menuType: "food", items: [] },
     { id: "salad", title: "Salad", menuType: "food", items: [] },
     { id: "appetizers", title: "Appetizers", menuType: "food", items: [] },
@@ -17,7 +19,8 @@ const DEFAULT_MENU = {
     { id: "breads", title: "Breads", menuType: "food", items: [] },
     { id: "rice-noodles", title: "Rice and Noodles", menuType: "food", items: [] },
     { id: "dessert", title: "Dessert", menuType: "food", items: [] },
-    // BAR (unchanged)
+
+    // BAR
     { id: "signature-cocktails", title: "Signature Cocktails", menuType: "bar", items: [] },
     { id: "classics", title: "Classics", menuType: "bar", items: [] },
     { id: "liits", title: "OUR LIIT'S", menuType: "bar", items: [] },
@@ -47,70 +50,44 @@ const DEFAULT_MENU = {
   ],
 };
 
-function normalizeSections(sectionsToNormalize: any[]) {
-  const sectionMap = new Map(sectionsToNormalize.map((s: any) => [s.id, s]));
-
-  return DEFAULT_MENU.sections.map(base => {
-    const matched = sectionMap.get(base.id);
-    if (matched) {
-      console.log(`Normalizing section ${base.id}: Keeping menuType=${base.menuType}`);
-    } else {
-      console.warn(`No client data for section ${base.id} – using default`);
-    }
-    return {
-      id: base.id,
-      title: base.title,
-      menuType: base.menuType,
-      items: matched?.items || [],
-    };
-  });
-}
-
 /* ---------------- GET ---------------- */
 export async function GET() {
   await connectDB();
-  let menu = await Menu.findOne();
-  
-  if (!menu) {
-    console.log("Creating new menu from default");
-    menu = await Menu.create(DEFAULT_MENU);
-    return NextResponse.json(menu);
-  }
 
-  // Always normalize on load
-  console.log("Normalizing menu on GET");
-  menu.sections = normalizeSections(menu.sections || []);
-  await menu.save();
+  let menu = await Menu.findOne();
+  if (!menu) {
+    menu = await Menu.create(DEFAULT_MENU);
+  }
 
   return NextResponse.json(menu);
 }
 
-/* ---------------- PUT ---------------- */
+/* ---------------- PUT (SAFE PARTIAL UPDATE) ---------------- */
 export async function PUT(req: Request) {
   await connectDB();
-  
   const body = await req.json();
-  const clientSections = body.sections;
 
-  if (!clientSections || !Array.isArray(clientSections)) {
-    console.error("Invalid PUT request: No sections array");
-    return NextResponse.json(
-      { error: "Invalid request: sections array is required" },
-      { status: 400 }
-    );
+  const incomingSections = body.sections;
+  if (!Array.isArray(incomingSections)) {
+    return NextResponse.json({ error: "Invalid payload" }, { status: 400 });
   }
 
   let menu = await Menu.findOne();
   if (!menu) {
-    console.log("Creating new menu on PUT");
     menu = await Menu.create(DEFAULT_MENU);
   }
 
-  // Normalize with client data
-  console.log("Normalizing menu on PUT");
-  menu.sections = normalizeSections(clientSections);
-  
+  // 🔒 Merge ONLY incoming section items
+  const sectionMap = new Map(menu.sections.map((s: any) => [s.id, s]));
+
+  for (const incoming of incomingSections) {
+    const existing = sectionMap.get(incoming.id);
+    if (!existing) continue;
+
+    existing.items = incoming.items || [];
+  }
+
   await menu.save();
-  
-  return NextResponse.json({ success: true, menu });
+
+  return NextResponse.json({ success: true });
 }

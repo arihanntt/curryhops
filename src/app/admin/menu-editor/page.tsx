@@ -23,29 +23,29 @@ export default function MenuEditor() {
   ) || [];
 
   const handleSave = async () => {
-    setSaving(true);
-    setSaved(false);
+  setSaving(true);
+  setSaved(false);
 
-    try {
-      const res = await fetch("/api/menu", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          sections: menu.sections   // ← Only send sections!
-        }),
-      });
+  try {
+    const sectionsToSave = menu.sections.filter(
+      (s: any) => s.menuType === menuType
+    );
 
-      if (!res.ok) throw new Error("Save failed");
-      
-      setSaved(true);
-      setTimeout(() => setSaved(false), 3000);
-    } catch (err) {
-      console.error("Save error:", err);
-      alert("Failed to save menu");
-    } finally {
-      setSaving(false);
-    }
-  };
+    await fetch("/api/menu", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ sections: sectionsToSave }),
+    });
+
+    setSaved(true);
+    setTimeout(() => setSaved(false), 3000);
+  } catch (err) {
+    alert("Failed to save menu");
+  } finally {
+    setSaving(false);
+  }
+};
+
 
   return (
     <div className="min-h-screen bg-black text-white p-10">

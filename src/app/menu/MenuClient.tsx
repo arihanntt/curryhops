@@ -1,11 +1,10 @@
-"use client";
+'use client';
 
 import Image from "next/image";
 import { useEffect, useState, Suspense } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import MenuPdfButton from "@/components/MenuPdfButton";
 import MenuSchema from "@/components/MenuSchema";
-import type { MenuSection } from "@/types/menu";
 
 type MenuItem = {
   name: string;
@@ -69,18 +68,27 @@ function MenuContent() {
     sections: [],
   });
 
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
   const [menuType, setMenuType] = useState<"food" | "bar">("food");
 
+  /* 🔹 Read menu type from URL */
+  useEffect(() => {
+    const type = searchParams.get("type");
+    if (type === "food" || type === "bar") {
+      setMenuType(type);
+    }
+  }, [searchParams]);
+
+  /* 🔹 Fetch menu */
   useEffect(() => {
     fetch("/api/menu", { cache: "no-store" })
       .then((res) => res.json())
       .then((data) => setMenu(data));
   }, []);
 
-  const pathname = usePathname();
-  const params = useSearchParams();
-
-  /* Scroll to section */
+  /* 🔹 Scroll to section if hash exists */
   useEffect(() => {
     const hash = window.location.hash?.replace("#", "");
     if (!hash) return;
@@ -91,12 +99,11 @@ function MenuContent() {
         el.scrollIntoView({ behavior: "smooth" });
       }, 200);
     }
-  }, [pathname, params]);
+  }, [pathname]);
 
-  /* Filter sections based on menu type */
+  /* 🔹 Filter sections based on menu type */
   const filteredSections = menu.sections.filter((section) => {
     const title = section.title.toLowerCase();
-
     return menuType === "food"
       ? FOOD_CATEGORIES.includes(title)
       : BAR_CATEGORIES.includes(title);
@@ -118,6 +125,7 @@ function MenuContent() {
           priority
         />
         <div className="absolute inset-0 bg-black/40" />
+
         <div className="relative z-10 text-center space-y-6">
           <h1 className="font-playfair text-5xl md:text-6xl text-white">
             Menu

@@ -1,118 +1,125 @@
-"use client";
+'use client';
 
-import { motion } from "framer-motion";
-import { useState } from "react";
-import BookingModal from "./BookingModal";
+import Image from 'next/image';
+import Link from 'next/link';
+import { motion, Variants, useScroll, useTransform } from 'framer-motion';
+
+const buttonVariants: Variants = {
+  hover: {
+    scale: 1.05,
+    transition: {
+      duration: 0.3,
+      ease: 'easeInOut',
+    },
+  },
+};
 
 export default function Hero() {
-  // ===== Modal State =====
-  const [open, setOpen] = useState(false);
-
-  // ===== Side dish images =====
-  const sideImages = [
-    {
-      src: "images/beercup.png",
-      alt: "Beer Cup",
-      className: "lg:top-[5%] lg:right-[-12%] lg:w-[26vw] xl:w-[22vw]",
-    },
-    {
-      src: "images/top_wings.png",
-      alt: "Chicken Wings",
-      className: "lg:top-[8%] lg:left-[-8%] lg:w-[22vw] xl:w-[18vw]",
-    },
-    {
-      src: "images/top_pepper_left.png",
-      alt: "Pepper",
-      className: "lg:bottom-[4%] lg:left-[-6%] lg:w-[20vw] xl:w-[16vw]",
-    },
-    {
-      src: "images/top_burger-474x550.png",
-      alt: "Burger",
-      className: "lg:bottom-[-8%] lg:right-[-4%] lg:w-[24vw] xl:w-[20vw]",
-    },
-  ];
+  const { scrollY } = useScroll();
+  const y = useTransform(scrollY, [0, 300], [0, -100]);
 
   return (
-    <section className="relative w-full min-h-screen bg-[url('/images/wood-bg.jpg')] bg-cover bg-center flex flex-col items-center justify-end overflow-hidden z-0">
+    <section className="relative flex items-center justify-center min-h-[120vh] bg-gray-900 text-white overflow-hidden pt-40 sm:pt-48 md:pt-44 pb-20">
+      {/* Parallax Background */}
+      <motion.div
+        className="absolute inset-0"
+        style={{ y, position: 'absolute', clipPath: 'inset(0 0 0 0)', scale: 1.1 }}
+      >
+        <Image
+          src="/images/hero-bg.jpg"
+          alt="Restaurant Hero"
+          fill
+          className="object-cover"
+          priority
+        />
+      </motion.div>
 
-      {/* ===== Beer Mug Group ===== */}
-      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-        {/* Beer Mug */}
-        <img
-          src="/images/beermug.png"
-          alt="Beer Mug"
-          className="
-            absolute z-10 
-            bottom-[25%] left-1/2 -translate-x-1/2
-            w-[200vw] sm:w-[70vw] md:w-[120vw] lg:w-[100vw]
-            max-w-[900px]
-            h-auto
-          "
+      {/* Overlay */}
+      <div className="absolute inset-0 bg-black opacity-50"></div>
+
+      {/* Content */}
+      <div className="relative z-10 text-center px-6 max-w-6xl w-full mx-auto flex flex-col items-center">
+        <h2
+          className="text-xl sm:text-2xl font-normal italic mb-0 text-white"
+          style={{ fontFamily: 'var(--font-arapey)' }}
+        >
+          Where Spice Meets Craft
+        </h2>
+
+        {/* Logo */}
+        <Image
+          src="/images/logo-light.png"
+          alt="Curry & Hops Brewing Co."
+          width={700}
+          height={100}
+          className="object-contain mb-6 max-w-[90%] h-auto"
+          priority
         />
 
-        {/* Foam */}
-        <motion.img
-          src="/images/top_foam.png"
-          alt="Foam"
-          className="
-            absolute z-20
-            bottom-[32%] left-1/2 -translate-x-1/2
-            w-[70vw] sm:w-[50vw] md:w-[35vw] lg:w-[22vw]
-            max-w-[600px]
-            h-auto
-          "
-          animate={{ rotate: 360 }}
-          transition={{ repeat: Infinity, duration: 30, ease: "linear" }}
-        />
-      </div>
-
-      {/* ===== Overlay ===== */}
-      <img
-        src="/images/overlay.png"
-        alt="Overlay"
-        className="
-          absolute z-30
-          bottom-[30%] left-1/2 -translate-x-1/2
-          w-[165vw] sm:w-[70vw] md:w-[80vw] lg:w-[50vw]
-          max-w-[1200px]
-          h-auto
-        "
-      />
-
-      {/* ===== Side Dishes (lg+) ===== */}
-      {sideImages.map((item, i) => (
-        <motion.img
-          key={i}
-          src={item.src}
-          alt={item.alt}
-          className={`hidden lg:block absolute z-50 object-contain ${item.className}`}
-          initial={{ opacity: 0, scale: 0.85 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: i * 0.3, duration: 0.6, ease: "easeOut" }}
-        />
-      ))}
-
-      {/* ===== Text + Button ===== */}
-      <div className="absolute inset-0 flex flex-col items-center justify-center text-center text-white z-50 px-4">
-        <p className="italic text-base sm:text-xl md:text-2xl lg:text-3xl mb-3 font-bold uppercase tracking-wider drop-shadow-[3px_4px_10px_rgba(0,0,0,0.5)]">
-          YOUR CRAFT EXPERIENCE
+        {/* Description Paragraph */}
+        <p className="text-sm sm:text-base md:text-lg max-w-2xl mx-auto mb-12 text-white leading-relaxed px-2 sm:px-4" style={{ fontFamily: 'var(--font-arapey)' }}>
+          Creating a unique dining experience that celebrates the fusion of exquisite curry flavors and finely crafted beers, becoming a cherished destination for food and beer enthusiasts alike.
         </p>
 
-        <h1 className="text-4xl sm:text-6xl md:text-8xl lg:text-9xl font-extrabold uppercase mb-6 drop-shadow-[6px_8px_16px_rgba(0,0,0,0.45)]">
-          CURRY &amp; HOPS
-        </h1>
+        {/* Contact Info */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 sm:gap-10 md:gap-16 mb-12 w-full text-white">
+          {/* Write Us */}
+          <div className="flex flex-col items-center text-center">
+            <Image 
+              src="/images/email-icon.png" 
+              alt="Email icon"
+              width={32}
+              height={32}
+              className="mb-2 sm:w-8 sm:h-8"
+            />
+            <h3 className="text-base sm:text-lg font-semibold mb-1">Write us</h3>
+            <a 
+              href="mailto:info@resturant.com" 
+              className="underline hover:text-[#F4A948] transition-colors text-sm sm:text-base break-words"
+            >
+              info@resturant.com
+            </a>
+          </div>
 
-        <button
-          onClick={() => setOpen(true)}
-          className="mt-2 bg-gradient-to-r from-[#0f1c2e] via-[#142c46] to-[#1f3d5c] rounded-full text-sm sm:text-lg md:text-xl lg:text-2xl font-bold uppercase hover:bg-green-800 transition px-6 sm:px-8 md:px-10 lg:px-12 py-2 sm:py-3 md:py-4 drop-shadow-[2px_4px_10px_rgba(0,0,0,0.4)]"
-        >
-          BOOK A TABLE
-        </button>
+          {/* Find Us */}
+          <div className="flex flex-col items-center text-center">
+            <Image 
+              src="/images/location-icon.png" 
+              alt="Location icon"
+              width={32}
+              height={32}
+              className="mb-2 sm:w-8 sm:h-8"
+            />
+            <h3 className="text-base sm:text-lg font-semibold mb-1">Find us</h3>
+            <a 
+              href="https://maps.google.com" 
+              className="underline hover:text-[#F4A948] transition-colors text-sm sm:text-base break-words"
+            >
+              123 Spice Street, Foodville
+            </a>
+          </div>
+
+          {/* Call Us */}
+          <div className="flex flex-col items-center text-center">
+            <Image 
+              src="/images/phone-icon.png" 
+              alt="Phone icon"
+              width={32}
+              height={32}
+              className="mb-2 sm:w-8 sm:h-8"
+            />
+            <h3 className="text-base sm:text-lg font-semibold mb-1">Call us</h3>
+            <a 
+              href="tel:+023351569887" 
+              className="underline hover:text-[#F4A948] transition-colors text-sm sm:text-base break-words"
+            >
+              +02 3351569887
+            </a>
+          </div>
+        </div>
+
+       
       </div>
-
-      {/* ===== Booking Modal ===== */}
-      {open && <BookingModal onClose={() => setOpen(false)} />}
-
     </section>
   );
 }
