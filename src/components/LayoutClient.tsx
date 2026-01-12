@@ -18,7 +18,7 @@ export default function LayoutClient({
   return (
     <>
       {/* Preloader can stay global */}
-      <Preloader />
+      
 
       {/* Header only on NON-home & NON-admin pages */}
       {!isHome && !isAdmin && <Header />}

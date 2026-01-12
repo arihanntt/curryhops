@@ -10,7 +10,8 @@ type MenuItem = {
   name?: string;
   price?: string;
   desc?: string;
-  isNonVeg?: boolean;
+  tags?: string[];                  // ← NEW: support for tags array
+  isNonVeg?: boolean;               // ← kept for backward compat (optional)
   showBottlePeg?: boolean;
   bottlePrice?: string;
   pegPrice?: string;
@@ -23,7 +24,7 @@ type MenuSection = {
   items: MenuItem[];
 };
 
-/* ---------------- DEFAULT STRUCTURE (added Tequila) ---------------- */
+/* ---------------- DEFAULT STRUCTURE ---------------- */
 
 const DEFAULT_MENU = {
   sections: [
@@ -39,7 +40,7 @@ const DEFAULT_MENU = {
     { id: "rice-noodles", title: "Rice and Noodles", menuType: "food", items: [] },
     { id: "dessert", title: "Dessert", menuType: "food", items: [] },
 
-    // BAR – added Tequila at the end (you can reorder in editor now)
+    // BAR
     { id: "signature-cocktails", title: "Signature Cocktails", menuType: "bar", items: [] },
     { id: "classics", title: "Classics", menuType: "bar", items: [] },
     { id: "liits", title: "OUR LIIT'S", menuType: "bar", items: [] },
@@ -49,7 +50,7 @@ const DEFAULT_MENU = {
     { id: "rum", title: "Rum", menuType: "bar", items: [] },
     { id: "gin", title: "Gin", menuType: "bar", items: [] },
     { id: "vodka", title: "Vodka", menuType: "bar", items: [] },
-    { id: "tequila", title: "Tequila", menuType: "bar", items: [] }, // ← NEW CATEGORY
+    { id: "tequila", title: "Tequila", menuType: "bar", items: [] },
     { id: "indian-whisky", title: "Indian Whisky", menuType: "bar", items: [] },
     { id: "indian-single-malts", title: "Indian Single Malts", menuType: "bar", items: [] },
     { id: "scotch", title: "Scotch", menuType: "bar", items: [] },
@@ -83,56 +84,69 @@ export async function GET() {
   return NextResponse.json(menu);
 }
 
-/* ---------------- PUT – FIXED & SAFE MERGE ---------------- */
+/* ---------------- PUT – SAFE & RELIABLE ---------------- */
 
 export async function PUT(req: Request) {
-  await connectDB();
-  const body = await req.json();
+  try {
+    await connectDB();
+    const body = await req.json();
+    const { sections } = body;
 
-  const incomingSections = body.sections;
-  if (!Array.isArray(incomingSections)) {
-    return NextResponse.json({ error: "sections must be an array" }, { status: 400 });
-  }
-
-  let menu = await Menu.findOne();
-  if (!menu) {
-    menu = await Menu.create(DEFAULT_MENU);
-  }
-
-  for (const incSection of incomingSections) {
-    const existingSection = menu.sections.find((s: any) => s.id === incSection.id);
-    if (!existingSection) continue;
-
-    // Preserve existing items not in incoming (safety)
-    const updatedItems = [...(existingSection.items || [])];
-
-    for (const incItem of incSection.items || []) {
-      const key = (incItem.name || "").trim().toLowerCase();
-
-      // Find matching item by name
-      const index = updatedItems.findIndex(
-        (item: any) => (item.name || "").trim().toLowerCase() === key
-      );
-
-      if (index !== -1) {
-        // Update existing item (deep merge)
-        updatedItems[index] = {
-          ...updatedItems[index],
-          ...incItem,
-        };
-      } else {
-        // New item
-        updatedItems.push(incItem);
-      }
+    if (!Array.isArray(sections)) {
+      return NextResponse.json({ error: "Invalid payload: sections must be an array" }, { status: 400 });
     }
 
-    existingSection.items = updatedItems;
-    existingSection.markModified("items");
+    let menu = await Menu.findOne();
+    if (!menu) {
+      menu = await Menu.create(DEFAULT_MENU);
+    }
+
+    // Validate & normalize incoming sections
+    const normalizedSections = sections.map((inc: any) => {
+      return {
+        id: inc.id,
+        title: inc.title || "Untitled",
+        menuType: inc.menuType || "food",
+        items: (inc.items || []).map((item: any) => {
+          // Ensure tags is array
+          const tags = Array.isArray(item.tags) ? item.tags : item.tags ? [String(item.tags)] : [];
+
+          return {
+            ...item,
+            tags, // force array
+            // Protect bar fields
+            ...(item.showBottlePeg !== true && {
+              showBottlePeg: undefined,
+              bottlePrice: undefined,
+              pegPrice: undefined,
+            }),
+          };
+        }),
+      };
+    });
+
+    // Replace the entire sections array — frontend is source of truth
+    menu.sections = normalizedSections;
+
+    // Debug log (remove later)
+    console.log("Saving menu - tags check:", 
+      normalizedSections
+        .flatMap(s => s.items)
+        .filter(i => i.tags?.length > 0)
+        .map(i => ({ name: i.name, tags: i.tags }))
+    );
+
+    menu.markModified("sections");
+    await menu.save();
+
+    // Return fresh document
+    const fresh = await Menu.findOne();
+    return NextResponse.json(fresh || { sections: [] });
+  } catch (error: any) {
+    console.error("Menu PUT error:", error);
+    return NextResponse.json(
+      { error: "Failed to save menu", details: error.message },
+      { status: 500 }
+    );
   }
-
-  menu.markModified("sections");
-  await menu.save();
-
-  const fresh = await Menu.findOne();
-  return NextResponse.json(fresh);
 }

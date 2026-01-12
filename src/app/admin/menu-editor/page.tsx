@@ -3,6 +3,14 @@ import { useEffect, useState } from "react";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import { Bars3Icon, ChevronDownIcon, ChevronUpIcon } from "@heroicons/react/24/outline";
 
+const FOOD_TAGS = [
+  { id: "Non-Veg", label: "Non-Veg", color: "text-red-400 bg-red-950/40" },
+  { id: "Egg", label: "Egg", color: "text-yellow-400 bg-yellow-950/40" },
+  { id: "Spicy", label: "Spicy", color: "text-orange-400 bg-orange-950/40" },
+  { id: "Kids", label: "Kids", color: "text-blue-400 bg-blue-950/40" },
+  { id: "Vegan", label: "Vegan", color: "text-green-400 bg-green-950/40" },
+];
+
 export default function MenuEditor() {
   const [menu, setMenu] = useState<any>(null);
   const [saving, setSaving] = useState(false);
@@ -14,7 +22,6 @@ export default function MenuEditor() {
     fetch("/api/menu")
       .then((r) => r.json())
       .then((data) => {
-        // Merge default categories if missing (ensures Tequila always appears)
         let updatedMenu = { ...data };
 
         const defaultBarIds = [
@@ -27,7 +34,7 @@ export default function MenuEditor() {
           "rum",
           "gin",
           "vodka",
-          "tequila",           // ← Tequila is forced here
+          "tequila",
           "indian-whisky",
           "indian-single-malts",
           "scotch",
@@ -48,14 +55,17 @@ export default function MenuEditor() {
         ];
 
         const existingIds = new Set(updatedMenu.sections.map((s: any) => s.id));
-        const missing = defaultBarIds.filter(id => !existingIds.has(id));
+        const missing = defaultBarIds.filter((id) => !existingIds.has(id));
 
         if (missing.length > 0) {
-          const missingSections = missing.map(id => ({
+          const missingSections = missing.map((id) => ({
             id,
-            title: id.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' '),
+            title: id
+              .split("-")
+              .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+              .join(" "),
             menuType: "bar",
-            items: []
+            items: [],
           }));
           updatedMenu.sections.push(...missingSections);
         }
@@ -135,6 +145,27 @@ export default function MenuEditor() {
     setExpandedSections(newExpanded);
   };
 
+  const toggleTag = (sectionId: string, itemIndex: number, tagId: string) => {
+    const newSections = [...menu.sections];
+    const section = newSections.find((s) => s.id === sectionId);
+    if (!section) return;
+
+    const item = section.items[itemIndex];
+    if (!item) return;
+
+    const currentTags = item.tags || [];
+    let newTags: string[];
+
+    if (currentTags.includes(tagId)) {
+      newTags = currentTags.filter((t: string) => t !== tagId);
+    } else {
+      newTags = [...currentTags, tagId];
+    }
+
+    item.tags = newTags;
+    setMenu({ ...menu, sections: newSections });
+  };
+
   return (
     <div className="min-h-screen bg-black text-white p-10">
       <h1 className="text-3xl font-bold mb-6">Menu Editor</h1>
@@ -178,7 +209,6 @@ export default function MenuEditor() {
                         {...provided.draggableProps}
                         className="rounded-xl border border-gray-800 bg-gray-950/80 hover:bg-gray-950 transition-colors"
                       >
-                        {/* Drag Handle + Title Row (click title to expand/collapse) */}
                         <div
                           className="flex items-center justify-between p-4 cursor-pointer"
                           onClick={() => toggleSection(sectionId)}
@@ -204,17 +234,16 @@ export default function MenuEditor() {
                           </div>
                         </div>
 
-                        {/* Collapsible Items */}
                         {isExpanded && (
                           <div className="px-6 pb-6 animate-fade-in">
                             {section.items.map((item: any, ii: number) => (
                               <div
                                 key={ii}
-                                className="grid grid-cols-5 gap-3 mb-6 pb-4 border-b border-gray-800 last:border-0 items-start"
+                                className="grid md:grid-cols-7 gap-3 mb-6 pb-4 border-b border-gray-800 last:border-0 items-start"
                               >
                                 {/* Name */}
                                 <input
-                                  className="bg-gray-900 border border-gray-700 p-3 rounded w-full"
+                                  className="bg-gray-900 border border-gray-700 p-3 rounded w-full md:col-span-2"
                                   value={item.name || ""}
                                   placeholder="Item name"
                                   onChange={(e) => {
@@ -226,9 +255,9 @@ export default function MenuEditor() {
                                   }}
                                 />
 
-                                {/* Price – disabled when bottle+peg */}
+                                {/* Price */}
                                 {menuType === "bar" && item.showBottlePeg ? (
-                                  <div className="col-span-1 opacity-50 pointer-events-none">
+                                  <div className="opacity-50 pointer-events-none">
                                     <input
                                       disabled
                                       className="bg-gray-800 border border-gray-700 p-3 rounded w-full cursor-not-allowed"
@@ -253,9 +282,9 @@ export default function MenuEditor() {
 
                                 {/* Description */}
                                 <input
-                                  className="bg-gray-900 border border-gray-700 p-3 rounded w-full"
+                                  className="bg-gray-900 border border-gray-700 p-3 rounded w-full md:col-span-2"
                                   value={item.desc || ""}
-                                  placeholder="Description"
+                                  placeholder="Description / ingredients"
                                   onChange={(e) => {
                                     const newSections = [...menu.sections];
                                     newSections
@@ -265,30 +294,49 @@ export default function MenuEditor() {
                                   }}
                                 />
 
-                                {/* Veg/Non-Veg (food only) */}
-                                {menuType === "food" && (
-                                  <div className="flex items-center justify-center">
-                                    <label className="flex items-center gap-2 cursor-pointer">
-                                      <input
-                                        type="checkbox"
-                                        checked={item.isNonVeg || false}
-                                        onChange={(e) => {
-                                          const newSections = [...menu.sections];
-                                          newSections
-                                            .find((s) => s.id === section.id)!
-                                            .items[ii].isNonVeg = e.target.checked;
-                                          setMenu({ ...menu, sections: newSections });
-                                        }}
-                                        className="w-5 h-5 accent-red-500"
-                                      />
-                                      <span className="text-sm text-red-400 font-medium">Non-Veg</span>
-                                    </label>
+                                {/* Dish Image URL – NEW FIELD */}
+                                <input
+                                  className="bg-gray-900 border border-gray-700 p-3 rounded w-full text-sm md:col-span-1"
+                                  value={item.imageUrl || ""}
+                                  placeholder="Image URL (optional)"
+                                  onChange={(e) => {
+                                    const newSections = [...menu.sections];
+                                    newSections
+                                      .find((s) => s.id === section.id)!
+                                      .items[ii].imageUrl = e.target.value.trim();
+                                    setMenu({ ...menu, sections: newSections });
+                                  }}
+                                />
+
+                                {/* Tags – only for food menu */}
+                                {menuType === "food" ? (
+                                  <div className="flex flex-wrap gap-2 items-center md:col-span-1">
+                                    {FOOD_TAGS.map((tag) => (
+                                      <label
+                                        key={tag.id}
+                                        className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-md cursor-pointer text-sm transition-colors border ${
+                                          (item.tags || []).includes(tag.id)
+                                            ? `${tag.color} border-current`
+                                            : "border-gray-700 text-gray-400 hover:border-gray-500"
+                                        }`}
+                                      >
+                                        <input
+                                          type="checkbox"
+                                          checked={(item.tags || []).includes(tag.id)}
+                                          onChange={() => toggleTag(section.id, ii, tag.id)}
+                                          className="sr-only"
+                                        />
+                                        {tag.label}
+                                      </label>
+                                    ))}
                                   </div>
+                                ) : (
+                                  <div className="invisible"> </div>
                                 )}
 
                                 {/* Bottle + Peg toggle (bar only) */}
                                 {menuType === "bar" && (
-                                  <div className="flex items-center justify-center">
+                                  <div className="flex items-center justify-center md:col-span-1">
                                     <label className="flex items-center gap-2 cursor-pointer">
                                       <input
                                         type="checkbox"
@@ -324,14 +372,14 @@ export default function MenuEditor() {
                                       .items.splice(ii, 1);
                                     setMenu({ ...menu, sections: newSections });
                                   }}
-                                  className="text-red-400 hover:text-red-500 font-medium self-center"
+                                  className="text-red-400 hover:text-red-500 font-medium self-center md:self-start"
                                 >
                                   Delete
                                 </button>
 
-                                {/* Bottle & Peg inputs */}
+                                {/* Bottle & Peg prices */}
                                 {menuType === "bar" && item.showBottlePeg && (
-                                  <div className="col-span-5 grid grid-cols-2 gap-4 mt-2">
+                                  <div className="col-span-full grid grid-cols-2 gap-4 mt-3">
                                     <input
                                       className="bg-gray-900 border border-gray-700 p-3 rounded w-full"
                                       value={item.bottlePrice || ""}
@@ -368,7 +416,8 @@ export default function MenuEditor() {
                                   name: "",
                                   price: "",
                                   desc: "",
-                                  isNonVeg: false,
+                                  tags: [],
+                                  imageUrl: "", // ← NEW: initialize empty
                                   showBottlePeg: false,
                                   bottlePrice: "",
                                   pegPrice: "",
