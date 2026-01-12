@@ -124,7 +124,7 @@ const TAG_ICONS: Record<string, string> = {
   "Veg": "data:image/png;base64,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",
   "Non-Veg": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR5OfgmRMdIZAGV-DKoPCUnbSK6kbQ6bDCYhQ&s",
   "Egg": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSpUJuL0k9pNJWxGFF2H35-Z3ybZciGC-h0zw&s",
-  "Spicy": "https://png.pngtree.com/png-clipart/20220626/original/pngtree-hot-cartoon-spicy-chili-png-image_8186951.png",
+  "Spicy": "https://tse2.mm.bing.net/th/id/OIP.0raRmFKFAPmggGCIQ_4wVAHaFx?pid=Api&P=0&h=180",
   "Kids": "https://i.pinimg.com/736x/e9/31/e1/e931e16233b03fd44b2dd1870585f226.jpg",
   "Vegan": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ_MQRrFox4BG6NIHMNkc-jipzZYZWzkif3QA&s",
 };
@@ -588,93 +588,115 @@ function MenuSection({
             }
 
             return (
-              <div
-                key={idx}
-                className="flex flex-col sm:flex-row gap-4 pb-6 border-b border-gray-300/50 last:border-b-0 hover:bg-amber-50/20 transition-colors rounded-xl p-4"
+             <div
+  key={idx}
+  className="
+    flex flex-row gap-4 items-start
+    pb-6 border-b border-gray-300/50 last:border-b-0 
+    hover:bg-amber-50/20 transition-colors rounded-xl p-4
+  "
+>
+  {/* Square Image – always on left */}
+  <div 
+    className="shrink-0 cursor-pointer w-24 h-24 sm:w-28 sm:h-28"
+    onClick={() => item.imageUrl && onImageClick(item.imageUrl)}
+  >
+    {item.imageUrl ? (
+      <Image
+        src={item.imageUrl}
+        alt={item.name}
+        width={112}
+        height={112}
+        className="
+          w-full h-full 
+          object-cover 
+          rounded-xl
+          border border-amber-200/50 
+          shadow-sm 
+          hover:shadow-md hover:scale-[1.03] 
+          transition-all duration-300
+        "
+      />
+    ) : (
+      <div className="
+        w-full h-full 
+        rounded-xl 
+        bg-gradient-to-br from-amber-50 to-amber-100 
+        flex items-center justify-center 
+        text-amber-700/60 text-sm font-medium
+        border border-amber-200/40
+      ">
+        Dish
+      </div>
+    )}
+  </div>
+
+  {/* Text content – right side */}
+  <div className="flex-1 min-w-0">
+    {/* Name + Tags */}
+    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-1.5 mb-1.5">
+      <h4 className="font-['Satisfy'] font-normal text-xl sm:text-2xl md:text-3xl text-gray-900 tracking-wide line-clamp-2">
+        {item.name}
+      </h4>
+
+      {menuType === "food" && effectiveTags.length > 0 && (
+        <div className="flex flex-wrap gap-1.5 mt-1 sm:mt-0">
+          {effectiveTags.map((tag) => (
+            <div
+              key={tag}
+              className="flex items-center gap-1 text-xs font-medium px-2.5 py-0.5 rounded-full bg-white/90 shadow-sm border border-gray-200"
+            >
+              {tagIcons[tag] && (
+                <Image
+                  src={tagIcons[tag]}
+                  alt={tag}
+                  width={16}
+                  height={16}
+                  className="object-contain drop-shadow-sm"
+                />
+              )}
+              <span
+                className={
+                  tag === "Non-Veg" ? "text-red-700" :
+                  tag === "Egg" ? "text-yellow-700" :
+                  tag === "Spicy" ? "text-orange-700" :
+                  tag === "Kids" ? "text-blue-700" :
+                  tag === "Vegan" ? "text-green-700" :
+                  "text-emerald-700"
+                }
               >
-                {/* Clickable Dish Image */}
-                <div 
-                  className="shrink-0 cursor-pointer"
-                  onClick={() => item.imageUrl && onImageClick(item.imageUrl)}
-                >
-                  {item.imageUrl ? (
-                    <Image
-                      src={item.imageUrl}
-                      alt={item.name}
-                      width={80}
-                      height={80}
-                      className="rounded-full object-cover border-2 border-amber-200/70 shadow-md hover:scale-105 transition-transform duration-300"
-                    />
-                  ) : (
-                    <div className="w-20 h-20 rounded-full bg-gradient-to-br from-amber-100 to-amber-200 flex items-center justify-center text-amber-700 text-xs font-medium">
-                      Dish
-                    </div>
-                  )}
-                </div>
+                {tag === "Spicy" ? "Spicy" : tag}
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
 
-                <div className="flex-1">
-                  <div className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-2 mb-2">
-                    <h4 className="font-['Satisfy'] font-normal text-2xl md:text-3xl text-gray-900 tracking-wide">
-  {item.name}
-</h4>
+    {/* Description */}
+    <p className="font-['Merriweather'] text-sm sm:text-base md:text-lg text-gray-700 leading-relaxed italic mb-2 line-clamp-3">
+      {item.desc}
+    </p>
 
-
-                    {menuType === "food" && effectiveTags.length > 0 && (
-                      <div className="flex flex-wrap gap-2">
-                        {effectiveTags.map((tag) => (
-                          <div
-                            key={tag}
-                            className="flex items-center gap-1.5 text-xs font-medium px-3 py-1 rounded-full bg-white/90 shadow-sm border border-gray-200"
-                          >
-                            {tagIcons[tag] && (
-                              <Image
-                                src={tagIcons[tag]}
-                                alt={tag}
-                                width={18}
-                                height={18}
-                                className="object-contain drop-shadow-sm"
-                              />
-                            )}
-                            <span
-                              className={
-                                tag === "Non-Veg" ? "text-red-700" :
-                                tag === "Egg" ? "text-yellow-700" :
-                                tag === "Spicy" ? "text-orange-700" :
-                                tag === "Kids" ? "text-blue-700" :
-                                tag === "Vegan" ? "text-green-700" :
-                                "text-emerald-700"
-                              }
-                            >
-                              {tag === "Spicy" ? "Spicy" : tag}
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-
-                  <p className="font-['Merriweather'] text-base md:text-lg text-gray-700 leading-relaxed italic text-gray-800/90">
-  {item.desc}
-</p>
-
-                  <div className="text-right">
-                    {menuType === "bar" && item.showBottlePeg && item.bottlePrice && item.pegPrice ? (
-                      <div className="inline-flex gap-6 text-sm font-medium">
-                        <div className="text-left">
-                          <span className="text-amber-700 text-xs block">30ml</span>
-                          <span className="font-bold text-amber-900">₹{item.pegPrice}</span>
-                        </div>
-                        <div className="text-left">
-                          <span className="text-amber-700 text-xs block">Bottle</span>
-                          <span className="font-bold text-amber-900">₹{item.bottlePrice}</span>
-                        </div>
-                      </div>
-                    ) : (
-                      <span className="font-bold text-xl text-amber-900">₹{item.price}</span>
-                    )}
-                  </div>
-                </div>
-              </div>
+    {/* Price */}
+    <div className="text-right">
+      {menuType === "bar" && item.showBottlePeg && item.bottlePrice && item.pegPrice ? (
+        <div className="inline-flex gap-5 text-sm font-medium">
+          <div className="text-left">
+            <span className="text-amber-700 text-xs block">30ml</span>
+            <span className="font-bold text-amber-900">₹{item.pegPrice}</span>
+          </div>
+          <div className="text-left">
+            <span className="text-amber-700 text-xs block">Bottle</span>
+            <span className="font-bold text-amber-900">₹{item.bottlePrice}</span>
+          </div>
+        </div>
+      ) : (
+        <span className="font-bold text-lg sm:text-xl text-amber-900">₹{item.price}</span>
+      )}
+    </div>
+  </div>
+</div>
             );
           })}
         </div>
