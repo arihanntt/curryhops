@@ -97,8 +97,8 @@ export default function Footer() {
           ))}
         </div>
         <p className="text-sm text-gray-400">
-          © {currentYear} Curry & hops, With Love by{' '}
-          <Link href="https://drixestudio.services" className="text-[#E6B877] hover:underline">Drixe studio</Link>
+          © {currentYear} Curry & hops, A product of{' '}
+          <Link href="https://www.chandihospitality.com/" className="text-[#E6B877] hover:underline">Chandi Hospitality Group</Link>
         </p>
       </div>
     </footer>
