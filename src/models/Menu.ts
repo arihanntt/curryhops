@@ -5,10 +5,25 @@ const ItemSchema = new mongoose.Schema(
     name: String,
     price: String,
     desc: String,
-    // NEW FIELD: only relevant for food items
+
+    // Food
     isNonVeg: {
       type: Boolean,
-      default: false,           // default = veg
+      default: false,
+    },
+
+    // Bar
+    showBottlePeg: {
+      type: Boolean,
+      default: false,
+    },
+    bottlePrice: {
+      type: String,
+      default: "",
+    },
+    pegPrice: {
+      type: String,
+      default: "",
     },
   },
   { _id: false }
@@ -35,5 +50,5 @@ const MenuSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// Export (same as before)
-export default mongoose.models.Menu || mongoose.model("Menu", MenuSchema);
+export default mongoose.models.Menu ||
+  mongoose.model("Menu", MenuSchema);

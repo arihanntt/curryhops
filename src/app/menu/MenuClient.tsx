@@ -12,6 +12,9 @@ type MenuItem = {
   desc: string;
   price: string;
   isNonVeg?: boolean;
+  showBottlePeg?: boolean;
+  bottlePrice?: string;
+  pegPrice?: string;
 };
 
 type MenuSectionType = {
@@ -44,6 +47,7 @@ const BAR_CATEGORIES = [
   "rum",
   "gin",
   "vodka",
+  "tequila",               // Ensures tequila shows in bar menu
   "indian whisky",
   "indian single malts",
   "scotch",
@@ -85,6 +89,7 @@ const CATEGORY_BACKGROUNDS: Record<string, string> = {
   "rum": "https://images.pexels.com/photos/2466319/pexels-photo-2466319.jpeg",
   "gin": "https://images.pexels.com/photos/616836/pexels-photo-616836.jpeg",
   "vodka": "https://images.pexels.com/photos/1170598/pexels-photo-1170598.jpeg",
+  "tequila": "https://images.pexels.com/photos/3171837/pexels-photo-3171837.jpeg", // Added tequila bg (you can change)
   "indian whisky": "https://images.pexels.com/photos/8878975/pexels-photo-8878975.jpeg",
   "indian single malts": "https://images.pexels.com/photos/16849854/pexels-photo-16849854.jpeg",
   "scotch": "https://images.pexels.com/photos/2796105/pexels-photo-2796105.jpeg",
@@ -157,25 +162,24 @@ function MenuContent() {
   });
 
   const displayedSections = filteredSections
-  .filter((section) => {
-    if (selectedCategory === "all") return true;
-    return section.title === selectedCategory;
-  })
-  .map((section) => {
-    let filteredItems = section.items;
+    .filter((section) => {
+      if (selectedCategory === "all") return true;
+      return section.title === selectedCategory;
+    })
+    .map((section) => {
+      let filteredItems = section.items;
 
-    if (menuType === "food" && vegPreference !== "all") {
-      filteredItems = filteredItems.filter((item: MenuItem) =>
-        vegPreference === "veg" ? !item.isNonVeg : item.isNonVeg
-      );
-    }
+      if (menuType === "food" && vegPreference !== "all") {
+        filteredItems = filteredItems.filter((item: MenuItem) =>
+          vegPreference === "veg" ? !item.isNonVeg : item.isNonVeg
+        );
+      }
 
-    return {
-      ...section,
-      items: filteredItems,
-    };
-  });
-
+      return {
+        ...section,
+        items: filteredItems,
+      };
+    });
 
   const handleCategorySelect = (value: string) => {
     setSelectedCategory(value);
@@ -423,7 +427,7 @@ function MenuContent() {
           </div>
         </div>
 
-        {/* Displayed Sections – FIXED COLORS */}
+        {/* Displayed Sections */}
         <div className="transition-opacity duration-400">
           {displayedSections.length > 0 ? (
             displayedSections.map((section, index) => {
@@ -455,7 +459,7 @@ function MenuContent() {
   );
 }
 
-/* ---------------- SECTION COMPONENT – FORCED COLORS ---------------- */
+/* ---------------- SECTION COMPONENT – FIXED PRICING DISPLAY ---------------- */
 
 function MenuSection({
   id,
@@ -487,8 +491,7 @@ function MenuSection({
           sizes="(max-width: 768px) 100vw, 50vw"
         />
         <div className="absolute inset-0 bg-black/50" />
-        {/* Ultra-forced white color */}
-        <h2 className="relative z-10 font-playfair text-4xl md:text-5xl text-white !text-white drop-shadow-lg">
+        <h2 className="relative z-10 font-playfair text-4xl md:text-5xl !text-white drop-shadow-lg">
           {title}
         </h2>
       </div>
@@ -511,14 +514,34 @@ function MenuSection({
                     className="object-contain"
                   />
                 )}
-                {/* Forced black/gray color with multiple overrides */}
-                <h4 className="font-bold uppercase text-gray-900 !text-gray-900">
+                <h4 className="font-bold uppercase !text-gray-900">
                   {item.name}
                 </h4>
               </div>
 
-              <span className="font-bold text-lg text-amber-800">₹{item.price}</span>
+              {/* FIXED PRICING – 30ml first, then Bottle – side by side */}
+              <div className="text-right">
+                {menuType === "bar" && item.showBottlePeg && item.bottlePrice && item.pegPrice ? (
+                  <div className="inline-flex items-baseline gap-6 text-sm font-medium">
+                    {/* 30ml first */}
+                    <div className="text-left">
+                      <span className="text-amber-700 block text-xs">30ml</span>
+                      <span className="font-bold text-amber-800 text-lg">₹{item.pegPrice}</span>
+                    </div>
+                    {/* Bottle second */}
+                    <div className="text-left">
+                      <span className="text-amber-700 block text-xs">Bottle</span>
+                      <span className="font-bold text-amber-800 text-lg">₹{item.bottlePrice}</span>
+                    </div>
+                  </div>
+                ) : (
+                  <span className="font-bold text-lg text-amber-800">
+                    ₹{item.price}
+                  </span>
+                )}
+              </div>
             </div>
+
             <p className="text-sm italic text-gray-600">{item.desc}</p>
           </div>
         ))}
