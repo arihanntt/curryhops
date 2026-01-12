@@ -61,6 +61,51 @@ const BAR_CATEGORIES = [
   "soft drinks",
 ];
 
+/* ────────────────────────────────────────────────
+   ★ CENTRAL PLACE FOR ALL CATEGORY BACKGROUND IMAGES ★
+───────────────────────────────────────────────── */
+const CATEGORY_BACKGROUNDS: Record<string, string> = {
+  // Food (unchanged)
+  "quick bites": "https://images.pexels.com/photos/3023476/pexels-photo-3023476.jpeg",
+  "salad": "https://images.pexels.com/photos/1213710/pexels-photo-1213710.jpeg",
+  "appetizers": "https://images.pexels.com/photos/33430558/pexels-photo-33430558.jpeg",
+  "pizza": "https://images.pexels.com/photos/1566837/pexels-photo-1566837.jpeg",
+  "pasta": "https://images.pexels.com/photos/1279330/pexels-photo-1279330.jpeg",
+  "main course": "https://images.pexels.com/photos/29850004/pexels-photo-29850004.jpeg",
+  "biryani": "https://images.pexels.com/photos/4224305/pexels-photo-4224305.jpeg",
+  "breads": "/images/breads-bg.jpg",
+  "rice and noodles": "/images/rice-noodles-bg.jpg",
+  "dessert": "https://images.pexels.com/photos/13215194/pexels-photo-13215194.jpeg",
+
+  // Bar (unchanged)
+  "signature cocktails": "https://images.pexels.com/photos/19051904/pexels-photo-19051904.jpeg",
+  "classics": "/images/classics-bg.jpg",
+  "our liit's": "/images/liits-bg.jpg",
+  "beer cocktails": "/images/beer-cocktails-bg.jpg",
+  "coffee": "/images/coffee-bg.jpg",
+  "hot cocktails": "/images/hot-cocktails-bg.jpg",
+  "rum": "/images/rum-bg.jpg",
+  "gin": "/images/gin-bg.jpg",
+  "vodka": "/images/vodka-bg.jpg",
+  "indian whisky": "/images/indian-whisky-bg.jpg",
+  "indian single malts": "/images/indian-single-malts-bg.jpg",
+  "scotch": "/images/scotch-bg.jpg",
+  "japanese whisky": "/images/japanese-whisky-bg.jpg",
+  "rye/bourbon whiskeys": "/images/rye-bourbon-bg.jpg",
+  "canadian / irish whisky": "/images/canadian-irish-bg.jpg",
+  "cognac/brandy": "/images/cognac-brandy-bg.jpg",
+  "liquers": "/images/liqueurs-bg.jpg",
+  "aperitif": "/images/aperitif-bg.jpg",
+  "red wine": "/images/red-wine-bg.jpg",
+  "rose wine & sparkling wine": "/images/rose-sparkling-bg.jpg",
+  "white wine": "/images/white-wine-bg.jpg",
+  "sangria": "/images/sangria-bg.jpg",
+  "champagne": "/images/champagne-bg.jpg",
+  "shots & shooters": "/images/shots-bg.jpg",
+  "fresh juices": "/images/fresh-juices-bg.jpg",
+  "soft drinks": "/images/soft-drinks-bg.jpg",
+};
+
 /* ---------------- MAIN CONTENT ---------------- */
 
 function MenuContent() {
@@ -72,8 +117,13 @@ function MenuContent() {
   const searchParams = useSearchParams();
 
   const [menuType, setMenuType] = useState<"food" | "bar">("food");
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
 
-  /* 🔹 Read menu type from URL */
+  // Reset filter when switching Food ↔ Bar
+  useEffect(() => {
+    setSelectedCategory("all");
+  }, [menuType]);
+
   useEffect(() => {
     const type = searchParams.get("type");
     if (type === "food" || type === "bar") {
@@ -81,14 +131,12 @@ function MenuContent() {
     }
   }, [searchParams]);
 
-  /* 🔹 Fetch menu */
   useEffect(() => {
     fetch("/api/menu", { cache: "no-store" })
       .then((res) => res.json())
       .then((data) => setMenu(data));
   }, []);
 
-  /* 🔹 Scroll to section if hash exists */
   useEffect(() => {
     const hash = window.location.hash?.replace("#", "");
     if (!hash) return;
@@ -101,13 +149,17 @@ function MenuContent() {
     }
   }, [pathname]);
 
-  /* 🔹 Filter sections based on menu type */
   const filteredSections = menu.sections.filter((section) => {
     const title = section.title.toLowerCase();
     return menuType === "food"
       ? FOOD_CATEGORIES.includes(title)
       : BAR_CATEGORIES.includes(title);
   });
+
+  const displayedSections =
+    selectedCategory === "all"
+      ? filteredSections
+      : filteredSections.filter((s) => s.title === selectedCategory);
 
   return (
     <main className="font-poppins text-gray-800 bg-white">
@@ -126,56 +178,130 @@ function MenuContent() {
         />
         <div className="absolute inset-0 bg-black/40" />
 
-        <div className="relative z-10 text-center space-y-6">
+        <div className="relative z-10 text-center space-y-8">
           <h1 className="font-playfair text-5xl md:text-6xl text-white">
             Menu
           </h1>
 
-          {/* MENU TOGGLE */}
-          <div className="flex gap-4 justify-center">
-            <button
-              onClick={() => setMenuType("food")}
-              className={`px-6 py-2 border ${
-                menuType === "food"
-                  ? "bg-amber-500 text-white"
-                  : "bg-white text-black"
-              }`}
-            >
-              Food Menu
-            </button>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6">
+            <div className="inline-flex items-center rounded-full bg-white/10 backdrop-blur-md border border-white/20 shadow-xl p-1.5">
+              <button
+                onClick={() => setMenuType("food")}
+                className={`relative px-7 py-3 text-sm md:text-base font-medium rounded-full transition-all duration-300 ease-out
+                  ${menuType === "food"
+                    ? "text-black bg-amber-400 shadow-md shadow-amber-500/30"
+                    : "text-white/80 hover:text-white hover:bg-white/10"
+                  }`}
+              >
+                Food Menu
+              </button>
 
-            <button
-              onClick={() => setMenuType("bar")}
-              className={`px-6 py-2 border ${
-                menuType === "bar"
-                  ? "bg-amber-500 text-white"
-                  : "bg-white text-black"
-              }`}
-            >
-              Bar Menu
-            </button>
+              <button
+                onClick={() => setMenuType("bar")}
+                className={`relative px-7 py-3 text-sm md:text-base font-medium rounded-full transition-all duration-300 ease-out
+                  ${menuType === "bar"
+                    ? "text-black bg-amber-400 shadow-md shadow-amber-500/30"
+                    : "text-white/80 hover:text-white hover:bg-white/10"
+                  }`}
+              >
+                Bar Menu
+              </button>
+            </div>
+
+            <MenuPdfButton />
           </div>
-
-          <MenuPdfButton />
         </div>
       </section>
 
-      {/* MENU SECTIONS */}
-      <div className="pb-20">
-        {filteredSections.map((section, index) => {
-          const slug = section.title.toLowerCase().replace(/\s+/g, "-");
+      {/* Intro section */}
+      <section className="py-12 md:py-16 bg-gradient-to-b from-white to-gray-50/50">
+        <div className="max-w-4xl mx-auto px-6 text-center">
+          <h1 className="font-playfair text-4xl md:text-5xl text-amber-900 mb-4 tracking-tight">
+            Curry & Hops
+          </h1>
 
-          return (
-            <MenuSection
-              key={index}
-              id={slug}
-              title={section.title}
-              bgImage={`/images/${slug}-bg.jpg`}
-              sectionBg="/images/menu-texture.jpg"
-              items={section.items}
-            />
-          );
-        })}
+          <p className="text-base md:text-lg text-gray-700 max-w-2xl mx-auto leading-relaxed">
+            Where bold Indian flavors meet craft beer vibes. Spicy curries, street bites, soulful biryanis & signature cocktails — all crafted for good company and great memories.
+          </p>
+
+          <div className="mt-10 flex flex-col items-center text-amber-600">
+            <span className="text-sm uppercase tracking-wider font-medium mb-2">
+              Scroll to explore
+            </span>
+            <div className="animate-bounce">
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+              </svg>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* MENU SECTIONS with Centered & Styled Dropdown */}
+      <div className="pb-20">
+        {/* Sticky Dropdown – centered & premium look */}
+        <div className="sticky top-0 z-20 bg-white/95 backdrop-blur-lg border-b border-gray-200/80 shadow-sm">
+          <div className="max-w-5xl mx-auto px-6 py-5 flex justify-center">
+            <div className="w-full max-w-lg">
+              <label
+                htmlFor="category-filter"
+                className="block text-sm font-medium text-gray-700 mb-2 text-center"
+              >
+                Browse Category
+              </label>
+              <select
+                id="category-filter"
+                value={selectedCategory}
+                onChange={(e) => setSelectedCategory(e.target.value)}
+                className="
+                  w-full
+                  px-5 py-3.5
+                  bg-white border-2 border-amber-200 rounded-xl
+                  text-gray-900 text-base md:text-lg font-medium
+                  focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500
+                  shadow-md hover:shadow-lg hover:border-amber-400
+                  transition-all duration-200 cursor-pointer
+                  appearance-none
+                  bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIiIGhlaWdodD0iOCIgdmlld0JveD0iMCAwIDEyIDgiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTExIDFMNiA3TDEgMS41IiBzdHJva2U9IiM4QjU1MzQiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PC9zdmc+')] bg-no-repeat bg-right-4 bg-center
+                "
+              >
+                <option value="all">All Items</option>
+                {filteredSections.map((section) => (
+                  <option key={section.title} value={section.title}>
+                    {section.title}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+        </div>
+
+        {/* Displayed Sections */}
+        <div className="transition-opacity duration-400 pt-4">
+          {displayedSections.length > 0 ? (
+            displayedSections.map((section, index) => {
+              const slug = section.title.toLowerCase().replace(/\s+/g, "-");
+              const bgImage =
+                CATEGORY_BACKGROUNDS[section.title.toLowerCase()] ||
+                `/images/${slug}-bg.jpg`;
+
+              return (
+                <MenuSection
+                  key={index}
+                  id={slug}
+                  title={section.title}
+                  bgImage={bgImage}
+                  sectionBg="/images/menu-texture.jpg"
+                  items={section.items}
+                />
+              );
+            })
+          ) : (
+            <div className="text-center py-20 text-gray-500 text-lg">
+              No items available in this category yet.
+            </div>
+          )}
+        </div>
       </div>
     </main>
   );
@@ -202,20 +328,26 @@ function MenuSection({
       className="bg-cover bg-center py-12"
       style={{ backgroundImage: `url(${sectionBg})` }}
     >
-      <div className="relative min-h-[280px] flex items-center justify-center mb-12">
-        <Image src={bgImage} alt={title} fill className="object-cover" />
-        <div className="absolute inset-0 bg-black/40" />
-        <h2 className="relative z-10 font-playfair text-4xl text-white">
+      <div className="relative min-h-[240px] flex items-center justify-center mb-10">
+        <Image
+          src={bgImage}
+          alt={`${title} background`}
+          fill
+          className="object-cover"
+          sizes="(max-width: 768px) 100vw, 50vw"
+        />
+        <div className="absolute inset-0 bg-black/50" />
+        <h2 className="relative z-10 font-playfair text-4xl md:text-5xl text-white drop-shadow-lg">
           {title}
         </h2>
       </div>
 
-      <div className="max-w-6xl mx-auto px-4 grid md:grid-cols-2 gap-x-12 gap-y-10">
+      <div className="max-w-6xl mx-auto px-6 grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-10">
         {items.map((item, idx) => (
           <div key={idx}>
             <div className="flex justify-between border-b border-dotted border-gray-400 pb-1 mb-2">
-              <h4 className="font-bold uppercase">{item.name}</h4>
-              <span>₹{item.price}</span>
+              <h4 className="font-bold uppercase text-gray-900">{item.name}</h4>
+              <span className="font-bold text-lg text-amber-800">₹{item.price}</span>
             </div>
             <p className="text-sm italic text-gray-600">{item.desc}</p>
           </div>

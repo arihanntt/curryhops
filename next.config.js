@@ -7,11 +7,12 @@ const nextConfig = {
   },
 
   images: {
-    // Keep Cloudinary
+    // Keep your existing Cloudinary domain
     domains: ["res.cloudinary.com"],
 
-    // Allow external editorial / stock images
+    // Recommended: use remotePatterns (more secure & modern) for external images
     remotePatterns: [
+      // Your existing ones
       {
         protocol: "https",
         hostname: "media.istockphoto.com",
@@ -36,7 +37,32 @@ const nextConfig = {
         protocol: "https",
         hostname: "assets.architecturaldigest.in",
       },
-      
+
+      // ────────────────────────────────────────────────
+      // Added for Pexels (fixes your current error)
+      // ────────────────────────────────────────────────
+      {
+        protocol: "https",
+        hostname: "www.pexels.com",
+      },
+      {
+        protocol: "https",
+        hostname: "images.pexels.com",     // ← this is the actual image host
+      },
+
+      // Bonus: common ones you're likely using already (Unsplash, Pixabay, etc.)
+      {
+        protocol: "https",
+        hostname: "images.unsplash.com",
+      },
+      {
+        protocol: "https",
+        hostname: "pixabay.com",
+      },
+      {
+        protocol: "https",
+        hostname: "*.pixabay.com",
+      },
     ],
   },
 };
