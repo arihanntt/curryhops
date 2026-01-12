@@ -4,6 +4,21 @@ import Menu from "@/models/Menu";
 
 export const dynamic = "force-dynamic";
 
+/* ---------------- TYPES ---------------- */
+
+type MenuItem = {
+  name: string;
+  price: string;
+  desc: string;
+};
+
+type MenuSection = {
+  id: string;
+  title: string;
+  menuType: "food" | "bar";
+  items: MenuItem[];
+};
+
 /* ---------------- DEFAULT STRUCTURE ---------------- */
 
 const DEFAULT_MENU = {
@@ -47,10 +62,11 @@ const DEFAULT_MENU = {
     { id: "shots", title: "Shots & Shooters", menuType: "bar", items: [] },
     { id: "fresh-juices", title: "Fresh Juices", menuType: "bar", items: [] },
     { id: "soft-drinks", title: "Soft Drinks", menuType: "bar", items: [] },
-  ],
+  ] as MenuSection[],
 };
 
 /* ---------------- GET ---------------- */
+
 export async function GET() {
   await connectDB();
 
@@ -63,11 +79,12 @@ export async function GET() {
 }
 
 /* ---------------- PUT (SAFE PARTIAL UPDATE) ---------------- */
+
 export async function PUT(req: Request) {
   await connectDB();
   const body = await req.json();
 
-  const incomingSections = body.sections;
+  const incomingSections: MenuSection[] = body.sections;
   if (!Array.isArray(incomingSections)) {
     return NextResponse.json({ error: "Invalid payload" }, { status: 400 });
   }
@@ -77,8 +94,10 @@ export async function PUT(req: Request) {
     menu = await Menu.create(DEFAULT_MENU);
   }
 
-  // 🔒 Merge ONLY incoming section items
-  const sectionMap = new Map(menu.sections.map((s: any) => [s.id, s]));
+  // 🔒 Typed map (THIS FIXES YOUR ERROR)
+  const sectionMap = new Map<string, MenuSection>(
+    (menu.sections as MenuSection[]).map((s) => [s.id, s])
+  );
 
   for (const incoming of incomingSections) {
     const existing = sectionMap.get(incoming.id);
