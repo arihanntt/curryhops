@@ -9,49 +9,48 @@ export default function MenuEditor() {
 
   useEffect(() => {
     fetch("/api/menu")
-      .then(r => r.json())
-      .then(data => {
+      .then((r) => r.json())
+      .then((data) => {
         setMenu(data);
       })
-      .catch(err => console.error("Failed to load menu:", err));
+      .catch((err) => console.error("Failed to load menu:", err));
   }, []);
 
   if (!menu) return <p className="p-10 text-gray-400">Loading menu...</p>;
 
-  const filteredSections = menu.sections?.filter(
-    (s: any) => s.menuType?.toLowerCase() === menuType
-  ) || [];
+  const filteredSections =
+    menu?.sections?.filter(
+      (s: any) => s.menuType?.toLowerCase() === menuType.toLowerCase()
+    ) || [];
 
   const handleSave = async () => {
-  setSaving(true);
-  setSaved(false);
+    setSaving(true);
+    setSaved(false);
 
-  try {
-    const sectionsToSave = menu.sections.filter(
-      (s: any) => s.menuType?.toLowerCase() === menuType.toLowerCase()
-    );
+    try {
+      const sectionsToSave = menu.sections.filter(
+        (s: any) => s.menuType?.toLowerCase() === menuType.toLowerCase()
+      );
 
-    const res = await fetch("/api/menu", {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        sections: sectionsToSave,     // ← only this is needed
-        // menuType: menuType,        ← remove this, server doesn't use it
-      }),
-    });
+      const res = await fetch("/api/menu", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          sections: sectionsToSave,
+        }),
+      });
 
-    if (!res.ok) throw new Error("Save failed");
+      if (!res.ok) throw new Error("Save failed");
 
-    setSaved(true);
-    setTimeout(() => setSaved(false), 3000);
-  } catch (err) {
-    console.error(err);
-    alert("Failed to save – check console");
-  } finally {
-    setSaving(false);
-  }
-};
-
+      setSaved(true);
+      setTimeout(() => setSaved(false), 3000);
+    } catch (err) {
+      console.error(err);
+      alert("Failed to save – check console");
+    } finally {
+      setSaving(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-black text-white p-10">
@@ -81,7 +80,6 @@ export default function MenuEditor() {
         </button>
       </div>
 
-      {/* Sections */}
       {filteredSections.length === 0 && (
         <p className="text-yellow-400 mb-6">
           No sections found for {menuType.toUpperCase()}. Check database structure.
@@ -97,57 +95,85 @@ export default function MenuEditor() {
             <h2 className="text-2xl font-semibold text-amber-400">
               {section.title}
             </h2>
-            <div className="flex items-center gap-3">
-              <span className="text-xs px-3 py-1 rounded-full bg-gray-800 text-gray-300">
-                {section.menuType?.toUpperCase() || "MISSING MENU TYPE!!!"}
-              </span>
-            </div>
+            <span className="text-xs px-3 py-1 rounded-full bg-gray-800 text-gray-300">
+              {section.menuType?.toUpperCase() || "MISSING MENU TYPE!!!"}
+            </span>
           </div>
 
           {/* Items */}
           {section.items.map((item: any, ii: number) => (
-            <div key={ii} className="grid grid-cols-4 gap-3 mb-4 items-start">
+            <div key={ii} className="grid grid-cols-5 gap-3 mb-4 items-start">
+              {/* Name */}
               <input
                 className="bg-gray-900 border border-gray-700 p-3 rounded w-full"
                 value={item.name || ""}
                 placeholder="Item name"
-                onChange={e => {
+                onChange={(e) => {
                   const newSections = [...menu.sections];
                   newSections
-                    .find(s => s.id === section.id)!
+                    .find((s) => s.id === section.id)!
                     .items[ii].name = e.target.value;
                   setMenu({ ...menu, sections: newSections });
                 }}
               />
+
+              {/* Price */}
               <input
                 className="bg-gray-900 border border-gray-700 p-3 rounded w-full"
                 value={item.price || ""}
                 placeholder="Price (₹)"
-                onChange={e => {
+                onChange={(e) => {
                   const newSections = [...menu.sections];
                   newSections
-                    .find(s => s.id === section.id)!
+                    .find((s) => s.id === section.id)!
                     .items[ii].price = e.target.value;
                   setMenu({ ...menu, sections: newSections });
                 }}
               />
+
+              {/* Description */}
               <input
                 className="bg-gray-900 border border-gray-700 p-3 rounded w-full"
                 value={item.desc || ""}
                 placeholder="Description"
-                onChange={e => {
+                onChange={(e) => {
                   const newSections = [...menu.sections];
                   newSections
-                    .find(s => s.id === section.id)!
+                    .find((s) => s.id === section.id)!
                     .items[ii].desc = e.target.value;
                   setMenu({ ...menu, sections: newSections });
                 }}
               />
+
+              {/* Veg / Non-Veg Checkbox – only for food menu */}
+              {menuType === "food" && (
+                <div className="flex items-center justify-center">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={item.isNonVeg || false}
+                      onChange={(e) => {
+                        const newSections = [...menu.sections];
+                        newSections
+                          .find((s) => s.id === section.id)!
+                          .items[ii].isNonVeg = e.target.checked;
+                        setMenu({ ...menu, sections: newSections });
+                      }}
+                      className="w-5 h-5 accent-red-500"
+                    />
+                    <span className="text-sm text-red-400 font-medium">
+                      Non-Veg
+                    </span>
+                  </label>
+                </div>
+              )}
+
+              {/* Delete */}
               <button
                 onClick={() => {
                   const newSections = [...menu.sections];
                   newSections
-                    .find(s => s.id === section.id)!
+                    .find((s) => s.id === section.id)!
                     .items.splice(ii, 1);
                   setMenu({ ...menu, sections: newSections });
                 }}
@@ -162,8 +188,8 @@ export default function MenuEditor() {
             onClick={() => {
               const newSections = [...menu.sections];
               newSections
-                .find(s => s.id === section.id)!
-                .items.push({ name: "", price: "", desc: "" });
+                .find((s) => s.id === section.id)!
+                .items.push({ name: "", price: "", desc: "", isNonVeg: false });
               setMenu({ ...menu, sections: newSections });
             }}
             className="mt-4 text-sm text-amber-400 hover:text-amber-300"
