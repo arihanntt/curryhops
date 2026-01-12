@@ -28,19 +28,25 @@ export default function MenuEditor() {
 
   try {
     const sectionsToSave = menu.sections.filter(
-      (s: any) => s.menuType === menuType
+      (s: any) => s.menuType?.toLowerCase() === menuType.toLowerCase()
     );
 
-    await fetch("/api/menu", {
+    const res = await fetch("/api/menu", {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ sections: sectionsToSave }),
+      body: JSON.stringify({
+        sections: sectionsToSave,     // ← only this is needed
+        // menuType: menuType,        ← remove this, server doesn't use it
+      }),
     });
+
+    if (!res.ok) throw new Error("Save failed");
 
     setSaved(true);
     setTimeout(() => setSaved(false), 3000);
   } catch (err) {
-    alert("Failed to save menu");
+    console.error(err);
+    alert("Failed to save – check console");
   } finally {
     setSaving(false);
   }
