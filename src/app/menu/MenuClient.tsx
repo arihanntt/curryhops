@@ -276,7 +276,8 @@ function MenuContent() {
       </section>
 
       {/* Intro - Improved Typography */}
-     <section className="py-24 md:py-32 bg-gradient-to-br from-amber-50 via-white to-amber-50/30">
+     <section className="pt-14 pb-6 md:pt-20 md:pb-8 bg-gradient-to-br from-amber-50 via-white to-amber-50/30">
+
   <div className="max-w-6xl mx-auto px-6 text-center">
     <h1 
       className="font-['Playfair_Display'] text-6xl sm:text-7xl md:text-9xl 
@@ -292,7 +293,8 @@ function MenuContent() {
       Where spice ignites, stories unfold, and every sip & bite feels like home.
     </p>
 
-    <div className="mt-16 flex justify-center">
+    <div className="mt-4 flex justify-center">
+
       <div className="inline-flex flex-col items-center text-amber-700">
         <span className="text-sm uppercase tracking-[0.25em] font-medium mb-6">
           Scroll to Discover
@@ -310,7 +312,8 @@ function MenuContent() {
       {/* FILTER BAR + SECTIONS */}
       <div className="pb-24 md:pb-32 relative">
         {/* Top filters */}
-        <div className="max-w-5xl mx-auto px-6 py-6">
+        <div className="max-w-5xl mx-auto px-6 pt-2 pb-6">
+
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
             <div className="w-full md:w-3/5 relative">
   <label 
