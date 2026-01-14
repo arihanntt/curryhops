@@ -38,8 +38,9 @@ const FOOD_CATEGORIES = [
   "breads",
   "rice and noodles",
   "dessert",
+  "sushi",     // ← new
+  "dim sum",   // ← new (using space — more natural than "dimsum")
 ];
-
 const BAR_CATEGORIES = [
   "signature cocktails",
   "classics",
@@ -82,6 +83,8 @@ const CATEGORY_BACKGROUNDS: Record<string, string> = {
   "breads": "/images/breads-bg.jpg",
   "rice and noodles": "/images/rice-noodles-bg.jpg",
   "dessert": "https://images.pexels.com/photos/13215194/pexels-photo-13215194.jpeg",
+  "sushi": "https://images.pexels.com/photos/2098085/pexels-photo-2098085.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2", // clean sushi platter — replace if you prefer another
+  "dim sum": "https://images.pexels.com/photos/699953/pexels-photo-699953.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2", // bamboo steamers with dim sum
 
   "signature cocktails": "https://images.pexels.com/photos/19051904/pexels-photo-19051904.jpeg",
   "classics": "https://images.pexels.com/photos/2531186/pexels-photo-2531186.jpeg",

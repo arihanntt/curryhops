@@ -39,6 +39,9 @@ const DEFAULT_MENU = {
     { id: "breads", title: "Breads", menuType: "food", items: [] },
     { id: "rice-noodles", title: "Rice and Noodles", menuType: "food", items: [] },
     { id: "dessert", title: "Dessert", menuType: "food", items: [] },
+    // ← Add these two new food sections
+    { id: "sushi",     title: "Sushi",     menuType: "food", items: [] },
+    { id: "dim-sum",   title: "Dim Sum",   menuType: "food", items: [] },
 
     // BAR
     { id: "signature-cocktails", title: "Signature Cocktails", menuType: "bar", items: [] },
