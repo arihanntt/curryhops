@@ -4,138 +4,212 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 
 export default function About() {
-  const [offsetY, setOffsetY] = useState(0);
+  const [scrollY, setScrollY] = useState(0);
 
   useEffect(() => {
-    const handleScroll = () => setOffsetY(window.scrollY);
+    const handleScroll = () => setScrollY(window.scrollY);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   return (
-    <main className="bg-[#0a0a0a] text-white overflow-hidden">
-      {/* Subtle spice particles */}
-      <div className="fixed inset-0 pointer-events-none opacity-20">
-        {[...Array(15)].map((_, i) => (
-          <div
-            key={i}
-            className="absolute w-1 h-1 rounded-full animate-float"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              backgroundColor: i % 3 === 0 ? "#f59e0b" : i % 3 === 1 ? "#dc2626" : "#fbbf24",
-              animationDelay: `${Math.random() * 15}s`,
-              animationDuration: `${20 + Math.random() * 15}s`,
-            }}
-          />
-        ))}
-      </div>
+    <main className="bg-white text-stone-800 font-sans selection:bg-amber-100 selection:text-amber-900 overflow-hidden">
+      
+      {/* --- NEW HERO SECTION --- */}
+      <section className="relative pt-32 pb-20 px-6 flex flex-col items-center justify-center text-center">
+        
+        {/* Background Gradients for Depth */}
+        <div className="absolute top-0 inset-x-0 h-96 bg-gradient-to-b from-stone-50 to-white -z-10" />
+        <div className="absolute top-20 right-20 w-64 h-64 bg-amber-100/40 rounded-full blur-3xl -z-10" />
+        <div className="absolute top-40 left-20 w-72 h-72 bg-orange-50/50 rounded-full blur-3xl -z-10" />
 
-      {/* Hero */}
-      <section
-        className="relative h-screen min-h-[600px] flex items-center justify-center bg-cover bg-center bg-fixed"
-        style={{
-          backgroundImage: "linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.7)), url('https://growomaha.com/wp-content/uploads/2024/12/Jaipur-restaurant-review-featured-image.jpg')",
-          backgroundPositionY: `${offsetY * 0.5}px`,
-        }}
-      >
-        <div className="relative z-10 text-center px-6 max-w-4xl mx-auto">
-          <p className="text-sm uppercase tracking-[0.5em] text-amber-500 mb-6 font-light">
-            Curry & Hops
-          </p>
-          <h1 className="font-playfair italic text-6xl md:text-8xl lg:text-9xl text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-yellow-400 to-amber-300 mb-8">
-            About Us
+        {/* Text Content */}
+        <div className="max-w-4xl mx-auto space-y-6 mb-12 relative z-10 animate-fade-in-up">
+          <span className="inline-block py-1.5 px-4 rounded-full border border-stone-200 bg-white text-stone-500 text-xs font-bold tracking-widest uppercase shadow-sm">
+            Est. 2025 · Mohali
+          </span>
+          <h1 className="font-serif text-6xl md:text-7xl lg:text-8xl text-stone-900 leading-[1.1]">
+            Curry <span className="italic text-amber-600 font-light">&</span> Hops
           </h1>
-          <p className="text-xl md:text-2xl text-amber-200 max-w-2xl mx-auto leading-relaxed">
-            Where bold Indian spices dance with finely crafted brews in perfect harmony.
-          </p>
-        </div>
-      </section>
-
-      {/* Intro Story */}
-      <section className="py-24 px-6 max-w-7xl mx-auto">
-        <div className="text-center mb-20">
-          <h2 className="font-playfair text-4xl md:text-5xl mb-6">Our Story</h2>
-          <div className="w-24 h-1 bg-amber-400 mx-auto mb-10" />
-          <p className="text-gray-300 text-lg md:text-xl max-w-4xl mx-auto leading-relaxed">
-            Nestled in the heart of Mohali, just moments from Chandigarh, Curry & Hops was born from a simple passion: 
-            to reimagine Indian cuisine through a modern lens while celebrating the art of craft brewing.
+          <p className="text-lg md:text-xl text-stone-500 max-w-2xl mx-auto font-light leading-relaxed">
+            A modern love letter to Indian heritage, written in spice and sealed with a craft brew.
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-12 items-center">
-          <div className="space-y-6 text-gray-300 leading-relaxed">
-            <p>
-              We believe great food isn’t just about flavor — it’s about stories, memories, and connections. 
-              Every curry on our menu is crafted with time-honored techniques, fresh ingredients, and a touch of innovation.
-            </p>
-            <p>
-              Paired with our carefully curated selection of craft beers — from crisp IPAs to rich stouts — 
-              each dish finds its perfect companion, creating an unforgettable symphony on your palate.
-            </p>
-            <p>
-              Our space is warm, vibrant, and inviting — designed for long conversations, celebrations, and quiet moments alike.
-            </p>
+        {/* Hero Image - Stable, Rounded, Priority Loading */}
+        <div className="relative w-full max-w-6xl h-[50vh] md:h-[600px] rounded-3xl overflow-hidden shadow-2xl shadow-stone-200 border-4 border-white">
+           <Image 
+             src="https://static1.squarespace.com/static/58c9781a2994cabb5d4804e5/58d2e9c92e69cfb75f61830f/6908fdb4dae0d71c304b81f2/1762197492749/Chandi-Hospitality-2.webp?format=1500w" 
+             alt="Bright and airy restaurant interior with plants" 
+             fill
+             priority // <--- Forces image to load immediately
+             className="object-cover hover:scale-105 transition-transform duration-[2s] ease-out"
+           />
+           {/* Subtle Overlay to make it feel premium */}
+           <div className="absolute inset-0 bg-black/10" />
+        </div>
+
+      </section>
+
+      {/* --- THE NARRATIVE --- */}
+      <section className="py-24 px-6 md:px-12 max-w-7xl mx-auto">
+        <div className="grid lg:grid-cols-2 gap-16 lg:gap-24 items-center">
+          
+          {/* Left: Text Content */}
+          <div className="space-y-8">
+            <h2 className="font-serif text-4xl md:text-5xl text-stone-900">
+              Reimagining the <br/>
+              <span className="italic text-amber-600">Indian Table</span>
+            </h2>
+            <div className="h-1 w-20 bg-amber-200" />
+            <div className="space-y-6 text-stone-600 text-lg leading-loose font-light">
+              <p>
+                Nestled in the vibrant heart of Mohali, Curry & Hops was born from a desire to bridge the gap between nostalgic comfort and modern dining. We wanted a place where the aroma of freshly ground spices could mingle freely with the crisp notes of artisanal hops.
+              </p>
+              <p>
+                We believe that Indian cuisine is a living, breathing art form. It doesn't just belong in the past; it belongs right here, paired with a cold Stout or a zesty IPA, surrounded by laughter and good conversation.
+              </p>
+            </div>
+            <div className="pt-4">
+               <span className="font-handwriting text-4xl text-stone-400 rotate-[-5deg] inline-block">
+                 Bon Appétit!
+               </span>
+            </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <Image src="https://media.istockphoto.com/id/639389404/photo/authentic-indian-food.jpg?s=612x612&w=0&k=20&c=gbfAu17L1gtHmuo5biByhfCefAtYUtGQpyxMmi9_Mus=" alt="Authentic Indian curry spread" width={600} height={400} className="rounded-xl object-cover shadow-2xl" />
-            <Image src="https://thumbs.dreamstime.com/b/hot-spicy-chicken-tikka-masala-bowl-curry-rice-indian-naan-butter-bread-spices-herbs-traditional-indian-british-89956761.jpg" alt="Butter chicken with naan" width={600} height={400} className="rounded-xl object-cover shadow-2xl mt-8" />
-            <Image src="https://bdc2020.o0bc.com/wp-content/uploads/2023/01/IMG_3576l-63d283f7b3aeb-scaled.jpg" alt="Craft beer flight pairing" width={600} height={400} className="rounded-xl object-cover shadow-2xl" />
-            <Image src="https://growomaha.com/wp-content/uploads/2024/12/Rockbrook-dining-area-3-1024x768.jpg" alt="Warm restaurant interior" width={600} height={400} className="rounded-xl object-cover shadow-2xl mt-8" />
+          {/* Right: Image Mosaic */}
+          <div className="relative">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-4 mt-12">
+                 <div className="relative h-64 w-full rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-500">
+                    <Image 
+                      src="https://images.unsplash.com/photo-1631452180519-c014fe946bc7?q=80&w=1887&auto=format&fit=crop" 
+                      alt="Rich Curry" 
+                      fill 
+                      className="object-cover hover:scale-105 transition-transform duration-700" 
+                    />
+                 </div>
+                 <div className="relative h-48 w-full rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-500">
+                    <Image 
+                      src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTO7zJ20rn9gzaXCNbT5vH6jaFofMP_p5SdFA&s" 
+                      alt="Interior Detail" 
+                      fill 
+                      className="object-cover hover:scale-105 transition-transform duration-700" 
+                    />
+                 </div>
+              </div>
+              <div className="space-y-4">
+                 <div className="relative h-48 w-full rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-500">
+                    <Image 
+                      src="https://www.learningwithexperts.com/cdn/shop/articles/b9d73d6e-6183-4562-97f7-5277b1c5f6b9.jpg?v=1729681279" 
+                      alt="Craft Beer Pour" 
+                      fill 
+                      className="object-cover hover:scale-105 transition-transform duration-700" 
+                    />
+                 </div>
+                 <div className="relative h-72 w-full rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-500">
+                    <Image 
+                      src="https://images.unsplash.com/photo-1601050690597-df0568f70950?q=80&w=2070&auto=format&fit=crop" 
+                      alt="Plated Food" 
+                      fill 
+                      className="object-cover hover:scale-105 transition-transform duration-700" 
+                    />
+                 </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Vision & Values */}
-      <section className="py-24 bg-gradient-to-b from-transparent via-[#141414] to-transparent">
-        <div className="max-w-6xl mx-auto px-6 text-center">
-          <h2 className="font-playfair text-4xl md:text-5xl mb-16">What Drives Us</h2>
-
-          <div className="grid md:grid-cols-3 gap-12">
-            <div className="group">
-              <div className="mb-6">
-                <Image src="https://thumbs.dreamstime.com/b/top-down-vibrant-spice-collection-colorful-assortment-indian-spices-like-turmeric-chili-powder-small-bowls-displayed-336188440.jpg" alt="Vibrant Indian spices" width={400} height={300} className="rounded-full mx-auto object-cover w-48 h-48 shadow-xl group-hover:scale-110 transition-transform duration-500" />
-              </div>
-              <h3 className="text-2xl font-semibold mb-4 text-amber-400">Authentic Roots</h3>
-              <p className="text-gray-400">Honoring India’s rich culinary heritage with every spice and technique.</p>
-            </div>
-
-            <div className="group">
-              <div className="mb-6">
-                <Image src="https://phulkari.com.au/wp-content/uploads/2023/07/image-1024x576.png" alt="Signature butter chicken" width={400} height={300} className="rounded-full mx-auto object-cover w-48 h-48 shadow-xl group-hover:scale-110 transition-transform duration-500" />
-              </div>
-              <h3 className="text-2xl font-semibold mb-4 text-amber-400">Creative Fusion</h3>
-              <p className="text-gray-400">Elevating tradition with modern flair and perfect beer pairings.</p>
-            </div>
-
-            <div className="group">
-              <div className="mb-6">
-                <Image src="https://assets.architecturaldigest.in/photos/671f2004bab720c3b573ea2a/master/w_1600%2Cc_limit/Bungalow3.jpg" alt="Cozy dining atmosphere" width={400} height={300} className="rounded-full mx-auto object-cover w-48 h-48 shadow-xl group-hover:scale-110 transition-transform duration-500" />
-              </div>
-              <h3 className="text-2xl font-semibold mb-4 text-amber-400">Warm Hospitality</h3>
-              <p className="text-gray-400">A welcoming home for laughter, celebration, and connection.</p>
-            </div>
-          </div>
+      {/* --- PARALLAX BREAK --- */}
+      <section 
+        className="relative h-[50vh] bg-fixed bg-center bg-cover flex items-center justify-center"
+        style={{ backgroundImage: "url('https://images.unsplash.com/photo-1596560548464-f010549b84d7?q=80&w=2070&auto=format&fit=crop')" }}
+      >
+        <div className="absolute inset-0 bg-black/40" />
+        <div className="relative z-10 text-center text-white px-4">
+          <h3 className="font-serif text-3xl md:text-5xl italic tracking-wide">
+            "Where spice meets craft."
+          </h3>
         </div>
       </section>
 
-      {/* Closing Call */}
-      <section className="py-24 text-center px-6">
-        <p className="text-2xl md:text-3xl text-amber-300 italic max-w-3xl mx-auto leading-relaxed">
-          Come experience the magic where spice meets craft.
-          <br />
-          We can’t wait to welcome you.
-        </p>
-      </section>
+      {/* --- PILLARS / VALUES --- */}
+      <section className="py-24 bg-stone-50">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="grid md:grid-cols-3 gap-12 text-center">
+            
+            {/* Card 1 */}
+            <div className="group p-8 bg-white rounded-3xl shadow-sm hover:shadow-xl transition-all duration-300 border border-stone-100">
+              <div className="h-16 w-16 mx-auto bg-amber-50 rounded-full flex items-center justify-center mb-6 text-3xl group-hover:scale-110 transition-transform">
+                🌿
+              </div>
+              <h3 className="font-serif text-2xl text-stone-900 mb-3">Authentic Roots</h3>
+              <p className="text-stone-500 leading-relaxed text-sm">
+                We honor the recipes passed down through generations, using whole spices grounded daily in our kitchen.
+              </p>
+            </div>
 
-      <style jsx>{`
-        @keyframes float {
-          0%, 100% { transform: translateY(0) rotate(0deg); }
-          50% { transform: translateY(-40px) rotate(8deg); }
+            {/* Card 2 */}
+            <div className="group p-8 bg-white rounded-3xl shadow-sm hover:shadow-xl transition-all duration-300 border border-stone-100 relative top-0 md:-top-8">
+              <div className="h-16 w-16 mx-auto bg-amber-50 rounded-full flex items-center justify-center mb-6 text-3xl group-hover:scale-110 transition-transform">
+                🍺
+              </div>
+              <h3 className="font-serif text-2xl text-stone-900 mb-3">Craft Culture</h3>
+              <p className="text-stone-500 leading-relaxed text-sm">
+                From hoppy IPAs to smooth Stouts, our beer list is curated to cut through the spice and cleanse the palate.
+              </p>
+            </div>
+
+            {/* Card 3 */}
+            <div className="group p-8 bg-white rounded-3xl shadow-sm hover:shadow-xl transition-all duration-300 border border-stone-100">
+              <div className="h-16 w-16 mx-auto bg-amber-50 rounded-full flex items-center justify-center mb-6 text-3xl group-hover:scale-110 transition-transform">
+                🤝
+              </div>
+              <h3 className="font-serif text-2xl text-stone-900 mb-3">Warm Hospitality</h3>
+              <p className="text-stone-500 leading-relaxed text-sm">
+                We aren't just serving food; we are hosting friends. Our space is yours to relax, celebrate, and linger.
+              </p>
+            </div>
+
+          </div>
+        </div>
+      </section>
+{/* --- FOOTER CTA --- */}
+<section className="py-24 px-6 text-center bg-white">
+  <div className="max-w-2xl mx-auto space-y-8">
+    <h2 className="font-serif text-4xl md:text-5xl text-stone-900">
+      Come taste the magic.
+    </h2>
+
+    <p className="text-stone-500 text-lg">
+      We are open daily from 11:00 AM to 11:00 PM. <br />
+      Walk-ins welcome, reservations encouraged.
+    </p>
+
+    <a
+      href="tel:+918699966565"
+      className="inline-block px-8 py-4 bg-stone-900 text-white rounded-full font-medium tracking-wide hover:bg-amber-600 transition-colors duration-300 shadow-lg hover:shadow-amber-200"
+    >
+      Book a Table
+    </a>
+  </div>
+</section>
+
+      {/* Global CSS for custom animations */}
+      <style jsx global>{`
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600&family=Caveat&display=swap');
+        
+        .font-serif { font-family: 'Playfair Display', serif; }
+        .font-sans { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .font-handwriting { font-family: 'Caveat', cursive; }
+
+        @keyframes fade-in-up {
+          0% { opacity: 0; transform: translateY(20px); }
+          100% { opacity: 1; transform: translateY(0); }
         }
-        .animate-float > div {
-          animation: float linear infinite;
+        .animate-fade-in-up {
+          animation: fade-in-up 1s ease-out forwards;
         }
       `}</style>
     </main>

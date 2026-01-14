@@ -1,14 +1,27 @@
 'use client';
 
 import Image from "next/image";
-import { useEffect, useState, Suspense } from "react";
+import { useEffect, useState, Suspense, useMemo } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import MenuPdfButton from "@/components/MenuPdfButton";
 import MenuSchema from "@/components/MenuSchema";
-import { ChevronDownIcon, XMarkIcon } from "@heroicons/react/24/outline";
-import { Playfair_Display } from "next/font/google";
-const playfair = Playfair_Display({ subsets: ["latin"] });
+import { 
+  ChevronDownIcon, 
+  XMarkIcon, 
+  AdjustmentsHorizontalIcon, 
+  MagnifyingGlassIcon,
+  ArrowUpIcon,
+  PhotoIcon,
+  CheckIcon
+} from "@heroicons/react/24/outline";
+import { Playfair_Display, Inter, Cormorant_Garamond } from "next/font/google";
 
+// --- FONTS ---
+const playfair = Playfair_Display({ subsets: ["latin"] });
+const inter = Inter({ subsets: ["latin"] });
+const cormorant = Cormorant_Garamond({ weight: ["400", "500", "600", "700"], subsets: ["latin"], style: ["italic", "normal"] });
+
+// --- TYPES ---
 type MenuItem = {
   name: string;
   desc: string;
@@ -25,53 +38,19 @@ type MenuSectionType = {
   items: MenuItem[];
 };
 
-/* ---------------- MENU GROUP DEFINITIONS ---------------- */
-
+// --- DATA ---
 const FOOD_CATEGORIES = [
-  "quick bites",
-  "salad",
-  "appetizers",
-  "pizza",
-  "pasta",
-  "main course",
-  "biryani",
-  "breads",
-  "rice and noodles",
-  "dessert",
-  "sushi",     // ← new
-  "dim sum",   // ← new (using space — more natural than "dimsum")
+  "quick bites", "salad", "appetizers", "pizza", "pasta", "main course", "biryani", 
+  "breads", "rice and noodles", "dessert", "sushi", "dim sum"
 ];
 const BAR_CATEGORIES = [
-  "signature cocktails",
-  "classics",
-  "our liit's",
-  "beer cocktails",
-  "coffee",
-  "hot cocktails",
-  "rum",
-  "gin",
-  "vodka",
-  "tequila",
-  "indian whisky",
-  "indian single malts",
-  "scotch",
-  "japanese whisky",
-  "rye/bourbon whiskeys",
-  "canadian / irish whisky",
-  "cognac/brandy",
-  "liquers",
-  "aperitif",
-  "red wine",
-  "rose wine & sparkling wine",
-  "white wine",
-  "sangria",
-  "champagne",
-  "shots & shooters",
-  "fresh juices",
-  "soft drinks",
+  "signature cocktails", "classics", "our liit's", "beer cocktails", "coffee", "hot cocktails", 
+  "rum", "gin", "vodka", "tequila", "indian whisky", "indian single malts", "scotch", 
+  "japanese whisky", "rye/bourbon whiskeys", "canadian / irish whisky", "cognac/brandy", 
+  "liquers", "aperitif", "red wine", "rose wine & sparkling wine", "white wine", 
+  "sangria", "champagne", "shots & shooters", "fresh juices", "soft drinks"
 ];
 
-/* ---------------- BACKGROUND IMAGES ---------------- */
 const CATEGORY_BACKGROUNDS: Record<string, string> = {
   "quick bites": "https://images.pexels.com/photos/3023476/pexels-photo-3023476.jpeg",
   "salad": "https://images.pexels.com/photos/1213710/pexels-photo-1213710.jpeg",
@@ -83,9 +62,8 @@ const CATEGORY_BACKGROUNDS: Record<string, string> = {
   "breads": "/images/breads-bg.jpg",
   "rice and noodles": "/images/rice-noodles-bg.jpg",
   "dessert": "https://images.pexels.com/photos/13215194/pexels-photo-13215194.jpeg",
-  "sushi": "https://images.pexels.com/photos/2098085/pexels-photo-2098085.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2", // clean sushi platter — replace if you prefer another
-  "dim sum": "https://images.pexels.com/photos/699953/pexels-photo-699953.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2", // bamboo steamers with dim sum
-
+  "sushi": "https://images.pexels.com/photos/2098085/pexels-photo-2098085.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
+  "dim sum": "https://images.pexels.com/photos/699953/pexels-photo-699953.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
   "signature cocktails": "https://images.pexels.com/photos/19051904/pexels-photo-19051904.jpeg",
   "classics": "https://images.pexels.com/photos/2531186/pexels-photo-2531186.jpeg",
   "our liit's": "https://images.pexels.com/photos/12208200/pexels-photo-12208200.jpeg",
@@ -115,49 +93,40 @@ const CATEGORY_BACKGROUNDS: Record<string, string> = {
   "soft drinks": "https://images.pexels.com/photos/50593/coca-cola-cold-drink-soft-drink-coke-50593.jpeg",
 };
 
-/* ---------------- FILTER DEFINITIONS ---------------- */
 const TYPE_OPTIONS = ["All", "Veg", "Non-Veg", "Egg"] as const;
 const DIETARY_OPTIONS = ["Spicy", "Kids", "Vegan"] as const;
-
 type TypeFilter = typeof TYPE_OPTIONS[number];
 type DietaryFilter = typeof DIETARY_OPTIONS[number];
 
-/* ---------------- TAG ICONS ---------------- */
 const TAG_ICONS: Record<string, string> = {
-  "Veg": "data:image/png;base64,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",
-  "Non-Veg": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR5OfgmRMdIZAGV-DKoPCUnbSK6kbQ6bDCYhQ&s",
-  "Egg": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSpUJuL0k9pNJWxGFF2H35-Z3ybZciGC-h0zw&s",
-  "Spicy": "https://tse2.mm.bing.net/th/id/OIP.0raRmFKFAPmggGCIQ_4wVAHaFx?pid=Api&P=0&h=180",
-  "Kids": "https://i.pinimg.com/736x/e9/31/e1/e931e16233b03fd44b2dd1870585f226.jpg",
-  "Vegan": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ_MQRrFox4BG6NIHMNkc-jipzZYZWzkif3QA&s",
+  "Veg": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b2/Veg_symbol.svg/1200px-Veg_symbol.svg.png",
+  "Non-Veg": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/ba/Non_veg_symbol.svg/2048px-Non_veg_symbol.svg.png",
+  "Egg": "https://cdn-icons-png.flaticon.com/512/1046/1046774.png", 
+  "Spicy": "https://cdn-icons-png.flaticon.com/512/1685/1685860.png",
+  "Kids": "https://cdn-icons-png.flaticon.com/512/2919/2919573.png",
+  "Vegan": "https://cdn-icons-png.flaticon.com/512/5767/5767292.png",
 };
 
-/* ---------------- MAIN CONTENT ---------------- */
+/* ---------------- MAIN COMPONENT ---------------- */
 
 function MenuContent() {
-  const [menu, setMenu] = useState<{ sections: MenuSectionType[] }>({
-    sections: [],
-  });
-
-  const pathname = usePathname();
+  const [menu, setMenu] = useState<{ sections: MenuSectionType[] }>({ sections: [] });
   const searchParams = useSearchParams();
-
   const [menuType, setMenuType] = useState<"food" | "bar">("food");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [typeFilter, setTypeFilter] = useState<TypeFilter>("All");
   const [dietaryFilters, setDietaryFilters] = useState<DietaryFilter[]>([]);
   const [showFilters, setShowFilters] = useState(false);
-  const [isFabOpen, setIsFabOpen] = useState(false);
-
-  // State for expanded image
   const [expandedImage, setExpandedImage] = useState<string | null>(null);
 
+  // Initialize
   useEffect(() => {
-    setSelectedCategory("all");
-    setTypeFilter("All");
-    setDietaryFilters([]);
-  }, [menuType]);
+    fetch("/api/menu", { cache: "no-store" })
+      .then((res) => res.json())
+      .then((data) => setMenu(data));
+  }, []);
 
+  // Sync URL params to State on load
   useEffect(() => {
     const type = searchParams.get("type");
     if (type === "food" || type === "bar") {
@@ -165,384 +134,320 @@ function MenuContent() {
     }
   }, [searchParams]);
 
+  // Reset filters when switching main menu type
   useEffect(() => {
-    fetch("/api/menu", { cache: "no-store" })
-      .then((res) => res.json())
-      .then((data) => setMenu(data));
-  }, []);
+    setSelectedCategory("all");
+    setTypeFilter("All");
+    setDietaryFilters([]);
+  }, [menuType]);
 
-  useEffect(() => {
-    const hash = window.location.hash?.replace("#", "");
-    if (!hash) return;
+  // --- MEMOIZED FILTERING LOGIC ---
+  const filteredSections = useMemo(() => {
+    return menu.sections.filter((section) => {
+      const title = section.title.toLowerCase();
+      return menuType === "food" 
+        ? FOOD_CATEGORIES.some(c => title.includes(c)) 
+        : BAR_CATEGORIES.some(c => title.includes(c));
+    });
+  }, [menu.sections, menuType]);
 
-    const el = document.getElementById(hash.toLowerCase());
-    if (el) {
-      setTimeout(() => el.scrollIntoView({ behavior: "smooth" }), 200);
-    }
-  }, [pathname]);
+  const displayedSections = useMemo(() => {
+    return filteredSections
+      .filter((section) =>
+        selectedCategory === "all" ? true : section.title.toLowerCase() === selectedCategory.toLowerCase()
+      )
+      .map((section) => {
+        const filteredItems = section.items.filter((item) => {
+          if (menuType === "food" && typeFilter !== "All") {
+            const hasNonVeg = item.tags?.includes("Non-Veg");
+            const hasEgg = item.tags?.includes("Egg");
+            if (typeFilter === "Veg" && (hasNonVeg || hasEgg)) return false;
+            if (typeFilter === "Non-Veg" && !hasNonVeg) return false;
+            if (typeFilter === "Egg" && !hasEgg) return false;
+          }
+          if (dietaryFilters.length > 0) {
+            return dietaryFilters.some((tag) => item.tags?.includes(tag));
+          }
+          return true;
+        });
+        return { ...section, items: filteredItems };
+      })
+      .filter((section) => section.items.length > 0);
+  }, [filteredSections, selectedCategory, typeFilter, dietaryFilters, menuType]);
 
-  const filteredSections = menu.sections.filter((section) => {
-    const title = section.title.toLowerCase();
-    return menuType === "food"
-      ? FOOD_CATEGORIES.includes(title)
-      : BAR_CATEGORIES.includes(title);
-  });
-
-  const displayedSections = filteredSections
-    .filter((section) =>
-      selectedCategory === "all" ? true : section.title.toLowerCase() === selectedCategory.toLowerCase()
-    )
-    .map((section) => {
-      const filteredItems = section.items.filter((item: MenuItem) => {
-        if (menuType === "food" && typeFilter !== "All") {
-          const hasNonVeg = item.tags?.includes("Non-Veg");
-          const hasEgg = item.tags?.includes("Egg");
-
-          if (typeFilter === "Veg" && (hasNonVeg || hasEgg)) return false;
-          if (typeFilter === "Non-Veg" && !hasNonVeg) return false;
-          if (typeFilter === "Egg" && !hasEgg) return false;
-        }
-
-        if (dietaryFilters.length > 0) {
-          return dietaryFilters.some((tag) => item.tags?.includes(tag));
-        }
-
-        return true;
-      });
-
-      return { ...section, items: filteredItems };
-    })
-    .filter((section) => section.items.length > 0);
-
-  const handleCategorySelect = (value: string) => {
-    setSelectedCategory(value);
-    setIsFabOpen(false);
+  // Scroll Handling
+  const handleCategorySelect = (title: string) => {
+    setSelectedCategory(title);
+    if (title === 'all') return;
+    const slug = title.toLowerCase().replace(/\s+/g, "-");
+    setTimeout(() => {
+      const el = document.getElementById(slug);
+      if (el) {
+        const offset = 120;
+        const bodyRect = document.body.getBoundingClientRect().top;
+        const elementRect = el.getBoundingClientRect().top;
+        const elementPosition = elementRect - bodyRect;
+        const offsetPosition = elementPosition - offset;
+        window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
+      }
+    }, 100);
   };
 
   const toggleDietary = (tag: DietaryFilter) => {
-    setDietaryFilters((prev) =>
-      prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]
-    );
+    setDietaryFilters((prev) => prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]);
   };
 
-  const openImage = (url: string) => setExpandedImage(url);
-  const closeImage = () => setExpandedImage(null);
-
   return (
-    <main className="font-poppins text-gray-800 bg-white min-h-screen">
+    <main className={`min-h-screen bg-[#f8f5f2] text-stone-900 ${inter.className} relative`}>
+      
+      {/* Global Grain Texture */}
+      <div className="fixed inset-0 pointer-events-none opacity-[0.03] z-[5] bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] mix-blend-multiply" />
+
       {filteredSections.length > 0 && <MenuSchema sections={filteredSections as any} />}
 
-      {/* HERO */}
-      <section className="relative h-96 flex items-center justify-center">
+      {/* --- HERO HEADER --- */}
+      <section className="relative h-[65vh] min-h-[450px] flex items-center justify-center overflow-hidden">
         <Image
           src="/images/restaurant-dinner-black.webp"
-          alt="Curry & Hops Menu"
+          alt="Ambience"
           fill
           className="object-cover"
           priority
         />
-        <div className="absolute inset-0 bg-black/40" />
+        <div className="absolute inset-0 bg-black/50" />
 
-        <div className="relative z-10 text-center space-y-8">
-          <h1 className={`${playfair.className} text-6xl md:text-7xl text-white`}>
-  Menu
-</h1>
-
-
-
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6">
-            <div className="inline-flex items-center rounded-full bg-white/10 backdrop-blur-md border border-white/20 shadow-xl p-1.5">
+        <div className="relative z-10 text-center px-4 w-full max-w-4xl pt-24">
+          <h1 className={`${playfair.className} text-5xl md:text-7xl font-medium tracking-[0.2em] text-white/90 leading-tight mb-8`}>
+            MENU
+          </h1>
+          
+          <div className="flex justify-center">
+            <div className="relative bg-white/5 backdrop-blur-xl border border-white/10 rounded-full p-1.5 flex shadow-2xl ring-1 ring-white/10">
               <button
                 onClick={() => setMenuType("food")}
-                className={`relative px-7 py-3 text-sm md:text-base font-medium rounded-full transition-all duration-300 ease-out ${
-                  menuType === "food"
-                    ? "text-black bg-amber-400 shadow-md shadow-amber-500/30"
-                    : "text-white/80 hover:text-white hover:bg-white/10"
+                className={`px-8 md:px-10 py-3 rounded-full text-sm font-bold tracking-widest transition-all duration-500 ease-out ${
+                  menuType === "food" 
+                    ? "bg-[#f8f5f2] text-stone-900 shadow-lg scale-105" 
+                    : "text-white/60 hover:text-white"
                 }`}
               >
-                Food Menu
+                FOOD
               </button>
               <button
                 onClick={() => setMenuType("bar")}
-                className={`relative px-7 py-3 text-sm md:text-base font-medium rounded-full transition-all duration-300 ease-out ${
-                  menuType === "bar"
-                    ? "text-black bg-amber-400 shadow-md shadow-amber-500/30"
-                    : "text-white/80 hover:text-white hover:bg-white/10"
+                className={`px-8 md:px-10 py-3 rounded-full text-sm font-bold tracking-widest transition-all duration-500 ease-out ${
+                  menuType === "bar" 
+                    ? "bg-[#f8f5f2] text-stone-900 shadow-lg scale-105" 
+                    : "text-white/60 hover:text-white"
                 }`}
               >
-                Bar Menu
+                DRINKS
               </button>
             </div>
-            <MenuPdfButton />
+          </div>
+          
+          <div className="mt-8 opacity-80 hover:opacity-100 transition-opacity">
+             <MenuPdfButton />
           </div>
         </div>
       </section>
 
-      {/* Intro - Improved Typography */}
-     <section className="pt-14 pb-6 md:pt-20 md:pb-8 bg-gradient-to-br from-amber-50 via-white to-amber-50/30">
+      {/* --- STICKY CONTROL BAR --- */}
+      <div className="sticky top-0 z-40 bg-[#f8f5f2]/95 backdrop-blur-md border-b border-stone-200/50 shadow-sm transition-all py-3 md:py-4">
+        <div className="max-w-6xl mx-auto px-4 flex gap-3 md:gap-4">
+          
+          <div className="relative flex-1">
+            <select
+              value={selectedCategory}
+              onChange={(e) => handleCategorySelect(e.target.value)}
+              className="w-full h-12 pl-4 pr-10 bg-white rounded-lg border border-stone-200 text-stone-700 font-serif font-medium text-base md:text-lg shadow-sm focus:ring-1 focus:ring-stone-400 focus:border-stone-400 appearance-none cursor-pointer truncate"
+            >
+              <option value="all">All Categories</option>
+              {filteredSections.map((s) => (
+                <option key={s.title} value={s.title}>
+                  {s.title}
+                </option>
+              ))}
+            </select>
+            <ChevronDownIcon className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-stone-400 pointer-events-none" />
+          </div>
 
-  <div className="max-w-6xl mx-auto px-6 text-center">
-    <h1 
-      className="font-['Playfair_Display'] text-6xl sm:text-7xl md:text-9xl 
-                 font-extrabold text-amber-950 tracking-tight leading-none mb-8 
-                 drop-shadow-2xl animate-fade-in"
-    >
-      Curry & Hops
-    </h1>
-
-    <p className="font-['Inter'] text-xl sm:text-2xl md:text-3xl text-gray-800 font-light 
-                  max-w-4xl mx-auto leading-relaxed tracking-wide">
-      Bold Indian soul meets craft beer spirit.<br className="hidden sm:block" />
-      Where spice ignites, stories unfold, and every sip & bite feels like home.
-    </p>
-
-    <div className="mt-4 flex justify-center">
-
-      <div className="inline-flex flex-col items-center text-amber-700">
-        <span className="text-sm uppercase tracking-[0.25em] font-medium mb-6">
-          Scroll to Discover
-        </span>
-        <div className="animate-pulse-slow">
-          <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-          </svg>
+          {menuType === "food" && (
+            <button
+              onClick={() => setShowFilters(true)}
+              className={`h-12 px-4 md:px-6 rounded-lg border flex items-center justify-center gap-2 transition-all shadow-sm ${
+                typeFilter !== "All" || dietaryFilters.length > 0
+                  ? "bg-stone-800 border-stone-800 text-white"
+                  : "bg-white border-stone-200 text-stone-600 hover:border-stone-300"
+              }`}
+            >
+              <AdjustmentsHorizontalIcon className="w-5 h-5 flex-shrink-0" />
+              <span className="hidden sm:inline font-bold text-xs uppercase tracking-widest">Filters</span>
+              {(typeFilter !== "All" || dietaryFilters.length > 0) && (
+                <span className="bg-amber-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full ml-1 min-w-[1.25rem] text-center">
+                  {(typeFilter !== "All" ? 1 : 0) + dietaryFilters.length}
+                </span>
+              )}
+            </button>
+          )}
         </div>
       </div>
-    </div>
-  </div>
-</section>
 
-      {/* FILTER BAR + SECTIONS */}
-      <div className="pb-24 md:pb-32 relative">
-        {/* Top filters */}
-        <div className="max-w-5xl mx-auto px-6 pt-2 pb-6">
+      {/* --- MENU LIST --- */}
+      <div className="max-w-6xl mx-auto px-3 md:px-6 py-8 md:py-12 space-y-16 md:space-y-24">
+        {displayedSections.length > 0 ? (
+          displayedSections.map((section, idx) => {
+            const slug = section.title.toLowerCase().replace(/\s+/g, "-");
+            const bgImage = CATEGORY_BACKGROUNDS[section.title.toLowerCase()] || `/images/${slug}-bg.jpg`;
 
-          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-            <div className="w-full md:w-3/5 relative">
-  <label 
-    htmlFor="category-filter" 
-    className="block text-sm font-medium text-gray-700 mb-2 text-center md:text-left"
-  >
-    Category
-  </label>
-  
-  <div className="relative">
-    <select
-      id="category-filter"
-      value={selectedCategory}
-      onChange={(e) => handleCategorySelect(e.target.value)}
-      className={`
-        w-full px-5 py-3.5 pr-12 bg-white 
-        border-2 border-amber-300 rounded-xl 
-        text-gray-900 text-base md:text-lg font-medium
-        focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500
-        shadow-md hover:shadow-lg hover:border-amber-400
-        transition-all duration-200 cursor-pointer
-        appearance-none
-      `}
-    >
-      <option value="all">All Items</option>
-      {filteredSections.map((section) => (
-        <option key={section.title} value={section.title}>
-          {section.title}
-        </option>
-      ))}
-    </select>
-
-    {/* Custom arrow */}
-    <div className="absolute inset-y-0 right-4 flex items-center pointer-events-none">
-      <ChevronDownIcon className="h-6 w-6 text-amber-700" />
-    </div>
-  </div>
-</div>
-
-            {menuType === "food" && (
-  <button
-    onClick={() => setShowFilters(true)}
-    className={`
-      w-full md:w-auto px-6 py-3.5 
-      bg-gradient-to-r from-amber-500 to-amber-600 
-      hover:from-amber-600 hover:to-amber-700
-      text-white font-medium rounded-xl
-      shadow-lg hover:shadow-xl
-      transition-all duration-300
-      flex items-center justify-center gap-2
-      border border-amber-400/30
-      group
-    `}
-  >
-    <span>Filters</span>
-    
-    {(typeFilter !== "All" || dietaryFilters.length > 0) && (
-      <span className="bg-white/20 text-white text-xs px-2.5 py-1 rounded-full font-semibold">
-        {(typeFilter !== "All" ? 1 : 0) + dietaryFilters.length}
-      </span>
-    )}
-
-    <ChevronDownIcon className="h-5 w-5 transition-transform group-hover:rotate-180" />
-  </button>
-)}
-          </div>
-        </div>
-
-        {/* Filter Modal */}
-        {showFilters && menuType === "food" && (
-          <div className="fixed inset-0 bg-black/60 z-50 flex items-end md:items-center justify-center">
-            <div className="bg-white w-full max-w-md md:max-w-lg rounded-t-3xl md:rounded-2xl shadow-2xl max-h-[85vh] overflow-y-auto">
-              <div className="sticky top-0 bg-white z-10 px-6 py-4 border-b flex items-center justify-between">
-                <h3 className="text-xl font-semibold text-gray-900">Filters</h3>
-                <button onClick={() => setShowFilters(false)}>
-                  <XMarkIcon className="h-6 w-6 text-gray-700" />
-                </button>
-              </div>
-
-              <div className="px-6 py-6 space-y-8">
-                <div>
-                  <h4 className="font-semibold text-gray-800 mb-4">Type</h4>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                    {TYPE_OPTIONS.map((opt) => (
-                      <button
-                        key={opt}
-                        onClick={() => setTypeFilter(opt)}
-                        className={`py-2.5 px-4 rounded-lg text-sm font-medium transition-colors ${
-                          typeFilter === opt
-                            ? "bg-amber-600 text-white shadow-md"
-                            : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                        }`}
-                      >
-                        {opt}
-                      </button>
-                    ))}
+            return (
+              <section key={idx} id={slug} className="scroll-mt-40">
+                {/* Header */}
+                <div className="relative h-40 md:h-64 rounded-t-2xl overflow-hidden shadow-md z-0">
+                  <Image src={bgImage} alt={section.title} fill className="object-cover" />
+                  <div className="absolute inset-0 bg-stone-900/40 mix-blend-multiply" />
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <h2 className={`${playfair.className} text-3xl md:text-5xl text-[#f8f5f2] font-medium tracking-wide capitalize drop-shadow-lg text-center px-4`}>
+                      {section.title}
+                    </h2>
                   </div>
                 </div>
 
-                <div>
-                  <h4 className="font-semibold text-gray-800 mb-4">Dietary Preferences</h4>
-                  <div className="space-y-3">
-                    {DIETARY_OPTIONS.map((tag) => (
-                      <label key={tag} className="flex items-center gap-3 cursor-pointer group">
-                        <input
-                          type="checkbox"
-                          checked={dietaryFilters.includes(tag)}
-                          onChange={() => toggleDietary(tag)}
-                          className="w-5 h-5 rounded accent-amber-600"
-                        />
-                        <span className="text-gray-700 group-hover:text-amber-800 transition-colors">
-                          {tag === "Spicy" ? "Spicy 🌶️" : tag === "Kids" ? "Kid's Choice" : "Vegan"}
-                        </span>
-                      </label>
-                    ))}
-                  </div>
+                {/* Card Container */}
+                <div className="relative z-10 -mt-6 mx-1 md:mx-6 bg-[#fffbf7] rounded-xl shadow-[0_10px_30px_-5px_rgba(0,0,0,0.1)] border border-stone-100 pb-6 md:pb-8 bg-[url('https://www.transparenttextures.com/patterns/cream-paper.png')] overflow-hidden">
+                   <div className="absolute top-0 inset-x-12 h-px bg-gradient-to-r from-transparent via-stone-300 to-transparent opacity-60" />
+                   
+                   {/* Items Grid */}
+                   <div className="grid md:grid-cols-2 gap-px bg-stone-200/40"> 
+                      {section.items.map((item, i) => (
+                        <div key={i} className="bg-[#fffbf7] bg-[url('https://www.transparenttextures.com/patterns/cream-paper.png')] p-4 md:p-8 relative group">
+                           {/* Decorative Corner */}
+                           <div className="absolute top-4 right-4 w-2 h-2 border-t border-r border-amber-900/20 opacity-0 group-hover:opacity-100 transition-opacity hidden md:block" />
+                           
+                           <MenuItemCard 
+                             item={item} 
+                             menuType={menuType} 
+                             onImageClick={setExpandedImage} 
+                           />
+                        </div>
+                      ))}
+                   </div>
                 </div>
-              </div>
-
-              <div className="sticky bottom-0 bg-white border-t px-6 py-4 flex gap-4">
-                <button
-                  onClick={() => {
-                    setTypeFilter("All");
-                    setDietaryFilters([]);
-                  }}
-                  className="flex-1 py-3 bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium rounded-xl transition"
-                >
-                  Clear All
-                </button>
-                <button
-                  onClick={() => setShowFilters(false)}
-                  className="flex-1 py-3 bg-amber-600 hover:bg-amber-700 text-white font-medium rounded-xl transition"
-                >
-                  Apply Filters
-                </button>
-              </div>
-            </div>
+              </section>
+            );
+          })
+        ) : (
+          <div className="text-center py-20">
+            <h3 className="text-xl font-bold text-gray-500">No items found</h3>
           </div>
         )}
-
-        {/* Floating quick selector */}
-        <div className="fixed bottom-6 right-6 z-40 md:hidden">
-          <button
-            onClick={() => setIsFabOpen(!isFabOpen)}
-            className="w-14 h-14 rounded-full bg-amber-600 text-white shadow-2xl flex items-center justify-center hover:bg-amber-700 transition-all active:scale-95 border-2 border-amber-300/50"
-          >
-            <ChevronDownIcon className="w-7 h-7" />
-          </button>
-
-          {isFabOpen && (
-            <div className="absolute bottom-full right-0 mb-4 w-64 bg-white rounded-xl shadow-2xl border border-amber-200/50 overflow-hidden">
-              <div className="max-h-80 overflow-y-auto py-2">
-                <button
-                  onClick={() => handleCategorySelect("all")}
-                  className={`w-full px-5 py-3 text-left text-sm font-medium ${
-                    selectedCategory === "all" ? "bg-amber-100 text-amber-900" : "hover:bg-amber-50"
-                  }`}
-                >
-                  All Items
-                </button>
-                {filteredSections.map((section) => (
-                  <button
-                    key={section.title}
-                    onClick={() => handleCategorySelect(section.title)}
-                    className={`w-full px-5 py-3 text-left text-sm font-medium ${
-                      selectedCategory === section.title ? "bg-amber-100 text-amber-900" : "hover:bg-amber-50"
-                    }`}
-                  >
-                    {section.title}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Menu Sections */}
-        <div className="transition-opacity duration-400">
-          {displayedSections.length > 0 ? (
-            displayedSections.map((section, index) => {
-              const slug = section.title.toLowerCase().replace(/\s+/g, "-");
-              const bgImage = CATEGORY_BACKGROUNDS[section.title.toLowerCase()] || `/images/${slug}-bg.jpg`;
-
-              return (
-                <MenuSection
-                  key={index}
-                  id={slug}
-                  title={section.title}
-                  bgImage={bgImage}
-                  sectionBg="/images/menu-texture.jpg"
-                  items={section.items}
-                  menuType={menuType}
-                  onImageClick={openImage}
-                />
-              );
-            })
-          ) : (
-            <div className="text-center py-20 text-gray-500 text-lg">
-              No items match your current selection.
-            </div>
-          )}
-        </div>
       </div>
 
-      {/* Image Expansion Modal */}
+      <button 
+        onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+        className="fixed bottom-6 right-6 p-3 bg-stone-900 text-[#f8f5f2] rounded-full shadow-2xl z-30 opacity-80 hover:opacity-100 transition-opacity"
+      >
+        <ArrowUpIcon className="w-5 h-5" />
+      </button>
+
+      {/* --- MODALS --- */}
       {expandedImage && (
         <div 
-          className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4"
-          onClick={closeImage}
+          className="fixed inset-0 bg-black/95 z-[60] flex items-center justify-center p-4 backdrop-blur-sm animate-fade-in"
+          onClick={() => setExpandedImage(null)}
         >
-          <button 
-            className="absolute top-6 right-6 text-white bg-black/40 rounded-full p-3 hover:bg-black/60 transition"
-            onClick={closeImage}
-          >
-            <XMarkIcon className="h-8 w-8" />
+          <button className="absolute top-4 right-4 text-white p-2">
+            <XMarkIcon className="w-8 h-8" />
           </button>
+          <div className="relative w-full max-w-4xl h-[70vh]">
+            <Image src={expandedImage} alt="Detail" fill className="object-contain" quality={100} />
+          </div>
+        </div>
+      )}
 
-          <div className="relative max-w-5xl max-h-[90vh] w-full h-full flex items-center justify-center">
-            <Image
-              src={expandedImage}
-              alt="Expanded dish"
-              fill
-              className="object-contain"
-              quality={90}
-              priority
-            />
+      {showFilters && (
+        <div className="fixed inset-0 bg-black/60 z-[55] flex justify-end">
+          <div className="w-full max-w-md bg-[#fffbf7] h-full shadow-2xl p-6 flex flex-col animate-slide-in-right border-l border-stone-200">
+            <div className="flex justify-between items-center mb-8 border-b border-stone-200 pb-4">
+              <h3 className={`${playfair.className} text-3xl font-bold text-stone-900`}>Filter Menu</h3>
+              <button onClick={() => setShowFilters(false)} className="p-2 hover:bg-stone-200 rounded-full transition text-stone-500">
+                <XMarkIcon className="w-6 h-6" />
+              </button>
+            </div>
+
+            {/* Aesthetic Filter Content */}
+            <div className="flex-1 space-y-10 overflow-y-auto px-1">
+              {/* Type Section */}
+              <div className="space-y-4">
+                <label className="text-xs font-bold text-stone-400 uppercase tracking-widest block pl-1">Category</label>
+                <div className="grid grid-cols-2 gap-3">
+                  {TYPE_OPTIONS.map(opt => (
+                    <button 
+                      key={opt} 
+                      onClick={() => setTypeFilter(opt)} 
+                      className={`relative overflow-hidden px-4 py-3 rounded-xl text-sm font-bold transition-all duration-300 border ${
+                        typeFilter === opt 
+                          ? "bg-amber-500 border-amber-500 text-white shadow-md scale-[1.02]" 
+                          : "bg-white border-stone-200 text-stone-600 hover:border-amber-300 hover:text-amber-700"
+                      }`}
+                    >
+                      {opt}
+                      {typeFilter === opt && <div className="absolute top-0 right-0 p-1"><CheckIcon className="w-3 h-3" /></div>}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Preferences Section */}
+              <div className="space-y-4">
+                <label className="text-xs font-bold text-stone-400 uppercase tracking-widest block pl-1">Dietary Tags</label>
+                <div className="flex flex-col gap-3">
+                  {DIETARY_OPTIONS.map(opt => {
+                    const isActive = dietaryFilters.includes(opt);
+                    return (
+                      <label 
+                        key={opt} 
+                        className={`flex items-center justify-between p-4 rounded-xl border transition-all cursor-pointer ${
+                          isActive 
+                            ? "bg-amber-50 border-amber-500 shadow-sm" 
+                            : "bg-white border-stone-200 hover:border-stone-300"
+                        }`}
+                      >
+                        <span className={`font-bold text-base ${isActive ? "text-amber-900" : "text-stone-600"}`}>
+                          {opt}
+                        </span>
+                        <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors ${
+                          isActive ? "bg-amber-500 border-amber-500" : "border-stone-300 bg-white"
+                        }`}>
+                          {isActive && <CheckIcon className="w-4 h-4 text-white" />}
+                        </div>
+                        <input 
+                          type="checkbox" 
+                          checked={isActive} 
+                          onChange={() => toggleDietary(opt)} 
+                          className="hidden" 
+                        />
+                      </label>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+
+            <div className="pt-6 border-t border-stone-200 flex gap-4 mt-auto">
+               <button 
+                 onClick={() => { setTypeFilter("All"); setDietaryFilters([]); }} 
+                 className="flex-1 py-4 text-stone-500 font-bold border border-stone-200 rounded-xl hover:bg-stone-50 transition-colors uppercase text-xs tracking-widest"
+               >
+                 Reset
+               </button>
+               <button 
+                 onClick={() => setShowFilters(false)} 
+                 className="flex-[2] py-4 bg-stone-900 text-white font-bold rounded-xl hover:bg-stone-800 transition-colors shadow-lg uppercase text-xs tracking-widest"
+               >
+                 Show Results
+               </button>
+            </div>
           </div>
         </div>
       )}
@@ -550,167 +455,121 @@ function MenuContent() {
   );
 }
 
-/* ---------------- MENU SECTION COMPONENT ---------------- */
+/* ---------------- ITEM CARD COMPONENT (WITH EXPANDABLE DESCRIPTION) ---------------- */
 
-function MenuSection({
-  id,
-  title,
-  bgImage,
-  sectionBg,
-  items,
-  menuType,
-  onImageClick,
-}: {
-  id: string;
-  title: string;
-  bgImage: string;
-  sectionBg: string;
-  items: MenuItem[];
-  menuType: "food" | "bar";
-  onImageClick: (url: string) => void;
-}) {
-  const tagIcons = TAG_ICONS;
+function MenuItemCard({ item, menuType, onImageClick }: { item: MenuItem, menuType: string, onImageClick: (url: string) => void }) {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const effectiveTags = [...(item.tags || [])];
+  const hasNonVegOrEgg = effectiveTags.some(t => t === "Non-Veg" || t === "Egg");
+  if (menuType === "food" && !hasNonVegOrEgg && !effectiveTags.includes("Veg")) {
+    effectiveTags.push("Veg");
+  }
+
+  const getIcon = (tag: string) => {
+    if (tag === "Veg") return <div className="w-3 h-3 border border-green-700 p-[1px] flex items-center justify-center"><div className="w-full h-full bg-green-700 rounded-full" /></div>;
+    if (tag === "Non-Veg") return <div className="w-3 h-3 border border-red-700 p-[1px] flex items-center justify-center"><div className="w-full h-full bg-red-700 rounded-full" /></div>;
+    if (tag === "Egg") return <div className="w-3 h-3 border border-yellow-600 p-[1px] flex items-center justify-center"><div className="w-full h-full bg-yellow-600 rounded-full" /></div>;
+    return null;
+  };
 
   return (
-    <section id={id} className="py-12 bg-cover bg-center relative" style={{ backgroundImage: `url(${sectionBg})` }}>
-      <div className="relative min-h-[180px] md:min-h-[220px] flex items-center justify-center mb-8">
-        <Image src={bgImage} alt={title} fill className="object-cover brightness-90" />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/40 to-black/70" />
-        <h2 className="relative z-10 font-['Playfair_Display'] text-5xl md:text-6xl lg:text-7xl text-white drop-shadow-2xl tracking-tight font-extrabold leading-tight">
-  {title}
-</h2>
-      </div>
-
-      <div className="max-w-6xl mx-auto px-5 md:px-8 lg:px-10">
-        <div className="space-y-6 md:space-y-8">
-          {items.map((item, idx) => {
-            const effectiveTags = [...(item.tags || [])];
-            const hasNonVegOrEgg = effectiveTags.some(t => t === "Non-Veg" || t === "Egg");
-            if (menuType === "food" && !hasNonVegOrEgg && !effectiveTags.includes("Veg")) {
-              effectiveTags.push("Veg");
-            }
-
-            return (
-             <div
-  key={idx}
-  className="
-    flex flex-row gap-4 items-start
-    pb-6 border-b border-gray-300/50 last:border-b-0 
-    hover:bg-amber-50/20 transition-colors rounded-xl p-4
-  "
->
-  {/* Square Image – always on left */}
-  <div 
-    className="shrink-0 cursor-pointer w-24 h-24 sm:w-28 sm:h-28"
-    onClick={() => item.imageUrl && onImageClick(item.imageUrl)}
-  >
-    {item.imageUrl ? (
-      <Image
-        src={item.imageUrl}
-        alt={item.name}
-        width={112}
-        height={112}
-        className="
-          w-full h-full 
-          object-cover 
-          rounded-xl
-          border border-amber-200/50 
-          shadow-sm 
-          hover:shadow-md hover:scale-[1.03] 
-          transition-all duration-300
-        "
-      />
-    ) : (
-      <div className="
-        w-full h-full 
-        rounded-xl 
-        bg-gradient-to-br from-amber-50 to-amber-100 
-        flex items-center justify-center 
-        text-amber-700/60 text-sm font-medium
-        border border-amber-200/40
-      ">
-        Dish
-      </div>
-    )}
-  </div>
-
-  {/* Text content – right side */}
-  <div className="flex-1 min-w-0">
-    {/* Name + Tags */}
-    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-1.5 mb-1.5">
-      <h4 className="font-['Satisfy'] font-normal text-xl sm:text-2xl md:text-3xl text-gray-900 tracking-wide line-clamp-2">
-        {item.name}
-      </h4>
-
-      {menuType === "food" && effectiveTags.length > 0 && (
-        <div className="flex flex-wrap gap-1.5 mt-1 sm:mt-0">
-          {effectiveTags.map((tag) => (
-            <div
-              key={tag}
-              className="flex items-center gap-1 text-xs font-medium px-2.5 py-0.5 rounded-full bg-white/90 shadow-sm border border-gray-200"
-            >
-              {tagIcons[tag] && (
-                <Image
-                  src={tagIcons[tag]}
-                  alt={tag}
-                  width={16}
-                  height={16}
-                  className="object-contain drop-shadow-sm"
-                />
-              )}
-              <span
-                className={
-                  tag === "Non-Veg" ? "text-red-700" :
-                  tag === "Egg" ? "text-yellow-700" :
-                  tag === "Spicy" ? "text-orange-700" :
-                  tag === "Kids" ? "text-blue-700" :
-                  tag === "Vegan" ? "text-green-700" :
-                  "text-emerald-700"
-                }
-              >
-                {tag === "Spicy" ? "Spicy" : tag}
-              </span>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-
-    {/* Description */}
-    <p className="font-['Merriweather'] text-sm sm:text-base md:text-lg text-gray-700 leading-relaxed italic mb-2 line-clamp-3">
-      {item.desc}
-    </p>
-
-    {/* Price */}
-    <div className="text-right">
-      {menuType === "bar" && item.showBottlePeg && item.bottlePrice && item.pegPrice ? (
-        <div className="inline-flex gap-5 text-sm font-medium">
-          <div className="text-left">
-            <span className="text-amber-700 text-xs block">30ml</span>
-            <span className="font-bold text-amber-900">₹{item.pegPrice}</span>
-          </div>
-          <div className="text-left">
-            <span className="text-amber-700 text-xs block">Bottle</span>
-            <span className="font-bold text-amber-900">₹{item.bottlePrice}</span>
+    <div className="flex flex-row gap-4 items-start w-full">
+      
+      {/* 1. Left: Image */}
+      {item.imageUrl && (
+        <div 
+          className="shrink-0 w-20 h-20 md:w-28 md:h-28 relative cursor-pointer group/img shadow-md rounded-lg overflow-hidden border border-stone-200"
+          onClick={() => onImageClick(item.imageUrl!)}
+        >
+          <Image 
+            src={item.imageUrl} 
+            alt={item.name} 
+            fill 
+            className="object-cover transition-transform duration-700 group-hover/img:scale-110" 
+          />
+          {/* Magnify Icon Overlay */}
+          <div className="absolute inset-0 z-20 flex items-center justify-center opacity-0 group-hover/img:opacity-100 transition-opacity bg-black/20">
+             <PhotoIcon className="w-5 h-5 text-white drop-shadow-md" />
           </div>
         </div>
-      ) : (
-        <span className="font-bold text-lg sm:text-xl text-amber-900">₹{item.price}</span>
       )}
-    </div>
-  </div>
-</div>
-            );
-          })}
+
+      {/* 2. Middle: Content */}
+      <div className="flex-1 min-w-0 flex flex-col justify-center">
+        
+        {/* Title + Price Row */}
+        <div className="flex justify-between items-start gap-2 mb-1">
+          <h3 className={`${playfair.className} text-lg md:text-2xl font-bold text-stone-900 leading-tight break-words pr-2`}>
+            {item.name}
+          </h3>
+          
+          {/* Price (Fixed Right - With Bottle/Peg Logic) */}
+          <div className="text-right shrink-0">
+            {menuType === "bar" && item.showBottlePeg ? (
+              <div className="flex flex-col items-end gap-0.5">
+                <div className="flex items-center gap-1.5">
+                   <span className="text-[10px] text-stone-400 font-bold uppercase tracking-wider">30ml</span>
+                   <span className="text-base md:text-lg font-bold text-stone-900">₹{item.pegPrice}</span>
+                </div>
+                {item.bottlePrice && (
+                   <div className="flex items-center gap-1.5">
+                     <span className="text-[10px] text-stone-400 font-bold uppercase tracking-wider">Btl</span>
+                     <span className="text-sm md:text-base text-stone-600 font-medium">₹{item.bottlePrice}</span>
+                   </div>
+                )}
+              </div>
+            ) : (
+              <span className="text-base md:text-xl font-bold text-stone-900">₹{item.price}</span>
+            )}
+          </div>
+        </div>
+
+        {/* Tags (With Custom Colors) */}
+        {menuType === "food" && (
+          <div className="flex items-center gap-2 mb-2 flex-wrap">
+            {effectiveTags.map(tag => (
+              <div key={tag} className="flex items-center gap-1">
+                {getIcon(tag)}
+                <span className={`text-[9px] md:text-[10px] font-bold uppercase tracking-wide ${
+                  tag === "Spicy" ? "text-red-600" : 
+                  tag === "Vegan" ? "text-green-600" :
+                  tag === "Kids" ? "text-sky-500" :
+                  "text-stone-400"
+                }`}>
+                  {tag}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Description - Expandable Logic */}
+        <div 
+          onClick={() => setIsExpanded(!isExpanded)}
+          className="cursor-pointer group/desc"
+        >
+          <p className={`${cormorant.className} text-base md:text-lg text-stone-600 leading-snug italic opacity-90 transition-all ${isExpanded ? '' : 'line-clamp-3'}`}>
+            {item.desc}
+          </p>
+          {item.desc.length > 80 && (
+             <span className="text-[10px] uppercase font-bold text-amber-600 mt-1 inline-block opacity-0 group-hover/desc:opacity-100 transition-opacity md:opacity-0">
+               {isExpanded ? "Show Less" : "Read More"}
+             </span>
+          )}
         </div>
       </div>
-    </section>
+
+    </div>
   );
 }
 
 export default function MenuPage() {
   return (
-    <Suspense fallback={<div className="p-10 text-center text-gray-600 animate-pulse">Loading menu…</div>}>
+    <Suspense fallback={
+      <div className="h-screen flex items-center justify-center bg-[#faf9f6]">
+        <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-stone-800"></div>
+      </div>
+    }>
       <MenuContent />
     </Suspense>
   );

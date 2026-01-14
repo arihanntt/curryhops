@@ -1,7 +1,18 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ChevronDownIcon, ChevronUpIcon, Bars3Icon, TrashIcon, ArrowPathIcon } from "@heroicons/react/24/outline";
+import { 
+  ChevronDownIcon, 
+  ChevronUpIcon, 
+  Bars3Icon, 
+  TrashIcon, 
+  ArrowPathIcon,
+  CalendarIcon,
+  MapPinIcon,
+  PhotoIcon,
+  LinkIcon,
+  PlusIcon
+} from "@heroicons/react/24/outline";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 
 const generateSlug = (str: string) =>
@@ -17,11 +28,17 @@ export default function EventsAdmin() {
   const [saving, setSaving] = useState(false);
   const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState<string>("");
-  const [isClient, setIsClient] = useState(false);
+  
+  // Strict Mode / Hydration Fix for DnD
+  const [enabled, setEnabled] = useState(false);
 
   useEffect(() => {
-    setIsClient(true);
+    const animation = requestAnimationFrame(() => setEnabled(true));
     fetchData();
+    return () => {
+      cancelAnimationFrame(animation);
+      setEnabled(false);
+    };
   }, []);
 
   const fetchData = async () => {
@@ -76,7 +93,6 @@ export default function EventsAdmin() {
     if (!confirm("Delete this event?")) return;
     const newEvents = [...events];
     newEvents.splice(index, 1);
-    // Re-order remaining items
     setEvents(newEvents.map((e, i) => ({ ...e, order: i })));
   };
 
@@ -98,7 +114,6 @@ export default function EventsAdmin() {
 
   const isFormValid = () => {
     if (events.length === 0) return true;
-
     const slugs = new Set<string>();
     for (const ev of events) {
       if (!ev.title?.trim() || !ev.slug?.trim() || !ev.date?.trim()) {
@@ -114,7 +129,6 @@ export default function EventsAdmin() {
 
   const getValidationMessage = () => {
     if (events.length === 0) return "";
-
     const issues: string[] = [];
     const slugs = new Set<string>();
 
@@ -139,16 +153,12 @@ export default function EventsAdmin() {
       return;
     }
 
-    // REMOVED CONFIRMATION DIALOG HERE
-
     try {
       setSaving(true);
       setStatus("idle");
       setErrorMessage("");
 
-      // 1. Capture which item is currently expanded (by index) so we can re-open it
       const expandedIndex = events.findIndex(e => e.uniqueKey === expanded);
-
       const payload = events.map(({ _id, __v, ...rest }) => rest);
 
       const res = await fetch("/api/events", {
@@ -162,17 +172,14 @@ export default function EventsAdmin() {
         throw new Error(text);
       }
 
-      // 2. Use the data returned from the server directly (Single Source of Truth)
       const freshData = await res.json();
-      
       const mapped = freshData.map((d: any) => ({
         ...d,
-        uniqueKey: d._id // Backend IDs are now stable
+        uniqueKey: d._id 
       }));
 
       setEvents(mapped);
 
-      // 3. Restore the expanded state using the new ID at the same index
       if (expandedIndex !== -1 && mapped[expandedIndex]) {
         setExpanded(mapped[expandedIndex].uniqueKey);
       }
@@ -188,32 +195,49 @@ export default function EventsAdmin() {
     }
   };
 
-  if (!isClient) return <div className="p-10 bg-black text-white">Loading Editor...</div>;
-
   const validationMsg = getValidationMessage();
   const canSave = !saving && isFormValid();
 
+  if (!enabled) return (
+     <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="animate-pulse flex flex-col items-center gap-2">
+            <div className="h-8 w-8 rounded-full border-2 border-amber-500 border-t-transparent animate-spin" />
+            <span className="text-slate-400 text-sm font-medium">Loading Events...</span>
+        </div>
+     </div>
+  );
+
   return (
-    <div className="min-h-screen bg-black text-white p-6 md:p-10">
-      <div className="max-w-4xl mx-auto">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 gap-4">
-          <h1 className="text-3xl font-bold">Events Manager</h1>
-          <div className="flex gap-3">
+    <div className="min-h-screen bg-slate-50 text-slate-800 p-6 md:p-12 relative overflow-x-hidden selection:bg-amber-100">
+      
+      {/* Background Decor */}
+      <div className="fixed top-20 right-0 w-[600px] h-[600px] bg-gradient-to-b from-amber-500/5 to-transparent rounded-full blur-[120px] pointer-events-none" />
+
+      <div className="max-w-5xl mx-auto relative z-10">
+        
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-10 gap-6 border-b border-slate-200 pb-8">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight text-slate-900">Events Manager</h1>
+            <p className="text-slate-500 mt-1">Manage upcoming parties, live music, and special nights.</p>
+          </div>
+          
+          <div className="flex gap-3 w-full sm:w-auto">
             <button
               onClick={fetchData}
               disabled={saving}
-              className="p-2 text-gray-400 hover:text-white border border-gray-700 rounded-lg disabled:opacity-50"
+              className="p-2.5 text-slate-500 hover:text-amber-600 hover:bg-amber-50 border border-slate-200 hover:border-amber-200 rounded-lg transition-all disabled:opacity-50 shadow-sm"
               title="Refresh / Reload from DB"
             >
-              <ArrowPathIcon className="h-6 w-6" />
+              <ArrowPathIcon className="h-5 w-5" />
             </button>
             <button
               onClick={save}
               disabled={!canSave}
-              className={`px-6 py-2 rounded-lg font-bold transition ${
+              className={`flex-1 sm:flex-none px-8 py-2.5 rounded-lg font-bold shadow-md transition-all transform active:scale-95 ${
                 canSave
-                  ? "bg-amber-500 hover:bg-amber-400 text-black"
-                  : "bg-gray-700 text-gray-400 cursor-not-allowed"
+                  ? "bg-gradient-to-r from-amber-500 to-orange-500 text-white hover:shadow-lg hover:shadow-amber-500/30"
+                  : "bg-slate-200 text-slate-400 cursor-not-allowed shadow-none"
               }`}
             >
               {saving ? "Saving..." : "Save Changes"}
@@ -221,24 +245,27 @@ export default function EventsAdmin() {
           </div>
         </div>
 
+        {/* Status Messages */}
         {status === "success" && (
-          <div className="p-4 mb-6 bg-green-900/30 text-green-300 border border-green-700 rounded">
-            ✓ Events saved successfully
+          <div className="animate-in fade-in slide-in-from-top-4 p-4 mb-8 bg-green-50 text-green-700 border border-green-200 rounded-xl flex items-center gap-2 shadow-sm">
+            <div className="h-2 w-2 rounded-full bg-green-500" />
+            ✓ Events synced successfully
           </div>
         )}
 
         {(status === "error" || errorMessage) && (
-          <div className="p-4 mb-6 bg-red-900/30 text-red-300 border border-red-700 rounded">
-            ✕ {errorMessage || "Failed to save. Check browser console (F12)"}
+          <div className="animate-in fade-in slide-in-from-top-4 p-4 mb-8 bg-red-50 text-red-700 border border-red-200 rounded-xl shadow-sm">
+             ✕ {errorMessage || "Failed to save. Check browser console."}
           </div>
         )}
 
         {validationMsg && (
-          <div className="p-3 mb-4 bg-yellow-900/30 text-yellow-300 border border-yellow-700 rounded text-sm">
-            Cannot save: {validationMsg}
+          <div className="p-4 mb-8 bg-amber-50 text-amber-800 border border-amber-200 rounded-xl text-sm shadow-sm flex items-center gap-2">
+             <span className="font-bold">Attention:</span> {validationMsg}
           </div>
         )}
 
+        {/* Drag & Drop List */}
         <DragDropContext onDragEnd={onDragEnd}>
           <Droppable droppableId="events">
             {(provided) => (
@@ -249,177 +276,209 @@ export default function EventsAdmin() {
 
                   return (
                     <Draggable key={ev.uniqueKey} draggableId={ev.uniqueKey} index={i}>
-                      {(provided) => (
+                      {(provided, snapshot) => (
                         <div
                           ref={provided.innerRef}
                           {...provided.draggableProps}
-                          className={`border rounded-xl bg-neutral-900 overflow-hidden ${
-                            !hasSlug ? "border-amber-600/60" : "border-neutral-800"
-                          }`}
+                          className={`
+                            bg-white rounded-2xl border transition-all duration-300 overflow-hidden
+                            ${snapshot.isDragging 
+                                ? "shadow-2xl shadow-amber-500/20 border-amber-400 scale-[1.02] z-50 ring-1 ring-amber-400" 
+                                : "shadow-sm border-slate-200 hover:shadow-md hover:border-amber-200"
+                            }
+                            ${!hasSlug ? "border-l-4 border-l-red-400" : ""}
+                          `}
                         >
-                          {/* HEADER */}
-                          <div className="flex items-center justify-between p-4 bg-neutral-800/60">
+                          {/* Card Header (Always Visible) */}
+                          <div className="flex items-center justify-between p-4 bg-white">
                             <div className="flex items-center gap-4 flex-1">
+                              {/* Drag Handle */}
                               <div
                                 {...provided.dragHandleProps}
-                                className="cursor-grab hover:text-white text-gray-500"
+                                className="cursor-grab active:cursor-grabbing p-2 hover:bg-slate-100 rounded-lg text-slate-400 hover:text-amber-500 transition-colors"
                               >
                                 <Bars3Icon className="h-6 w-6" />
                               </div>
+
+                              {/* Clickable Title Area */}
                               <div
-                                className="flex-1 cursor-pointer font-medium truncate"
-                                onClick={() => setExpanded(isExpanded ? null : ev.uniqueKey)}
+                                className="flex-1 cursor-pointer"
+                                onClick={(e) => {
+                                   // Prevent expanding if clicking delete
+                                   e.stopPropagation();
+                                   setExpanded(isExpanded ? null : ev.uniqueKey);
+                                }}
                               >
-                                {ev.title?.trim() ? ev.title : <span className="text-gray-500 italic">Untitled</span>}
-                                <span
-                                  className={`ml-3 text-xs font-mono ${
-                                    hasSlug ? "text-gray-500" : "text-amber-400"
-                                  }`}
-                                >
-                                  {hasSlug ? `/${ev.slug}` : "missing slug"}
-                                </span>
+                                <div className="flex flex-col md:flex-row md:items-center gap-1 md:gap-3">
+                                    <span className={`font-bold text-lg ${ev.title ? "text-slate-800" : "text-slate-400 italic"}`}>
+                                        {ev.title?.trim() || "Untitled Event"}
+                                    </span>
+                                    
+                                    {/* Mini Badges for Date/Loc when collapsed */}
+                                    {!isExpanded && (
+                                        <div className="flex items-center gap-3 text-xs text-slate-500 mt-1 md:mt-0">
+                                            {ev.date && (
+                                                <span className="flex items-center gap-1 bg-slate-100 px-2 py-0.5 rounded-full">
+                                                    <CalendarIcon className="w-3 h-3" /> {ev.date}
+                                                </span>
+                                            )}
+                                            {ev.location && (
+                                                <span className="flex items-center gap-1 bg-slate-100 px-2 py-0.5 rounded-full hidden sm:flex">
+                                                    <MapPinIcon className="w-3 h-3" /> {ev.location}
+                                                </span>
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
+                                <div className="text-xs font-mono text-slate-400 mt-0.5">
+                                    {hasSlug ? `/${ev.slug}` : <span className="text-red-400 font-bold">Missing URL Slug</span>}
+                                </div>
                               </div>
                             </div>
+
                             <div className="flex items-center gap-2">
                               <button
                                 onClick={() => handleDelete(i)}
-                                className="p-2 hover:bg-red-900/30 text-gray-400 hover:text-red-400 rounded"
+                                className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                                title="Delete Event"
                               >
                                 <TrashIcon className="h-5 w-5" />
                               </button>
-                              <button onClick={() => setExpanded(isExpanded ? null : ev.uniqueKey)}>
-                                {isExpanded ? (
-                                  <ChevronUpIcon className="h-5 w-5" />
-                                ) : (
-                                  <ChevronDownIcon className="h-5 w-5" />
-                                )}
+                              <button 
+                                onClick={() => setExpanded(isExpanded ? null : ev.uniqueKey)}
+                                className={`p-2 rounded-full border border-slate-200 text-slate-400 hover:bg-slate-100 transition-all duration-300 ${isExpanded ? "rotate-180 bg-slate-100 text-slate-700" : ""}`}
+                              >
+                                <ChevronDownIcon className="h-5 w-5" />
                               </button>
                             </div>
                           </div>
 
+                          {/* Expanded Form */}
                           {isExpanded && (
-                            <div className="p-6 border-t border-neutral-800 space-y-6 bg-black/30">
-                              {/* Title + Slug row */}
+                            <div className="p-6 border-t border-slate-100 bg-slate-50/50 space-y-6 animate-in slide-in-from-top-2">
+                              
+                              {/* Row 1: Title & Slug */}
                               <div className="grid md:grid-cols-2 gap-6">
                                 <div className="space-y-2">
-                                  <label className="text-xs uppercase tracking-wide text-gray-400 font-semibold">
-                                    Event Title *
-                                  </label>
+                                  <label className="text-xs uppercase tracking-wide text-slate-500 font-bold ml-1">Event Title *</label>
                                   <input
                                     value={ev.title || ""}
                                     onChange={(e) => updateField(i, "title", e.target.value)}
-                                    className="w-full bg-neutral-950 border border-neutral-700 p-3 rounded focus:border-amber-500 outline-none"
+                                    className="w-full bg-white border border-slate-200 p-3 rounded-xl focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 outline-none transition-all"
                                     placeholder="e.g. Acoustic Evening"
                                   />
                                 </div>
 
                                 <div className="space-y-2">
-                                  <label className="text-xs uppercase tracking-wide text-gray-400 font-semibold">
-                                    Slug (Auto-Generate Only) *
-                                  </label>
+                                  <label className="text-xs uppercase tracking-wide text-slate-500 font-bold ml-1">URL Slug *</label>
                                   <div className="flex gap-2">
-                                    <input
-                                      value={ev.slug || ""}
-                                      readOnly
-                                      className={`flex-1 bg-neutral-900 border p-3 rounded font-mono text-sm outline-none text-gray-500 cursor-not-allowed ${
-                                        hasSlug ? "border-neutral-800" : "border-amber-900/50"
-                                      }`}
-                                      placeholder="Click Auto ->"
-                                    />
+                                    <div className="relative flex-1">
+                                        <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
+                                            <LinkIcon className="w-4 h-4" />
+                                        </div>
+                                        <input
+                                            value={ev.slug || ""}
+                                            readOnly
+                                            className="w-full pl-9 bg-slate-100 border border-slate-200 p-3 rounded-xl font-mono text-sm text-slate-500 cursor-not-allowed"
+                                            placeholder="Auto-generated..."
+                                        />
+                                    </div>
                                     <button
                                       onClick={() => handleGenerateSlug(i)}
-                                      className="px-4 bg-amber-600/20 border border-amber-600/50 text-amber-500 rounded hover:bg-amber-600 hover:text-white transition-colors text-xs uppercase tracking-wider font-bold"
-                                      title="Generate from title"
+                                      className="px-4 bg-white border border-slate-200 text-amber-600 rounded-xl hover:bg-amber-50 hover:border-amber-300 transition-colors text-xs uppercase tracking-wider font-bold shadow-sm"
                                     >
-                                      Auto
+                                      Generate
                                     </button>
                                   </div>
                                 </div>
                               </div>
 
-                              {/* Date, Time, Location */}
-                              <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
+                              {/* Row 2: Date, Time, Location */}
+                              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                 <div className="space-y-2">
-                                  <label className="text-xs uppercase tracking-wide text-gray-400 font-semibold">
-                                    Date *
+                                  <label className="text-xs uppercase tracking-wide text-slate-500 font-bold ml-1 flex items-center gap-1">
+                                    <CalendarIcon className="w-3 h-3" /> Date *
                                   </label>
                                   <input
                                     type="date"
                                     value={ev.date || ""}
                                     onChange={(e) => updateField(i, "date", e.target.value)}
-                                    className="w-full bg-neutral-950 border border-neutral-700 p-3 rounded focus:border-amber-500 outline-none"
+                                    className="w-full bg-white border border-slate-200 p-3 rounded-xl focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 outline-none transition-all"
                                   />
                                 </div>
                                 <div className="space-y-2">
-                                  <label className="text-xs uppercase tracking-wide text-gray-400 font-semibold">
-                                    Time
-                                  </label>
+                                  <label className="text-xs uppercase tracking-wide text-slate-500 font-bold ml-1">Time</label>
                                   <input
                                     type="time"
                                     value={ev.time || ""}
                                     onChange={(e) => updateField(i, "time", e.target.value)}
-                                    className="w-full bg-neutral-950 border border-neutral-700 p-3 rounded focus:border-amber-500 outline-none"
+                                    className="w-full bg-white border border-slate-200 p-3 rounded-xl focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 outline-none transition-all"
                                   />
                                 </div>
-                                <div className="space-y-2 col-span-2 md:col-span-1">
-                                  <label className="text-xs uppercase tracking-wide text-gray-400 font-semibold">
-                                    Location
+                                <div className="space-y-2">
+                                  <label className="text-xs uppercase tracking-wide text-slate-500 font-bold ml-1 flex items-center gap-1">
+                                     <MapPinIcon className="w-3 h-3" /> Location
                                   </label>
                                   <input
                                     value={ev.location || ""}
                                     onChange={(e) => updateField(i, "location", e.target.value)}
-                                    className="w-full bg-neutral-950 border border-neutral-700 p-3 rounded focus:border-amber-500 outline-none"
+                                    className="w-full bg-white border border-slate-200 p-3 rounded-xl focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 outline-none transition-all"
+                                    placeholder="e.g. Main Hall"
                                   />
                                 </div>
                               </div>
 
-                              <div className="space-y-2">
-                                <label className="text-xs uppercase tracking-wide text-gray-400 font-semibold">
-                                  Summary
-                                </label>
-                                <textarea
-                                  value={ev.summary || ""}
-                                  onChange={(e) => updateField(i, "summary", e.target.value)}
-                                  className="w-full bg-neutral-950 border border-neutral-700 p-3 rounded h-24 focus:border-amber-500 outline-none resize-y"
-                                  placeholder="Brief description (shows on list page)"
-                                />
-                              </div>
-
-                              <div className="space-y-2">
-                                <label className="text-xs uppercase tracking-wide text-gray-400 font-semibold">
-                                  Full Details
-                                </label>
-                                <textarea
-                                  value={ev.details || ""}
-                                  onChange={(e) => updateField(i, "details", e.target.value)}
-                                  className="w-full bg-neutral-950 border border-neutral-700 p-3 rounded h-48 focus:border-amber-500 outline-none resize-y"
-                                  placeholder="Complete event information (shows on detail page)"
-                                />
-                              </div>
-
-                              <div className="space-y-2">
-                                <label className="text-xs uppercase tracking-wide text-gray-400 font-semibold">
-                                  Image URL
-                                </label>
-                                <input
-                                  value={ev.image || ""}
-                                  onChange={(e) => updateField(i, "image", e.target.value)}
-                                  className="w-full bg-neutral-950 border border-neutral-700 p-3 rounded focus:border-amber-500 outline-none"
-                                  placeholder="https://... or /images/my-event.jpg"
-                                />
-                                {ev.image?.trim() && (
-                                  <div className="mt-3 h-48 w-full relative rounded-lg overflow-hidden border border-neutral-800">
-                                    <img
-                                      src={ev.image}
-                                      alt="Preview"
-                                      className="object-cover w-full h-full opacity-80"
-                                      onError={(e) => {
-                                        (e.target as HTMLImageElement).style.display = "none";
-                                      }}
+                              {/* Row 3: Summaries */}
+                              <div className="grid md:grid-cols-2 gap-6">
+                                <div className="space-y-2">
+                                    <label className="text-xs uppercase tracking-wide text-slate-500 font-bold ml-1">Short Summary</label>
+                                    <textarea
+                                        value={ev.summary || ""}
+                                        onChange={(e) => updateField(i, "summary", e.target.value)}
+                                        className="w-full bg-white border border-slate-200 p-3 rounded-xl h-32 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 outline-none transition-all resize-none"
+                                        placeholder="Brief description for list view..."
                                     />
-                                  </div>
-                                )}
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-xs uppercase tracking-wide text-slate-500 font-bold ml-1">Full Details</label>
+                                    <textarea
+                                        value={ev.details || ""}
+                                        onChange={(e) => updateField(i, "details", e.target.value)}
+                                        className="w-full bg-white border border-slate-200 p-3 rounded-xl h-32 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 outline-none transition-all resize-none"
+                                        placeholder="Complete details for the event page..."
+                                    />
+                                </div>
                               </div>
+
+                              {/* Row 4: Image */}
+                              <div className="space-y-2">
+                                <label className="text-xs uppercase tracking-wide text-slate-500 font-bold ml-1 flex items-center gap-1">
+                                    <PhotoIcon className="w-3 h-3" /> Cover Image
+                                </label>
+                                <div className="flex flex-col md:flex-row gap-4 items-start">
+                                    <div className="flex-1 w-full">
+                                        <input
+                                            value={ev.image || ""}
+                                            onChange={(e) => updateField(i, "image", e.target.value)}
+                                            className="w-full bg-white border border-slate-200 p-3 rounded-xl focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 outline-none transition-all"
+                                            placeholder="https://..."
+                                        />
+                                        <p className="text-xs text-slate-400 mt-1 ml-1">Paste a direct link to an image.</p>
+                                    </div>
+                                    {ev.image?.trim() && (
+                                        <div className="w-full md:w-48 h-24 rounded-xl border border-slate-200 overflow-hidden bg-slate-100 flex-shrink-0 relative group">
+                                            <img
+                                                src={ev.image}
+                                                alt="Preview"
+                                                className="w-full h-full object-cover"
+                                                onError={(e) => (e.target as HTMLImageElement).src = 'https://via.placeholder.com/150?text=Error'}
+                                            />
+                                            <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors" />
+                                        </div>
+                                    )}
+                                </div>
+                              </div>
+
                             </div>
                           )}
                         </div>
@@ -435,9 +494,9 @@ export default function EventsAdmin() {
 
         <button
           onClick={handleAdd}
-          className="w-full py-5 mt-8 border-2 border-dashed border-neutral-700 rounded-xl text-gray-400 hover:border-amber-600 hover:text-amber-400 transition-all uppercase tracking-wider text-sm font-semibold"
+          className="w-full py-4 mt-8 rounded-xl border-2 border-dashed border-slate-300 text-slate-400 hover:border-amber-500 hover:text-amber-600 hover:bg-amber-50/50 transition-all uppercase tracking-wider text-sm font-bold flex items-center justify-center gap-2"
         >
-          + Add New Event
+          <PlusIcon className="w-5 h-5" /> Add New Event
         </button>
       </div>
     </div>

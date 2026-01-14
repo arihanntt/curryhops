@@ -1,7 +1,8 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
+  /* Updated to match the Admin Dashboard light theme (Slate-50) */
+  --background: #f8fafc; 
   --foreground: #171717;
 }
 
@@ -10,14 +11,32 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+
+  /* --- NEW ANIMATIONS FOR LOGIN PAGE --- */
+  --animate-marquee: marquee 25s linear infinite;
+  --animate-marquee-reverse: marquee-reverse 25s linear infinite;
+
+  @keyframes marquee {
+    from { transform: translateX(0); }
+    to { transform: translateX(-100%); }
+  }
+
+  @keyframes marquee-reverse {
+    from { transform: translateX(-100%); }
+    to { transform: translateX(0); }
+  }
 }
 
-@media (prefers-color-scheme: dark) {
+/* DISABLED DARK MODE AUTOMATION 
+   This prevents the "Black Bar" issue under your transparent Admin Navbar 
+*/
+/* @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
   }
-}
+} 
+*/
 
 body {
   background: var(--background);
@@ -28,13 +47,15 @@ body {
 .backdrop-blur-md {
   backdrop-filter: blur(12px);
 }
+
 @import url('https://fonts.googleapis.com/css2?family=Poppins&display=swap');
+
 @font-face {
   font-family: 'Avenir LT STD';
   src: url('/fonts/AvenirLTStd-Roman.woff2') format('woff2');
 }
 
-/* Combine all inline styles, global-styles-inline-css, weisber-theme-style-inline-css, etc. */
+/* --- LEGACY / THEME VARIABLES --- */
 :root {
   --black: #262022;
   --black-darker: #000000;
@@ -54,22 +75,14 @@ body {
   --font-subheaders: 'Mrs Saint Delafield' !important;
 }
 
-/* Copy all <style> tags content here, e.g., from wp-emoji-styles-inline-css, global-styles-inline-css, etc. */
-img.wp-smiley, img.emoji { /* ... */ }
-/* ... all other styles ... */
-
 /* Custom VC styles */
-.vc_custom_1555890526528 { background-image: url(/images/wood.jpg); /* Update paths */ }
-/* ... */
+.vc_custom_1555890526528 { background-image: url(/images/wood.jpg); }
 
 /* Theme styles */
 .page-header { background-image: url(/images/inner_HEADER_new_01.jpg) !important; }
-/* ... */
 
 /* Add @font-face for weisber-fontello */
 @font-face {
   font-family: 'weisber-fontello';
   src: url('/fonts/ltx-weisber.eot?1.1.9');
-  /* Add all formats */
 }
-/* ... */
