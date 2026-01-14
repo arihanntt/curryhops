@@ -216,7 +216,8 @@ function MenuContent() {
         />
         <div className="absolute inset-0 bg-black/50" />
 
-        <div className="relative z-10 text-center px-4 w-full max-w-4xl pt-24">
+        <div className="relative z-10 text-center px-4 w-full max-w-4xl pt-6 md:pt-10
+">
           <h1 className={`${playfair.className} text-5xl md:text-7xl font-medium tracking-[0.2em] text-white/90 leading-tight mb-8`}>
             MENU
           </h1>
