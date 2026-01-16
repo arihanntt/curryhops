@@ -172,6 +172,12 @@ function MenuContent() {
       )
       .map((section) => {
         const filteredItems = section.items.filter((item) => {
+          
+          // --- HIDE IF OUT OF STOCK ---
+          if (item.available === false) {
+            return false;
+          }
+
           if (menuType === "food" && typeFilter !== "All") {
             const hasNonVeg = item.tags?.includes("Non-Veg");
             const hasEgg = item.tags?.includes("Egg");
@@ -469,7 +475,7 @@ function MenuContent() {
   );
 }
 
-/* ---------------- ITEM CARD COMPONENT (WITH EXPANDABLE DESCRIPTION) ---------------- */
+/* ---------------- ITEM CARD COMPONENT ---------------- */
 
 function MenuItemCard({ item, menuType, onImageClick }: { item: MenuItem, menuType: string, onImageClick: (url: string) => void }) {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -494,15 +500,6 @@ function MenuItemCard({ item, menuType, onImageClick }: { item: MenuItem, menuTy
   return (
     <div className={`flex flex-row gap-4 items-start w-full relative ${!isAvailable ? "select-none" : ""}`}>
       
-      {/* 1. UNAVAILABLE OVERLAY */}
-      {!isAvailable && (
-        <div className="absolute inset-0 z-20 flex items-center justify-center backdrop-blur-[2px] bg-white/40 rounded-lg">
-           <div className="bg-stone-900/90 text-white px-4 py-2 rounded-full shadow-2xl border border-white/20 backdrop-blur-md">
-             <span className="text-xs font-bold uppercase tracking-widest">Currently Unavailable</span>
-           </div>
-        </div>
-      )}
-
       {/* 2. Left: Image */}
       {item.imageUrl && (
         <div 
