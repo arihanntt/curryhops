@@ -1,5 +1,14 @@
 import mongoose from "mongoose";
 
+// --- NEW: Schema for Add-ons/Variants ---
+const VariantSchema = new mongoose.Schema(
+  {
+    name: { type: String, trim: true },
+    price: { type: String, trim: true },
+  },
+  { _id: false }
+);
+
 const ItemSchema = new mongoose.Schema(
   {
     name: {
@@ -15,20 +24,31 @@ const ItemSchema = new mongoose.Schema(
       trim: true,
     },
 
-    // Multi-tag system (Non-Veg, Egg, Spicy, Kids, Vegan, etc.)
+    // Multi-tag system (Non-Veg, Egg, Spicy, Kids, Vegan, Gluten Free, Chef's Special)
     tags: {
       type: [String],
       default: [],
     },
 
-    // NEW: Dish image URL (optional, shown as circle in menu)
+    // Dish image URL
     imageUrl: {
       type: String,
       trim: true,
       default: "",
     },
 
-    // Legacy food field (optional – can remove later if using tags exclusively)
+    // --- NEW FIELDS (These were missing!) ---
+    available: {
+      type: Boolean,
+      default: true, // Defaults to "Serving Now"
+    },
+    isCustomizable: {
+      type: Boolean,
+      default: false,
+    },
+    variants: [VariantSchema], // Stores the add-ons list
+
+    // Legacy food field
     isNonVeg: {
       type: Boolean,
       default: false,
@@ -59,8 +79,6 @@ const SectionSchema = new mongoose.Schema(
       type: String,
       required: true,
       trim: true,
-      // Optional: index if you query by section id often
-      // index: true,
     },
     title: {
       type: String,
@@ -83,8 +101,8 @@ const MenuSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-    strict: false,           // Allows new fields like imageUrl without errors
-    strictPopulate: false,   // Extra safety for sub-document population
+    strict: false,       
+    strictPopulate: false, 
   }
 );
 

@@ -9,10 +9,10 @@ import {
   ChevronDownIcon, 
   XMarkIcon, 
   AdjustmentsHorizontalIcon, 
-  MagnifyingGlassIcon,
   ArrowUpIcon,
   PhotoIcon,
-  CheckIcon
+  CheckIcon,
+  SparklesIcon // New icon for customizable items
 } from "@heroicons/react/24/outline";
 import { Playfair_Display, Inter, Cormorant_Garamond } from "next/font/google";
 
@@ -22,12 +22,24 @@ const inter = Inter({ subsets: ["latin"] });
 const cormorant = Cormorant_Garamond({ weight: ["400", "500", "600", "700"], subsets: ["latin"], style: ["italic", "normal"] });
 
 // --- TYPES ---
+type MenuVariant = {
+  name: string;
+  price: string;
+};
+
 type MenuItem = {
   name: string;
   desc: string;
   price: string;
   tags?: string[];
   imageUrl?: string;
+  
+  // NEW FIELDS
+  available?: boolean; 
+  isCustomizable?: boolean;
+  variants?: MenuVariant[];
+
+  // Bar specific
   showBottlePeg?: boolean;
   bottlePrice?: string;
   pegPrice?: string;
@@ -94,7 +106,7 @@ const CATEGORY_BACKGROUNDS: Record<string, string> = {
 };
 
 const TYPE_OPTIONS = ["All", "Veg", "Non-Veg", "Egg"] as const;
-const DIETARY_OPTIONS = ["Spicy", "Kids", "Vegan"] as const;
+const DIETARY_OPTIONS = ["Spicy", "Kids", "Vegan", "Gluten Free", "Chef's Special"] as const;
 type TypeFilter = typeof TYPE_OPTIONS[number];
 type DietaryFilter = typeof DIETARY_OPTIONS[number];
 
@@ -105,6 +117,8 @@ const TAG_ICONS: Record<string, string> = {
   "Spicy": "https://cdn-icons-png.flaticon.com/512/1685/1685860.png",
   "Kids": "https://cdn-icons-png.flaticon.com/512/2919/2919573.png",
   "Vegan": "https://cdn-icons-png.flaticon.com/512/5767/5767292.png",
+  "Gluten Free": "https://cdn-icons-png.flaticon.com/512/4806/4806164.png",
+  "Chef's Special": "https://cdn-icons-png.flaticon.com/512/1830/1830839.png" 
 };
 
 /* ---------------- MAIN COMPONENT ---------------- */
@@ -216,8 +230,7 @@ function MenuContent() {
         />
         <div className="absolute inset-0 bg-black/50" />
 
-        <div className="relative z-10 text-center px-4 w-full max-w-4xl pt-6 md:pt-10
-">
+        <div className="relative z-10 text-center px-4 w-full max-w-4xl pt-6 md:pt-10">
           <h1 className={`${playfair.className} text-5xl md:text-7xl font-medium tracking-[0.2em] text-white/90 leading-tight mb-8`}>
             MENU
           </h1>
@@ -376,7 +389,7 @@ function MenuContent() {
               </button>
             </div>
 
-            {/* Aesthetic Filter Content */}
+            {/* Filter Content */}
             <div className="flex-1 space-y-10 overflow-y-auto px-1">
               {/* Type Section */}
               <div className="space-y-4">
@@ -460,11 +473,16 @@ function MenuContent() {
 
 function MenuItemCard({ item, menuType, onImageClick }: { item: MenuItem, menuType: string, onImageClick: (url: string) => void }) {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [showVariants, setShowVariants] = useState(false); // State for customization toggling
+
   const effectiveTags = [...(item.tags || [])];
   const hasNonVegOrEgg = effectiveTags.some(t => t === "Non-Veg" || t === "Egg");
   if (menuType === "food" && !hasNonVegOrEgg && !effectiveTags.includes("Veg")) {
     effectiveTags.push("Veg");
   }
+
+  // Check Availability (Default to true if undefined)
+  const isAvailable = item.available !== false; 
 
   const getIcon = (tag: string) => {
     if (tag === "Veg") return <div className="w-3 h-3 border border-green-700 p-[1px] flex items-center justify-center"><div className="w-full h-full bg-green-700 rounded-full" /></div>;
@@ -474,13 +492,22 @@ function MenuItemCard({ item, menuType, onImageClick }: { item: MenuItem, menuTy
   };
 
   return (
-    <div className="flex flex-row gap-4 items-start w-full">
+    <div className={`flex flex-row gap-4 items-start w-full relative ${!isAvailable ? "select-none" : ""}`}>
       
-      {/* 1. Left: Image */}
+      {/* 1. UNAVAILABLE OVERLAY */}
+      {!isAvailable && (
+        <div className="absolute inset-0 z-20 flex items-center justify-center backdrop-blur-[2px] bg-white/40 rounded-lg">
+           <div className="bg-stone-900/90 text-white px-4 py-2 rounded-full shadow-2xl border border-white/20 backdrop-blur-md">
+             <span className="text-xs font-bold uppercase tracking-widest">Currently Unavailable</span>
+           </div>
+        </div>
+      )}
+
+      {/* 2. Left: Image */}
       {item.imageUrl && (
         <div 
-          className="shrink-0 w-20 h-20 md:w-28 md:h-28 relative cursor-pointer group/img shadow-md rounded-lg overflow-hidden border border-stone-200"
-          onClick={() => onImageClick(item.imageUrl!)}
+          className={`shrink-0 w-20 h-20 md:w-28 md:h-28 relative rounded-lg overflow-hidden border border-stone-200 ${isAvailable ? "cursor-pointer group/img shadow-md" : "grayscale opacity-80"}`}
+          onClick={() => isAvailable && onImageClick(item.imageUrl!)}
         >
           <Image 
             src={item.imageUrl} 
@@ -489,14 +516,16 @@ function MenuItemCard({ item, menuType, onImageClick }: { item: MenuItem, menuTy
             className="object-cover transition-transform duration-700 group-hover/img:scale-110" 
           />
           {/* Magnify Icon Overlay */}
-          <div className="absolute inset-0 z-20 flex items-center justify-center opacity-0 group-hover/img:opacity-100 transition-opacity bg-black/20">
-             <PhotoIcon className="w-5 h-5 text-white drop-shadow-md" />
-          </div>
+          {isAvailable && (
+             <div className="absolute inset-0 z-20 flex items-center justify-center opacity-0 group-hover/img:opacity-100 transition-opacity bg-black/20">
+               <PhotoIcon className="w-5 h-5 text-white drop-shadow-md" />
+             </div>
+          )}
         </div>
       )}
 
-      {/* 2. Middle: Content */}
-      <div className="flex-1 min-w-0 flex flex-col justify-center">
+      {/* 3. Middle: Content */}
+      <div className={`flex-1 min-w-0 flex flex-col justify-center ${!isAvailable ? "opacity-50 blur-[0.5px]" : ""}`}>
         
         {/* Title + Price Row */}
         <div className="flex justify-between items-start gap-2 mb-1">
@@ -535,6 +564,8 @@ function MenuItemCard({ item, menuType, onImageClick }: { item: MenuItem, menuTy
                   tag === "Spicy" ? "text-red-600" : 
                   tag === "Vegan" ? "text-green-600" :
                   tag === "Kids" ? "text-sky-500" :
+                  tag === "Gluten Free" ? "text-emerald-600" :
+                  tag === "Chef's Special" ? "text-purple-600" :
                   "text-stone-400"
                 }`}>
                   {tag}
@@ -552,14 +583,46 @@ function MenuItemCard({ item, menuType, onImageClick }: { item: MenuItem, menuTy
           <p className={`${cormorant.className} text-base md:text-lg text-stone-600 leading-snug italic opacity-90 transition-all ${isExpanded ? '' : 'line-clamp-3'}`}>
             {item.desc}
           </p>
-          {item.desc.length > 80 && (
+          {item.desc.length > 80 && !isExpanded && (
              <span className="text-[10px] uppercase font-bold text-amber-600 mt-1 inline-block opacity-0 group-hover/desc:opacity-100 transition-opacity md:opacity-0">
-               {isExpanded ? "Show Less" : "Read More"}
+               Read More
              </span>
           )}
         </div>
-      </div>
 
+        {/* --- CUSTOMIZABLE BUTTON & LOGIC --- */}
+        {item.isCustomizable && item.variants && item.variants.length > 0 && (
+           <div className="mt-3">
+              {!showVariants ? (
+                <button 
+                  onClick={(e) => { e.stopPropagation(); setShowVariants(true); }}
+                  className="flex items-center gap-1.5 px-3 py-1.5 bg-stone-900 text-white text-[10px] uppercase font-bold tracking-widest rounded-full hover:bg-stone-700 transition-colors shadow-sm"
+                >
+                  <SparklesIcon className="w-3 h-3" />
+                  Customize It
+                </button>
+              ) : (
+                <div className="bg-white border border-stone-200 rounded-lg p-3 shadow-inner animate-fade-in mt-1">
+                   <div className="flex justify-between items-center mb-2 border-b border-stone-100 pb-1">
+                      <span className="text-[10px] font-bold uppercase text-stone-400 tracking-widest">Add-ons</span>
+                      <button onClick={(e) => {e.stopPropagation(); setShowVariants(false)}} className="text-stone-400 hover:text-stone-900">
+                        <XMarkIcon className="w-3 h-3"/>
+                      </button>
+                   </div>
+                   <div className="space-y-1.5">
+                      {item.variants.map((v, idx) => (
+                        <div key={idx} className="flex justify-between items-center text-sm font-medium text-stone-700">
+                           <span>{v.name}</span>
+                           <span className="text-stone-500 font-mono text-xs">+₹{v.price}</span>
+                        </div>
+                      ))}
+                   </div>
+                </div>
+              )}
+           </div>
+        )}
+
+      </div>
     </div>
   );
 }

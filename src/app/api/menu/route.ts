@@ -6,12 +6,24 @@ export const dynamic = "force-dynamic";
 
 /* ---------------- TYPES ---------------- */
 
+type MenuVariant = {
+  name: string;
+  price: string;
+};
+
 type MenuItem = {
   name?: string;
   price?: string;
   desc?: string;
-  tags?: string[];                  // ← NEW: support for tags array
-  isNonVeg?: boolean;               // ← kept for backward compat (optional)
+  tags?: string[];
+  imageUrl?: string;
+  
+  // NEW FIELDS
+  available?: boolean; // Defaults to true
+  isCustomizable?: boolean;
+  variants?: MenuVariant[];
+
+  // Bar specific
   showBottlePeg?: boolean;
   bottlePrice?: string;
   pegPrice?: string;
@@ -39,7 +51,6 @@ const DEFAULT_MENU = {
     { id: "breads", title: "Breads", menuType: "food", items: [] },
     { id: "rice-noodles", title: "Rice and Noodles", menuType: "food", items: [] },
     { id: "dessert", title: "Dessert", menuType: "food", items: [] },
-    // ← Add these two new food sections
     { id: "sushi",     title: "Sushi",     menuType: "food", items: [] },
     { id: "dim-sum",   title: "Dim Sum",   menuType: "food", items: [] },
 
@@ -113,10 +124,17 @@ export async function PUT(req: Request) {
         items: (inc.items || []).map((item: any) => {
           // Ensure tags is array
           const tags = Array.isArray(item.tags) ? item.tags : item.tags ? [String(item.tags)] : [];
+          // Ensure variants is array
+          const variants = Array.isArray(item.variants) ? item.variants : [];
 
           return {
             ...item,
-            tags, // force array
+            tags, 
+            // New logic: ensure boolean or default to true for available
+            available: item.available !== false, 
+            isCustomizable: !!item.isCustomizable,
+            variants: variants,
+
             // Protect bar fields
             ...(item.showBottlePeg !== true && {
               showBottlePeg: undefined,
@@ -130,14 +148,6 @@ export async function PUT(req: Request) {
 
     // Replace the entire sections array — frontend is source of truth
     menu.sections = normalizedSections;
-
-    // Debug log (remove later)
-    console.log("Saving menu - tags check:", 
-      normalizedSections
-        .flatMap(s => s.items)
-        .filter(i => i.tags?.length > 0)
-        .map(i => ({ name: i.name, tags: i.tags }))
-    );
 
     menu.markModified("sections");
     await menu.save();

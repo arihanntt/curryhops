@@ -7,18 +7,21 @@ import {
   ChevronDownIcon, 
   TrashIcon, 
   PhotoIcon,
-  CurrencyRupeeIcon,
-  DocumentTextIcon,
-  PlusIcon
+  PlusIcon,
+  EyeIcon,        // New
+  EyeSlashIcon,   // New
+  SparklesIcon    // New
 } from "@heroicons/react/24/outline";
 
-// UPDATED TAGS FOR LIGHT MODE VISIBILITY
+// UPDATED TAGS: Added Gluten Free and Chef's Special
 const FOOD_TAGS = [
   { id: "Non-Veg", label: "Non-Veg", color: "text-red-600 bg-red-50 border-red-200 ring-red-500/30" },
   { id: "Egg", label: "Egg", color: "text-yellow-600 bg-yellow-50 border-yellow-200 ring-yellow-500/30" },
   { id: "Spicy", label: "Spicy", color: "text-orange-600 bg-orange-50 border-orange-200 ring-orange-500/30" },
   { id: "Kids", label: "Kids", color: "text-blue-600 bg-blue-50 border-blue-200 ring-blue-500/30" },
   { id: "Vegan", label: "Vegan", color: "text-green-600 bg-green-50 border-green-200 ring-green-500/30" },
+  { id: "Gluten Free", label: "Gluten Free", color: "text-emerald-700 bg-emerald-50 border-emerald-200 ring-emerald-500/30" },
+  { id: "Chef's Special", label: "Chef's Special", color: "text-purple-700 bg-purple-50 border-purple-200 ring-purple-500/30" },
 ];
 
 export default function MenuEditor() {
@@ -49,28 +52,6 @@ export default function MenuEditor() {
            ...s,
            id: s.id || `section-${Date.now()}-${index}` 
         }));
-        
-        // Add missing sections logic (kept from your original code)
-        const defaultBarIds = [
-            "signature-cocktails", "classics", "liits", "beer-cocktails", "coffee",
-            "hot-cocktails", "rum", "gin", "vodka", "tequila", "indian-whisky",
-            "indian-single-malts", "scotch", "japanese-whisky", "rye-bourbon",
-            "canadian-irish", "cognac-brandy", "liquers", "aperitif", "red-wine",
-            "rose-sparkling", "white-wine", "sangria", "champagne", "shots",
-            "fresh-juices", "soft-drinks",
-        ];
-        const existingIds = new Set(updatedMenu.sections.map((s: any) => s.id));
-        const missing = defaultBarIds.filter((id) => !existingIds.has(id));
-        if (missing.length > 0) {
-            const missingSections = missing.map((id) => ({
-                id,
-                title: id.split("-").map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join(" "),
-                menuType: "bar",
-                items: [],
-            }));
-            updatedMenu.sections.push(...missingSections);
-        }
-
         setMenu(updatedMenu);
       })
       .catch((err) => console.error("Failed to load menu:", err));
@@ -147,6 +128,31 @@ export default function MenuEditor() {
     setMenu({ ...menu, sections: newSections });
   };
 
+  // --- VARIANT HELPERS ---
+  const updateVariant = (sectionId: string, itemIndex: number, varIndex: number, field: 'name' | 'price', val: string) => {
+    const newSections = [...menu.sections];
+    const item = newSections.find((s) => s.id === sectionId)!.items[itemIndex];
+    if (item.variants && item.variants[varIndex]) {
+      item.variants[varIndex][field] = val;
+    }
+    setMenu({ ...menu, sections: newSections });
+  };
+
+  const addVariant = (sectionId: string, itemIndex: number) => {
+    const newSections = [...menu.sections];
+    const item = newSections.find((s) => s.id === sectionId)!.items[itemIndex];
+    if (!item.variants) item.variants = [];
+    item.variants.push({ name: "", price: "" });
+    setMenu({ ...menu, sections: newSections });
+  };
+
+  const removeVariant = (sectionId: string, itemIndex: number, varIndex: number) => {
+    const newSections = [...menu.sections];
+    const item = newSections.find((s) => s.id === sectionId)!.items[itemIndex];
+    if (item.variants) item.variants.splice(varIndex, 1);
+    setMenu({ ...menu, sections: newSections });
+  };
+
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 pb-32 relative selection:bg-amber-100">
       
@@ -210,7 +216,7 @@ export default function MenuEditor() {
                             ref={provided.innerRef}
                             {...provided.draggableProps}
                             className={`
-                              rounded-2xl border transition-all duration-300
+                              rounded-2xl border transition-all duration-300 overflow-hidden
                               ${snapshot.isDragging 
                                   ? "bg-white border-amber-400 shadow-2xl scale-[1.02] z-50 ring-2 ring-amber-100" 
                                   : "bg-white border-slate-200 hover:border-amber-200 hover:shadow-md"
@@ -255,192 +261,262 @@ export default function MenuEditor() {
 
                             {/* Expanded Content */}
                             {isExpanded && (
-                              <div className="p-4 pt-0">
-                                <div className="space-y-3 bg-slate-50/50 rounded-xl p-4 border border-slate-100">
+                              <div className="p-4 pt-0 space-y-4">
                                   {section.items.map((item: any, ii: number) => (
                                     <div
                                       key={ii}
-                                      className="grid md:grid-cols-12 gap-3 p-4 rounded-xl bg-white border border-slate-200 shadow-sm relative group/item hover:border-amber-200 transition-colors"
+                                      className={`
+                                        p-4 rounded-xl border relative transition-all duration-300
+                                        ${item.available === false 
+                                            ? "bg-slate-50 border-slate-200 opacity-75 grayscale-[0.5]" 
+                                            : "bg-white border-slate-200 hover:border-amber-200 shadow-sm"
+                                        }
+                                      `}
                                     >
-                                      {/* Name */}
-                                      <div className="md:col-span-3">
-                                          <label className="text-[10px] uppercase font-bold text-slate-400 ml-1">Item Name</label>
-                                          <input
-                                            className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-800 text-sm focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all font-medium"
-                                            value={item.name || ""}
-                                            placeholder="Item name"
-                                            onChange={(e) => {
-                                              const newSections = [...menu.sections];
-                                              newSections.find((s) => s.id === sectionId)!.items[ii].name = e.target.value;
-                                              setMenu({ ...menu, sections: newSections });
-                                            }}
-                                          />
-                                      </div>
-
-                                      {/* Description */}
-                                      <div className="md:col-span-4">
-                                          <label className="text-[10px] uppercase font-bold text-slate-400 ml-1">Description</label>
-                                          <div className="relative">
-                                            <input
-                                                className="w-full bg-slate-50 border border-slate-200 rounded-lg pl-8 pr-3 py-2 text-slate-600 text-sm focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all"
-                                                value={item.desc || ""}
-                                                placeholder="Ingredients..."
-                                                onChange={(e) => {
+                                      {/* --- TOP ROW: BASIC INPUTS --- */}
+                                      <div className="grid md:grid-cols-12 gap-3 mb-3">
+                                          {/* Name */}
+                                          <div className="md:col-span-3">
+                                            <input className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-800 text-sm font-bold focus:border-amber-500 outline-none" 
+                                              value={item.name || ""} placeholder="Item Name"
+                                              onChange={(e) => {
+                                                const newSections = [...menu.sections];
+                                                newSections.find((s) => s.id === sectionId)!.items[ii].name = e.target.value;
+                                                setMenu({ ...menu, sections: newSections });
+                                              }}
+                                            />
+                                          </div>
+                                          {/* Description */}
+                                          <div className="md:col-span-5">
+                                            <input className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-600 text-sm focus:border-amber-500 outline-none" 
+                                              value={item.desc || ""} placeholder="Description / Ingredients..."
+                                              onChange={(e) => {
                                                 const newSections = [...menu.sections];
                                                 newSections.find((s) => s.id === sectionId)!.items[ii].desc = e.target.value;
                                                 setMenu({ ...menu, sections: newSections });
-                                                }}
+                                              }}
                                             />
-                                            <DocumentTextIcon className="w-4 h-4 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
                                           </div>
-                                      </div>
-
-                                      {/* Price */}
-                                      <div className="md:col-span-2">
-                                          <label className="text-[10px] uppercase font-bold text-slate-400 ml-1">Price</label>
-                                          {menuType === "bar" && item.showBottlePeg ? (
-                                             <div className="h-[38px] flex items-center justify-center px-3 rounded-lg border border-dashed border-slate-300 bg-slate-50 text-slate-400 text-xs italic">
-                                                Complex Pricing
-                                             </div>
-                                          ) : (
-                                            <div className="relative">
-                                                <input
-                                                  className="w-full bg-slate-50 border border-slate-200 rounded-lg pl-8 pr-3 py-2 text-slate-800 text-sm font-mono focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all"
-                                                  value={item.price || ""}
-                                                  placeholder="00"
-                                                  onChange={(e) => {
-                                                    const newSections = [...menu.sections];
-                                                    newSections.find((s) => s.id === sectionId)!.items[ii].price = e.target.value;
-                                                    setMenu({ ...menu, sections: newSections });
-                                                  }}
-                                                />
-                                                <CurrencyRupeeIcon className="w-4 h-4 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
-                                            </div>
-                                          )}
-                                      </div>
-
-                                      {/* Image URL */}
-                                      <div className="md:col-span-2">
-                                          <label className="text-[10px] uppercase font-bold text-slate-400 ml-1">Image</label>
-                                          <div className="relative">
-                                            <input
-                                                className="w-full bg-slate-50 border border-slate-200 rounded-lg pl-8 pr-3 py-2 text-slate-600 text-xs focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all truncate"
-                                                value={item.imageUrl || ""}
-                                                placeholder="https://..."
-                                                onChange={(e) => {
+                                          {/* Price */}
+                                          <div className="md:col-span-2">
+                                            <input className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-800 text-sm font-mono focus:border-amber-500 outline-none" 
+                                              value={item.price || ""} placeholder="Price"
+                                              onChange={(e) => {
                                                 const newSections = [...menu.sections];
-                                                newSections.find((s) => s.id === sectionId)!.items[ii].imageUrl = e.target.value.trim();
+                                                newSections.find((s) => s.id === sectionId)!.items[ii].price = e.target.value;
                                                 setMenu({ ...menu, sections: newSections });
-                                                }}
+                                              }}
                                             />
-                                            <PhotoIcon className="w-4 h-4 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
+                                          </div>
+                                          {/* Image */}
+                                          <div className="md:col-span-2 relative">
+                                            <input className="w-full bg-slate-50 border border-slate-200 rounded-lg pl-8 py-2 text-slate-600 text-xs focus:border-amber-500 outline-none truncate" 
+                                              value={item.imageUrl || ""} placeholder="Image URL"
+                                              onChange={(e) => {
+                                                const newSections = [...menu.sections];
+                                                newSections.find((s) => s.id === sectionId)!.items[ii].imageUrl = e.target.value;
+                                                setMenu({ ...menu, sections: newSections });
+                                              }}
+                                            />
+                                            <PhotoIcon className="w-4 h-4 text-slate-400 absolute left-2 top-2.5"/>
                                           </div>
                                       </div>
 
-                                       {/* Delete */}
-                                       <div className="md:col-span-1 flex items-end justify-center pb-1">
-                                          <button
+                                      {/* --- MIDDLE ROW: CONTROLS (AVAILABILITY, CUSTOMIZABLE, DELETE) --- */}
+                                      <div className="flex flex-wrap items-center justify-between gap-4 py-3 border-t border-b border-slate-100 mt-2">
+                                          
+                                          <div className="flex items-center gap-3">
+                                            {/* 1. AVAILABILITY TOGGLE */}
+                                            <button 
+                                              onClick={() => {
+                                                const newSections = [...menu.sections];
+                                                const current = newSections.find((s) => s.id === sectionId)!.items[ii].available;
+                                                // If undefined, it defaults to true, so toggle to false. If false, toggle to true.
+                                                newSections.find((s) => s.id === sectionId)!.items[ii].available = current === false ? true : false;
+                                                setMenu({ ...menu, sections: newSections });
+                                              }}
+                                              className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold border transition-colors ${
+                                                item.available !== false 
+                                                  ? "bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100" 
+                                                  : "bg-red-50 text-red-600 border-red-200 hover:bg-red-100"
+                                              }`}
+                                            >
+                                              {item.available !== false ? <EyeIcon className="w-4 h-4"/> : <EyeSlashIcon className="w-4 h-4"/>}
+                                              {item.available !== false ? "Serving Now" : "Sold Out (Hidden)"}
+                                            </button>
+
+                                            {/* 2. CUSTOMIZABLE TOGGLE */}
+                                            {menuType === 'food' && (
+                                              <button
+                                                onClick={() => {
+                                                  const newSections = [...menu.sections];
+                                                  const current = newSections.find((s) => s.id === sectionId)!.items[ii].isCustomizable;
+                                                  newSections.find((s) => s.id === sectionId)!.items[ii].isCustomizable = !current;
+                                                  setMenu({ ...menu, sections: newSections });
+                                                }}
+                                                className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold border transition-colors ${
+                                                  item.isCustomizable 
+                                                    ? "bg-purple-50 text-purple-700 border-purple-200" 
+                                                    : "bg-slate-50 text-slate-400 border-slate-200 hover:text-slate-600"
+                                                }`}
+                                              >
+                                                <SparklesIcon className="w-4 h-4"/>
+                                                Customizable {item.isCustomizable ? "ON" : "OFF"}
+                                              </button>
+                                            )}
+                                          </div>
+
+                                          {/* 3. DELETE ITEM */}
+                                          <button 
                                             onClick={() => {
-                                              const newSections = [...menu.sections];
-                                              newSections.find((s) => s.id === sectionId)!.items.splice(ii, 1);
-                                              setMenu({ ...menu, sections: newSections });
+                                               const newSections = [...menu.sections];
+                                               newSections.find((s) => s.id === sectionId)!.items.splice(ii, 1);
+                                               setMenu({ ...menu, sections: newSections });
                                             }}
-                                            className="p-2 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                                            className="text-slate-300 hover:text-red-600 p-2 rounded-lg hover:bg-red-50 transition-colors"
+                                            title="Delete Item"
                                           >
-                                            <TrashIcon className="h-5 w-5" />
+                                            <TrashIcon className="w-5 h-5"/>
                                           </button>
-                                       </div>
-
-                                      {/* Tags / Extras */}
-                                      <div className="md:col-span-12 pt-2 border-t border-slate-100 flex flex-wrap gap-4 items-center">
-                                          {menuType === "food" && (
-                                              <div className="flex flex-wrap gap-2">
-                                                  {FOOD_TAGS.map((tag) => {
-                                                      const isSelected = (item.tags || []).includes(tag.id);
-                                                      return (
-                                                          <button
-                                                              key={tag.id}
-                                                              onClick={() => toggleTag(sectionId, ii, tag.id)}
-                                                              className={`
-                                                                  px-3 py-1 rounded-full text-xs font-semibold border transition-all duration-200
-                                                                  ${isSelected 
-                                                                    ? `${tag.color} ring-1` 
-                                                                    : "bg-slate-50 border-slate-200 text-slate-400 hover:border-slate-300 hover:text-slate-600"}
-                                                              `}
-                                                          >
-                                                              {tag.label}
-                                                          </button>
-                                                      );
-                                                  })}
-                                              </div>
-                                          )}
-
-                                          {menuType === "bar" && (
-                                              <div className="flex-1 flex flex-wrap items-center gap-4">
-                                                  <label className="flex items-center gap-2 cursor-pointer select-none">
-                                                      <div className={`w-9 h-5 rounded-full relative transition-colors duration-300 ${item.showBottlePeg ? "bg-amber-500" : "bg-slate-300"}`}>
-                                                          <div className={`absolute top-1 left-1 bg-white w-3 h-3 rounded-full transition-transform duration-300 shadow-sm ${item.showBottlePeg ? "translate-x-4" : ""}`} />
-                                                      </div>
-                                                      <input
-                                                          type="checkbox"
-                                                          className="sr-only"
-                                                          checked={item.showBottlePeg || false}
-                                                          onChange={(e) => {
-                                                              const newSections = [...menu.sections];
-                                                              const targetItem = newSections.find((s) => s.id === sectionId)!.items[ii];
-                                                              targetItem.showBottlePeg = e.target.checked;
-                                                              if (!e.target.checked) {
-                                                                  targetItem.bottlePrice = "";
-                                                                  targetItem.pegPrice = "";
-                                                              }
-                                                              setMenu({ ...menu, sections: newSections });
-                                                          }}
-                                                      />
-                                                      <span className="text-xs font-semibold text-slate-600">Bottle/Peg Mode</span>
-                                                  </label>
-
-                                                  {item.showBottlePeg && (
-                                                      <div className="flex gap-2 animate-in fade-in slide-in-from-left-2">
-                                                          <div className="relative">
-                                                            <input
-                                                                className="w-24 bg-white border border-slate-200 rounded-lg pl-6 py-1 text-xs focus:border-amber-500 outline-none"
-                                                                value={item.bottlePrice || ""}
-                                                                placeholder="Bottle"
-                                                                onChange={(e) => {
-                                                                    const newSections = [...menu.sections];
-                                                                    newSections.find((s) => s.id === sectionId)!.items[ii].bottlePrice = e.target.value;
-                                                                    setMenu({ ...menu, sections: newSections });
-                                                                }}
-                                                            />
-                                                            <span className="absolute left-2 top-1/2 -translate-y-1/2 text-[10px] text-slate-400">₹</span>
-                                                          </div>
-                                                          <div className="relative">
-                                                            <input
-                                                                className="w-24 bg-white border border-slate-200 rounded-lg pl-6 py-1 text-xs focus:border-amber-500 outline-none"
-                                                                value={item.pegPrice || ""}
-                                                                placeholder="Peg"
-                                                                onChange={(e) => {
-                                                                    const newSections = [...menu.sections];
-                                                                    newSections.find((s) => s.id === sectionId)!.items[ii].pegPrice = e.target.value;
-                                                                    setMenu({ ...menu, sections: newSections });
-                                                                }}
-                                                            />
-                                                            <span className="absolute left-2 top-1/2 -translate-y-1/2 text-[10px] text-slate-400">₹</span>
-                                                          </div>
-                                                      </div>
-                                                  )}
-                                              </div>
-                                          )}
                                       </div>
+
+                                      {/* --- BOTTOM ROW: TAGS & VARIANTS --- */}
+                                      <div className="pt-3 space-y-4">
+                                        
+                                        {/* Tags Selector */}
+                                        {menuType === 'food' && (
+                                          <div className="flex flex-wrap gap-2 items-center">
+                                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mr-2">Tags:</span>
+                                            {FOOD_TAGS.map(tag => (
+                                              <button key={tag.id} onClick={() => toggleTag(sectionId, ii, tag.id)}
+                                                className={`px-3 py-1 rounded-full text-[10px] font-bold border transition-all ${
+                                                  item.tags?.includes(tag.id) 
+                                                    ? tag.color 
+                                                    : "bg-white text-slate-400 border-slate-200 hover:border-slate-300"
+                                                }`}
+                                              >
+                                                {tag.label}
+                                              </button>
+                                            ))}
+                                          </div>
+                                        )}
+
+                                        {/* Variants Editor (Visible if Customizable is ON) */}
+                                        {item.isCustomizable && (
+                                          <div className="bg-purple-50/50 p-4 rounded-xl border border-purple-100 mt-3 animate-in fade-in slide-in-from-top-2">
+                                            <h4 className="text-[10px] font-bold text-purple-800 uppercase tracking-widest mb-3 flex items-center gap-2">
+                                              <SparklesIcon className="w-3 h-3"/>
+                                              Add-ons / Variants
+                                            </h4>
+                                            
+                                            <div className="space-y-2">
+                                              {(item.variants || []).map((v: any, vi: number) => (
+                                                <div key={vi} className="flex gap-2 items-center">
+                                                  <span className="text-purple-300 text-xs font-mono">{vi + 1}.</span>
+                                                  <input 
+                                                    className="flex-1 bg-white border border-purple-200 rounded-lg px-3 py-1.5 text-xs focus:border-purple-500 outline-none" 
+                                                    placeholder="Option Name (e.g. Add Chicken, Extra Cheese)"
+                                                    value={v.name}
+                                                    onChange={(e) => updateVariant(sectionId, ii, vi, 'name', e.target.value)}
+                                                  />
+                                                  <div className="relative w-24">
+                                                    <input 
+                                                      className="w-full bg-white border border-purple-200 rounded-lg pl-6 pr-2 py-1.5 text-xs focus:border-purple-500 outline-none" 
+                                                      placeholder="Price"
+                                                      value={v.price}
+                                                      onChange={(e) => updateVariant(sectionId, ii, vi, 'price', e.target.value)}
+                                                    />
+                                                    <span className="absolute left-2.5 top-1.5 text-purple-400 text-xs">+</span>
+                                                  </div>
+                                                  <button 
+                                                    onClick={() => removeVariant(sectionId, ii, vi)} 
+                                                    className="text-purple-300 hover:text-red-500 p-1"
+                                                  >
+                                                    <TrashIcon className="w-4 h-4"/>
+                                                  </button>
+                                                </div>
+                                              ))}
+                                              
+                                              <button 
+                                                onClick={() => addVariant(sectionId, ii)} 
+                                                className="text-xs font-bold text-purple-600 bg-purple-100 hover:bg-purple-200 px-4 py-2 rounded-lg flex items-center gap-1 mt-2 transition-colors"
+                                              >
+                                                <PlusIcon className="w-3 h-3"/> Add Option
+                                              </button>
+                                            </div>
+                                          </div>
+                                        )}
+                                      </div>
+
+                                      {/* Bar Specific: Bottle/Peg (Only if in Bar Mode) */}
+                                      {menuType === "bar" && (
+                                        <div className="pt-3 border-t border-slate-100 mt-3">
+                                            <label className="flex items-center gap-2 cursor-pointer select-none">
+                                              <div className={`w-9 h-5 rounded-full relative transition-colors duration-300 ${item.showBottlePeg ? "bg-amber-500" : "bg-slate-300"}`}>
+                                                  <div className={`absolute top-1 left-1 bg-white w-3 h-3 rounded-full transition-transform duration-300 shadow-sm ${item.showBottlePeg ? "translate-x-4" : ""}`} />
+                                              </div>
+                                              <input
+                                                  type="checkbox"
+                                                  className="sr-only"
+                                                  checked={item.showBottlePeg || false}
+                                                  onChange={(e) => {
+                                                      const newSections = [...menu.sections];
+                                                      const targetItem = newSections.find((s) => s.id === sectionId)!.items[ii];
+                                                      targetItem.showBottlePeg = e.target.checked;
+                                                      if (!e.target.checked) {
+                                                          targetItem.bottlePrice = "";
+                                                          targetItem.pegPrice = "";
+                                                      }
+                                                      setMenu({ ...menu, sections: newSections });
+                                                  }}
+                                              />
+                                              <span className="text-xs font-semibold text-slate-600">Enable Bottle / Peg Pricing</span>
+                                            </label>
+
+                                            {item.showBottlePeg && (
+                                                <div className="flex gap-4 mt-3 animate-in fade-in slide-in-from-left-2">
+                                                    <div className="relative">
+                                                        <input
+                                                            className="w-32 bg-slate-50 border border-slate-200 rounded-lg pl-6 py-2 text-xs focus:border-amber-500 outline-none"
+                                                            value={item.bottlePrice || ""}
+                                                            placeholder="Bottle Price"
+                                                            onChange={(e) => {
+                                                                const newSections = [...menu.sections];
+                                                                newSections.find((s) => s.id === sectionId)!.items[ii].bottlePrice = e.target.value;
+                                                                setMenu({ ...menu, sections: newSections });
+                                                            }}
+                                                        />
+                                                        <span className="absolute left-2.5 top-2 text-slate-400 text-xs">₹</span>
+                                                        <span className="absolute right-2.5 top-2 text-[10px] text-slate-400 font-bold uppercase">BTL</span>
+                                                    </div>
+                                                    <div className="relative">
+                                                        <input
+                                                            className="w-32 bg-slate-50 border border-slate-200 rounded-lg pl-6 py-2 text-xs focus:border-amber-500 outline-none"
+                                                            value={item.pegPrice || ""}
+                                                            placeholder="Peg Price"
+                                                            onChange={(e) => {
+                                                                const newSections = [...menu.sections];
+                                                                newSections.find((s) => s.id === sectionId)!.items[ii].pegPrice = e.target.value;
+                                                                setMenu({ ...menu, sections: newSections });
+                                                            }}
+                                                        />
+                                                        <span className="absolute left-2.5 top-2 text-slate-400 text-xs">₹</span>
+                                                        <span className="absolute right-2.5 top-2 text-[10px] text-slate-400 font-bold uppercase">Peg</span>
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+                                      )}
                                     </div>
                                   ))}
 
-                                  {/* Add Button */}
+                                  {/* Add New Item Button */}
                                   <button
                                     onClick={() => {
                                       const newSections = [...menu.sections];
                                       const newItem = {
                                         name: "", price: "", desc: "", tags: [], imageUrl: "",
+                                        available: true, isCustomizable: false, variants: [],
                                         showBottlePeg: false, bottlePrice: "", pegPrice: "",
                                       };
                                       newSections.find((s) => s.id === sectionId)!.items.push(newItem);
@@ -449,9 +525,8 @@ export default function MenuEditor() {
                                     className="w-full py-3 rounded-xl border-2 border-dashed border-slate-200 text-slate-400 hover:text-amber-600 hover:border-amber-400 hover:bg-amber-50 transition-all text-sm font-bold flex items-center justify-center gap-2 group"
                                   >
                                     <PlusIcon className="w-5 h-5 group-hover:scale-110 transition-transform" /> 
-                                    Add Item to {section.title}
+                                    Add New Item to {section.title}
                                   </button>
-                                </div>
                               </div>
                             )}
                           </div>
@@ -471,32 +546,33 @@ export default function MenuEditor() {
              ))}
           </div>
         )}
-      </div>
 
-      {/* Floating Save Bar */}
-      <div className="fixed bottom-0 left-0 right-0 p-4 z-50 pointer-events-none">
-         <div className="max-w-5xl mx-auto flex items-center justify-end pointer-events-auto">
-            <div className={`
-                flex items-center gap-4 px-6 py-3 rounded-full shadow-xl transition-all duration-500 border border-white/20 backdrop-blur-md
-                ${saving ? "bg-slate-800 text-white" : "bg-white/90 border-slate-200 text-slate-800"}
-            `}>
-                 {saved && <span className="text-green-600 font-bold text-sm animate-pulse">✓ Saved!</span>}
-                 
-                 <button
-                   onClick={handleSave}
-                   disabled={saving}
-                   className={`
-                     px-6 py-2 rounded-full font-bold shadow-lg transition-all duration-300 text-sm transform active:scale-95
-                     ${saving 
-                        ? "bg-slate-600 text-slate-400 cursor-not-allowed" 
-                        : "bg-gradient-to-r from-amber-500 to-orange-500 text-white hover:shadow-amber-500/30 hover:-translate-y-0.5"
-                     }
-                   `}
-                 >
-                   {saving ? "Syncing..." : "Save Changes"}
-                 </button>
-            </div>
-         </div>
+        {/* Floating Save Bar */}
+        <div className="fixed bottom-0 left-0 right-0 p-4 z-50 pointer-events-none">
+           <div className="max-w-5xl mx-auto flex items-center justify-end pointer-events-auto">
+              <div className={`
+                 flex items-center gap-4 px-6 py-3 rounded-full shadow-xl transition-all duration-500 border border-white/20 backdrop-blur-md
+                 ${saving ? "bg-slate-800 text-white" : "bg-white/90 border-slate-200 text-slate-800"}
+              `}>
+                  {saved && <span className="text-green-600 font-bold text-sm animate-pulse">✓ Saved!</span>}
+                  
+                  <button
+                    onClick={handleSave}
+                    disabled={saving}
+                    className={`
+                      px-6 py-2 rounded-full font-bold shadow-lg transition-all duration-300 text-sm transform active:scale-95
+                      ${saving 
+                         ? "bg-slate-600 text-slate-400 cursor-not-allowed" 
+                         : "bg-gradient-to-r from-amber-500 to-orange-500 text-white hover:shadow-amber-500/30 hover:-translate-y-0.5"
+                      }
+                    `}
+                  >
+                    {saving ? "Syncing..." : "Save Changes"}
+                  </button>
+             </div>
+           </div>
+        </div>
+        
       </div>
     </div>
   );
