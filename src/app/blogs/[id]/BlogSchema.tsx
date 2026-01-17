@@ -18,7 +18,7 @@ export default function BlogSchema({ post }: { post: BlogPost }) {
     },
     mainEntityOfPage: {
       "@type": "WebPage",
-      "@id": `https://curryandhops.com/blog/${post.id}`,
+      "@id": `https://curryandhops.com/blogs/${post.id}`,
     },
   };
 

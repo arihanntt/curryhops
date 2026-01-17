@@ -1,7 +1,8 @@
 import { MetadataRoute } from 'next';
 import { connectDB } from "@/lib/mongodb";
 import Menu from "@/models/Menu";
-import Event from "@/models/Event"; // ✅ Import your Event model
+import Event from "@/models/Event";
+import { blogPosts } from "@/data/blogData"; // ✅ Ensure this path is correct
 
 interface IMenuSection {
   id: string;
@@ -27,7 +28,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     '/about',
     '/contact',
     '/menu',
-    '/events', // ✅ Added main events page
+    '/events', 
+    '/blogs', // ✅ Added main blogs list page
   ].map((route) => ({
     url: `${baseUrl}${route}`,
     lastModified: new Date(),
@@ -41,7 +43,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   try {
     await connectDB();
 
-    // 2. Fetch Menu Categories
+    // 2. Fetch Menu Categories from MongoDB
     const menu = await Menu.findOne().lean() as unknown as IMenu;
     if (menu && menu.sections) {
       menuPages = menu.sections.map((section) => {
@@ -61,15 +63,24 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       eventPages = events.map((event) => ({
         url: `${baseUrl}/events/${event.slug}`,
         lastModified: event.updatedAt || new Date(),
-        changeFrequency: 'daily' as const, // Events change/expire quickly
-        priority: 0.9, // Higher priority for active events
+        changeFrequency: 'daily' as const,
+        priority: 0.9,
       }));
     }
 
   } catch (e) {
-    console.error("Sitemap generation error:", e);
+    console.error("Sitemap DB error:", e);
   }
 
-  // Combine everything: Static + Menu Categories + Individual Events
-  return [...staticPages, ...menuPages, ...eventPages];
+  // 4. Map Hard-coded Blogs
+  // ✅ Mapping from your array ensures static files are indexed
+  const blogPages: MetadataRoute.Sitemap = blogPosts.map((post) => ({
+    url: `${baseUrl}/blogs/${post.id}`, // Using post.id to match your routing
+    lastModified: new Date(post.date),
+    changeFrequency: 'monthly' as const,
+    priority: 0.7,
+  }));
+
+  // Combine everything: Static + Menu + Events + Blogs
+  return [...staticPages, ...menuPages, ...eventPages, ...blogPages];
 }

@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { FiMenu, FiX, FiChevronRight } from "react-icons/fi";
+import NavigationSchema from "./NavigationSchema"; // ✅ Added for SEO
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -17,15 +18,16 @@ export default function Header() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
+  const toggleMenu = () => setIsMenuOpen(false);
 
+  // ✅ SEO FIX: Updated paths to match Sitemap and Schema
   const navLinks = [
     { name: "Home", path: "/" },
-    { name: "About us", path: "/about" },
-    { name: "Events", path: "/events" },
-    { name: "Menu", path: "/menu" },
-    { name: "Blog", path: "/blog" },
-    { name: "Contacts", path: "/contact" },
+    { name: "About Us", path: "/about" },
+    { name: "Food & Bar Menu", path: "/menu" }, // Descriptive names help SEO
+    { name: "Upcoming Events", path: "/events" },
+    { name: "Blogs", path: "/blogs" }, // Matched pluralization
+    { name: "Contact Us", path: "/contact" },
   ];
 
   return (
@@ -34,12 +36,15 @@ export default function Header() {
         scrolled ? "bg-[#FFEFDB] shadow-md" : "bg-transparent"
       }`}
     >
+      {/* ✅ SEO: Navigation Schema for Sitelinks */}
+      <NavigationSchema />
+
       <div className="max-w-7xl mx-auto px-6 flex items-center justify-between h-24 sm:h-28">
         {/* Logo */}
         <Link href="/" className="flex items-center">
           <Image
             src={scrolled ? "/images/logo-dark.png" : "/images/logo-light.png"}
-            alt="Curry & Hops Brewing Co."
+            alt="Curry & Hops Brewing Co. Mohali"
             width={200}
             height={70}
             priority
@@ -52,7 +57,7 @@ export default function Header() {
           className={`focus:outline-none transition-colors duration-200 ${
             scrolled ? "text-[#0F1927]" : "text-[#FFEFDB]"
           }`}
-          onClick={toggleMenu}
+          onClick={() => setIsMenuOpen(!isMenuOpen)}
           aria-label="Toggle Menu"
         >
           <FiMenu className="w-9 h-9 sm:w-10 sm:h-10" />
@@ -69,13 +74,13 @@ export default function Header() {
         <div className="flex items-center justify-between px-6 pt-6 pb-4 border-b border-gray-800">
           <Image
             src="/images/logo-light.png"
-            alt="Logo"
+            alt="Curry and Hops Logo"
             width={160}
             height={50}
             className="object-contain"
           />
           <button
-            onClick={toggleMenu}
+            onClick={() => setIsMenuOpen(false)}
             aria-label="Close Menu"
             className="text-white hover:text-[#C5A253] transition-colors"
           >
@@ -95,7 +100,6 @@ export default function Header() {
                   ? "bg-[#C5A253] text-black font-semibold"
                   : "hover:text-[#C5A253]"
               }`}
-              style={{ fontFamily: "'Poppins', sans-serif" }}
             >
               {link.name}
               <FiChevronRight />
@@ -103,8 +107,9 @@ export default function Header() {
           ))}
         </nav>
 
-        {/* Bottom Spacer (future icons / CTA can go here) */}
-        <div className="border-t border-gray-700 px-6 py-5" />
+        <div className="border-t border-gray-700 px-6 py-5 flex justify-center gap-4">
+           <p className="text-xs text-gray-500 tracking-widest uppercase">Where Spice Meets Craft</p>
+        </div>
       </div>
     </header>
   );

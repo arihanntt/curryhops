@@ -161,7 +161,7 @@ export default function BlogPostClient({
             {relatedPosts.map((rel) => (
               <Link
                 key={rel.id}
-                href={`/blog/${rel.id}`}
+                href={`/blogs/${rel.id}`}
                 className="group block border rounded-xl p-8 hover:shadow-lg transition"
               >
                 <p className="text-xs uppercase tracking-widest text-amber-600 mb-3">

@@ -5,23 +5,14 @@ import { Dancing_Script } from "next/font/google";
 import "./globals.css";
 import LayoutClient from "../components/LayoutClient";
 import { siteMetadata } from "./metadata";
-import RestaurantSchema from "@/components/RestaurantSchema"; // 👈 ADD THIS
+import RestaurantSchema from "@/components/RestaurantSchema";
+import NavigationSchema from "@/components/NavigationSchema"; // 👈 ADD THIS
 
 // Fonts
 const poppins = Poppins({
   variable: "--font-poppins",
   subsets: ["latin"],
-  weight: [
-    "100",
-    "200",
-    "300",
-    "400",
-    "500",
-    "600",
-    "700",
-    "800",
-    "900",
-  ],
+  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
   style: ["normal", "italic"],
 });
 
@@ -75,7 +66,9 @@ export default function RootLayout({
       `}
     >
       <body className="antialiased">
-        <RestaurantSchema /> {/* 👈 ADD THIS */}
+        {/* ✅ Both Schemas work together to dominate Search Results */}
+        <RestaurantSchema />
+        <NavigationSchema /> 
         <LayoutClient>{children}</LayoutClient>
       </body>
     </html>

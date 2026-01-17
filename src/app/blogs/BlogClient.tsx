@@ -76,7 +76,7 @@ export default function BlogClient() {
             </span>
 
             <Link
-              href={`/blog/${post.id}`}
+              href={`/blogs/${post.id}`}
               className="block font-playfair text-2xl text-white leading-snug hover:text-amber-300 transition-colors"
             >
               {post.title}

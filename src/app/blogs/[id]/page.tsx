@@ -14,7 +14,7 @@ export async function generateMetadata({
     return {};
   }
 
-  const url = `https://curryandhops.com/blog/${post.id}`;
+  const url = `https://curryandhops.com/blogs/${post.id}`;
 
   return {
     title: `${post.title} | Curry & Hops`,
