@@ -42,14 +42,13 @@ export async function generateMetadata({ params }: { params: { slug: string } })
 
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://curryandhops.com";
   const eventUrl = `${siteUrl}/events/${event.slug}`;
-  // Ensure image is an absolute URL
   const imageUrl = event.image?.startsWith("http") 
     ? event.image 
     : `${siteUrl}${event.image || '/images/events-hero.jpg'}`;
 
   return {
-    title: event.title,
-    description: event.summary || `Join us for ${event.title}`,
+    title: `${event.title} | Curry & Hops Mohali`,
+    description: event.summary || `Join us for ${event.title} in Mohali.`,
     openGraph: {
       title: event.title,
       description: event.summary,
@@ -63,7 +62,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
           alt: event.title,
         },
       ],
-      locale: "en_US",
+      locale: "en_IN",
       type: "website",
     },
   };
@@ -85,27 +84,44 @@ export default async function EventDetailsPage({ params }: { params: { slug: str
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://curryandhops.com";
   const shareUrl = `${siteUrl}/events/${event.slug}`;
 
+  // ✅ SEO: JSON-LD for Google Event Search Results
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Event",
-    name: event.title,
-    startDate: isoDate,
-    location: {
+    "name": event.title,
+    "startDate": isoDate,
+    "eventStatus": "https://schema.org/EventScheduled",
+    "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
+    "location": {
       "@type": "Place",
-      name: event.location || "Curry & Hops",
-      address: { "@type": "PostalAddress", addressCountry: "US" }
+      "name": event.location || "Curry & Hops Brewing Co.",
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "Mohali",
+        "addressRegion": "Punjab",
+        "postalCode": "160062",
+        "addressCountry": "IN"
+      }
     },
-    image: [event.image || ""],
-    description: event.summary
+    "image": [event.image || ""],
+    "description": event.summary,
+    "organizer": {
+      "@type": "Organization",
+      "name": "Curry & Hops",
+      "url": siteUrl
+    }
   };
 
   return (
-    <main className="bg-[#0a0a0a] text-gray-200 min-h-screen relative overflow-x-hidden selection:bg-amber-500/30 selection:text-amber-200">
+    <main 
+      className="bg-[#0a0a0a] text-gray-200 min-h-screen relative overflow-x-hidden selection:bg-amber-500/30 selection:text-amber-200"
+      itemScope 
+      itemType="https://schema.org/Event"
+    >
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
       {/* --- HERO SECTION --- */}
       <section className="relative h-[85vh] w-full flex items-end">
-        {/* Full Screen Image */}
         <div className="absolute inset-0 z-0">
           <Image
             src={event.image || "/images/events-hero.jpg"}
@@ -113,13 +129,12 @@ export default async function EventDetailsPage({ params }: { params: { slug: str
             fill
             className="object-cover"
             priority
+            itemProp="image"
           />
-          {/* Refined Gradient: Subtle darkness at top, heavy at bottom for text */}
           <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-[#0a0a0a]" />
           <div className="absolute inset-0 bg-gradient-to-r from-[#0a0a0a]/80 via-transparent to-transparent" />
         </div>
 
-        {/* Back Button - Moved lower to avoid Navbar clash */}
         <div className="absolute top-28 left-6 md:left-12 z-50">
            <Link 
             href="/events" 
@@ -130,31 +145,24 @@ export default async function EventDetailsPage({ params }: { params: { slug: str
           </Link>
         </div>
 
-        {/* Hero Content - SIDE BY SIDE LAYOUT */}
         <div className="relative z-10 container mx-auto px-6 md:px-12 pb-16 md:pb-24 max-w-7xl">
           <div className="max-w-6xl">
-            
-            {/* Title */}
-            <h1 className="text-6xl md:text-8xl font-black text-white tracking-tighter leading-[0.9] mb-10 drop-shadow-2xl">
+            <h1 itemProp="name" className="text-6xl md:text-8xl font-black text-white tracking-tighter leading-[0.9] mb-10 drop-shadow-2xl">
               {event.title}
             </h1>
 
-            {/* Meta Data Row - Side by Side instead of stacked */}
             <div className="flex flex-wrap items-center gap-y-4 gap-x-8 md:gap-x-12 border-t border-white/10 pt-8 text-lg font-medium">
-              
-              {/* Date */}
               <div className="flex items-center gap-3">
                  <span className="text-amber-500 text-3xl font-bold">{dayNum}</span>
                  <div className="flex flex-col leading-none">
                     <span className="text-white uppercase font-bold tracking-wider text-sm">{monthName}</span>
                     <span className="text-gray-400 text-sm">{weekday}</span>
+                    <meta itemProp="startDate" content={isoDate} />
                  </div>
               </div>
 
-              {/* Vertical Divider (Hidden on small mobile) */}
               <div className="hidden sm:block w-[1px] h-10 bg-white/10"></div>
 
-              {/* Time */}
               {event.time && (
                 <div className="flex items-center gap-3">
                    <ClockIcon className="h-6 w-6 text-amber-500" />
@@ -162,18 +170,15 @@ export default async function EventDetailsPage({ params }: { params: { slug: str
                 </div>
               )}
 
-              {/* Vertical Divider */}
               <div className="hidden sm:block w-[1px] h-10 bg-white/10"></div>
 
-              {/* Location */}
               {event.location && (
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3" itemProp="location" itemScope itemType="https://schema.org/Place">
                    <MapPinIcon className="h-6 w-6 text-amber-500" />
-                   <span className="text-gray-200">{event.location}</span>
+                   <span className="text-gray-200" itemProp="name">{event.location}</span>
                 </div>
               )}
             </div>
-
           </div>
         </div>
       </section>
@@ -182,24 +187,19 @@ export default async function EventDetailsPage({ params }: { params: { slug: str
       <section className="relative z-20 container mx-auto px-6 md:px-12 py-24 max-w-7xl">
         <div className="grid lg:grid-cols-[1.5fr_1fr] gap-20 lg:gap-32">
           
-          {/* LEFT: Clean Text Content */}
           <div className="space-y-12">
-            
-            {/* Summary - Clean Editorial Look */}
             {event.summary && (
-              <p className="text-2xl md:text-3xl font-light text-white leading-normal">
+              <p itemProp="description" className="text-2xl md:text-3xl font-light text-white leading-normal">
                 {event.summary}
               </p>
             )}
 
-            {/* Details - De-cluttered Typography */}
             <div className="prose prose-xl prose-invert max-w-none text-gray-400 font-light leading-loose 
               prose-headings:font-semibold prose-headings:text-white prose-headings:tracking-tight 
               prose-strong:text-amber-500 prose-a:text-white hover:prose-a:text-amber-500 prose-a:transition-colors">
               {event.details}
             </div>
 
-            {/* Menu Link - Sleek & Simple */}
             <div className="pt-16 mt-8 border-t border-white/5">
               <Link href="/menu" className="group inline-flex flex-col gap-2">
                 <span className="text-sm font-bold uppercase tracking-widest text-gray-500 group-hover:text-amber-500 transition-colors">
@@ -212,18 +212,14 @@ export default async function EventDetailsPage({ params }: { params: { slug: str
             </div>
           </div>
 
-          {/* RIGHT: Sidebar (Floating Elements, No Boxes) */}
           <div className="lg:sticky lg:top-24 space-y-16 h-fit">
-            
-            {/* Reservations Block */}
             <div className="space-y-6">
               <h3 className="text-xs font-bold uppercase tracking-[0.25em] text-gray-600 mb-8">
                 Reservations
               </h3>
-              
               <div className="flex flex-col gap-2">
                 <p className="text-white text-lg font-light">
-                  Reserve a table or VIP section.
+                  Reserve a table or VIP section for this event.
                 </p>
                 <a 
                   href="tel:+918699966565" 
@@ -234,7 +230,6 @@ export default async function EventDetailsPage({ params }: { params: { slug: str
               </div>
             </div>
 
-            {/* Share Block */}
             <div className="space-y-6">
               <h3 className="text-xs font-bold uppercase tracking-[0.25em] text-gray-600 mb-6">
                 Share Event
@@ -245,7 +240,6 @@ export default async function EventDetailsPage({ params }: { params: { slug: str
                 url={shareUrl} 
               />
             </div>
-
           </div>
         </div>
       </section>
@@ -255,7 +249,6 @@ export default async function EventDetailsPage({ params }: { params: { slug: str
         <section className="py-24 border-t border-white/5 bg-[#050505]">
           <div className="container mx-auto px-6 md:px-12 max-w-7xl">
             <h2 className="text-4xl font-bold text-white mb-16 tracking-tight">Up Next</h2>
-            
             <div className="grid md:grid-cols-2 gap-x-12 gap-y-16">
               {relatedEvents.map((ev: any) => (
                 <Link key={ev._id} href={`/events/${ev.slug}`} className="group block">
@@ -277,7 +270,7 @@ export default async function EventDetailsPage({ params }: { params: { slug: str
                          </>
                        )}
                     </div>
-                    <h3 className="text-3xl font-bold text-white leading-tight group-hover:text-amber-500 transition-colors">
+                    <h3 className="text-3xl font-bold text-white leading-tight group-hover:text-amber-400 transition-colors">
                       {ev.title}
                     </h3>
                   </div>

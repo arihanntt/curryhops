@@ -2,26 +2,26 @@ import type { Metadata } from "next";
 
 export const siteMetadata: Metadata = {
   metadataBase: new URL(
-    process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"
+    process.env.NEXT_PUBLIC_SITE_URL || "https://curryandhops.com"
   ),
 
   title: {
-    default: "Curry & Hops | Indian Bistro in Mohali",
-    template: "%s | Curry & Hops",
+    default: "Curry & Hops | Brewing Co. | Mohali",
+    template: "%s | Curry & Hops | Brewing Co.",
   },
 
   description:
-    "Curry & Hops is a modern Indian bistro in Mohali where spice meets craft. Experience exquisite curry flavors paired with finely crafted beers, just minutes from Chandigarh.",
+    "Curry & Hops is a modern Indian restaurant and brewing co. in Mohali, serving bold curries, craft beers, and a refined dining experience near Chandigarh.",
 
   keywords: [
     "Curry & Hops",
     "Curry and Hops",
-    "Curry n Hops",
+    "Curry & Hops Brewing Co",
+    "Brewing company in Mohali",
     "Indian restaurant in Mohali",
-    "Indian bistro Mohali",
+    "Craft beer restaurant Mohali",
     "Restaurant near Chandigarh",
-    "Indian restaurant near Chandigarh",
-    "Brewery restaurant Mohali",
+    "Indian food Mohali",
     "Where Spice Meets Craft",
   ],
 
@@ -34,10 +34,10 @@ export const siteMetadata: Metadata = {
   },
 
   openGraph: {
-    title: "Curry & Hops | Where Spice Meets Craft",
+    title: "Curry & Hops | Brewing Co. | Where Spice Meets Craft",
     description:
-      "A modern Indian bistro in Mohali blending bold curry flavors with finely crafted beers. A destination near Chandigarh.",
-    url: "https://curryandhops.com",
+      "Curry & Hops is a modern Indian restaurant and brewing co. in Mohali offering bold curries, craft beers, and a refined dining experience near Chandigarh.",
+    url: "https://curryandhops.com/",
     siteName: "Curry & Hops",
     images: [
       {
@@ -53,9 +53,9 @@ export const siteMetadata: Metadata = {
 
   twitter: {
     card: "summary_large_image",
-    title: "Curry & Hops | Where Spice Meets Craft",
+    title: "Curry & Hops | Brewing Co. | Where Spice Meets Craft",
     description:
-      "An Indian bistro in Mohali celebrating the fusion of spice and craft.",
+      "A modern Indian restaurant and brewing co. in Mohali serving bold curries and craft beers.",
     images: ["/og-image.jpg"],
   },
 
@@ -65,6 +65,6 @@ export const siteMetadata: Metadata = {
   },
 
   alternates: {
-    canonical: "https://curryandhops.com",
+    canonical: "https://curryandhops.com/",
   },
 };

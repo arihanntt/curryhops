@@ -3,7 +3,6 @@
 import Image from "next/image";
 import { useEffect, useState, Suspense, useMemo } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
-import MenuPdfButton from "@/components/MenuPdfButton";
 import MenuSchema from "@/components/MenuSchema";
 import { 
   ChevronDownIcon, 
@@ -12,7 +11,7 @@ import {
   ArrowUpIcon,
   PhotoIcon,
   CheckIcon,
-  SparklesIcon // New icon for customizable items
+  SparklesIcon 
 } from "@heroicons/react/24/outline";
 import { Playfair_Display, Inter, Cormorant_Garamond } from "next/font/google";
 
@@ -33,13 +32,9 @@ type MenuItem = {
   price: string;
   tags?: string[];
   imageUrl?: string;
-  
-  // NEW FIELDS
   available?: boolean; 
   isCustomizable?: boolean;
   variants?: MenuVariant[];
-
-  // Bar specific
   showBottlePeg?: boolean;
   bottlePrice?: string;
   pegPrice?: string;
@@ -90,11 +85,10 @@ const CATEGORY_BACKGROUNDS: Record<string, string> = {
   "indian single malts": "https://images.pexels.com/photos/16849854/pexels-photo-16849854.jpeg",
   "scotch": "https://images.pexels.com/photos/2796105/pexels-photo-2796105.jpeg",
   "japanese whisky": "https://images.pexels.com/photos/372959/pexels-photo-372959.jpeg",
-  "rye/bourbon whiskeys": "/images/rye-bourbon-bg.jpg",
   "canadian / irish whisky": "https://images.pexels.com/photos/14385403/pexels-photo-14385403.jpeg",
   "cognac/brandy": "/images/cognac-brandy-bg.jpg",
   "liquers": "https://images.pexels.com/photos/34627168/pexels-photo-34627168.jpeg",
-  "aperitif": "https://images.pexels.com/photos/35547817/pexels-photo-35547817.jpeg",
+  "aperitif": "https://images.pexels.com/photos/35547117/pexels-photo-35547117.jpeg",
   "red wine": "https://images.pexels.com/photos/66636/pexels-photo-66636.jpeg",
   "rose wine & sparkling wine": "/images/rose-sparkling-bg.jpg",
   "white wine": "https://images.pexels.com/photos/2584451/pexels-photo-2584451.jpeg",
@@ -110,17 +104,6 @@ const DIETARY_OPTIONS = ["Spicy", "Kids", "Vegan", "Gluten Free", "Chef's Specia
 type TypeFilter = typeof TYPE_OPTIONS[number];
 type DietaryFilter = typeof DIETARY_OPTIONS[number];
 
-const TAG_ICONS: Record<string, string> = {
-  "Veg": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b2/Veg_symbol.svg/1200px-Veg_symbol.svg.png",
-  "Non-Veg": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/ba/Non_veg_symbol.svg/2048px-Non_veg_symbol.svg.png",
-  "Egg": "https://cdn-icons-png.flaticon.com/512/1046/1046774.png", 
-  "Spicy": "https://cdn-icons-png.flaticon.com/512/1685/1685860.png",
-  "Kids": "https://cdn-icons-png.flaticon.com/512/2919/2919573.png",
-  "Vegan": "https://cdn-icons-png.flaticon.com/512/5767/5767292.png",
-  "Gluten Free": "https://cdn-icons-png.flaticon.com/512/4806/4806164.png",
-  "Chef's Special": "https://cdn-icons-png.flaticon.com/512/1830/1830839.png" 
-};
-
 /* ---------------- MAIN COMPONENT ---------------- */
 
 function MenuContent() {
@@ -133,14 +116,12 @@ function MenuContent() {
   const [showFilters, setShowFilters] = useState(false);
   const [expandedImage, setExpandedImage] = useState<string | null>(null);
 
-  // Initialize
   useEffect(() => {
     fetch("/api/menu", { cache: "no-store" })
       .then((res) => res.json())
       .then((data) => setMenu(data));
   }, []);
 
-  // Sync URL params to State on load
   useEffect(() => {
     const type = searchParams.get("type");
     if (type === "food" || type === "bar") {
@@ -148,14 +129,12 @@ function MenuContent() {
     }
   }, [searchParams]);
 
-  // Reset filters when switching main menu type
   useEffect(() => {
     setSelectedCategory("all");
     setTypeFilter("All");
     setDietaryFilters([]);
   }, [menuType]);
 
-  // --- MEMOIZED FILTERING LOGIC ---
   const filteredSections = useMemo(() => {
     return menu.sections.filter((section) => {
       const title = section.title.toLowerCase();
@@ -172,12 +151,7 @@ function MenuContent() {
       )
       .map((section) => {
         const filteredItems = section.items.filter((item) => {
-          
-          // --- HIDE IF OUT OF STOCK ---
-          if (item.available === false) {
-            return false;
-          }
-
+          if (item.available === false) return false;
           if (menuType === "food" && typeFilter !== "All") {
             const hasNonVeg = item.tags?.includes("Non-Veg");
             const hasEgg = item.tags?.includes("Egg");
@@ -195,7 +169,6 @@ function MenuContent() {
       .filter((section) => section.items.length > 0);
   }, [filteredSections, selectedCategory, typeFilter, dietaryFilters, menuType]);
 
-  // Scroll Handling
   const handleCategorySelect = (title: string) => {
     setSelectedCategory(title);
     if (title === 'all') return;
@@ -218,7 +191,7 @@ function MenuContent() {
   };
 
   return (
-    <main className={`min-h-screen bg-[#f8f5f2] text-stone-900 ${inter.className} relative`}>
+    <main className={`min-h-screen bg-[#f8f5f2] text-stone-900 ${inter.className} relative`} itemScope itemType="https://schema.org/Menu">
       
       {/* Global Grain Texture */}
       <div className="fixed inset-0 pointer-events-none opacity-[0.03] z-[5] bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] mix-blend-multiply" />
@@ -229,7 +202,7 @@ function MenuContent() {
       <section className="relative h-[65vh] min-h-[450px] flex items-center justify-center overflow-hidden">
         <Image
           src="/images/restaurant-dinner-black.webp"
-          alt="Ambience"
+          alt="Curry & Hops Ambience"
           fill
           className="object-cover"
           priority
@@ -266,9 +239,7 @@ function MenuContent() {
             </div>
           </div>
           
-          <div className="mt-8 opacity-80 hover:opacity-100 transition-opacity">
-             <MenuPdfButton />
-          </div>
+          {/* ✅ PDF BUTTON REMOVED AS REQUESTED */}
         </div>
       </section>
 
@@ -321,13 +292,13 @@ function MenuContent() {
             const bgImage = CATEGORY_BACKGROUNDS[section.title.toLowerCase()] || `/images/${slug}-bg.jpg`;
 
             return (
-              <section key={idx} id={slug} className="scroll-mt-40">
+              <section key={idx} id={slug} className="scroll-mt-40" itemProp="hasMenuSection" itemScope itemType="https://schema.org/MenuSection">
                 {/* Header */}
                 <div className="relative h-40 md:h-64 rounded-t-2xl overflow-hidden shadow-md z-0">
-                  <Image src={bgImage} alt={section.title} fill className="object-cover" />
+                  <Image src={bgImage} alt={`${section.title} at Curry & Hops`} fill className="object-cover" />
                   <div className="absolute inset-0 bg-stone-900/40 mix-blend-multiply" />
                   <div className="absolute inset-0 flex items-center justify-center">
-                    <h2 className={`${playfair.className} text-3xl md:text-5xl text-[#f8f5f2] font-medium tracking-wide capitalize drop-shadow-lg text-center px-4`}>
+                    <h2 itemProp="name" className={`${playfair.className} text-3xl md:text-5xl text-[#f8f5f2] font-medium tracking-wide capitalize drop-shadow-lg text-center px-4`}>
                       {section.title}
                     </h2>
                   </div>
@@ -340,7 +311,7 @@ function MenuContent() {
                    {/* Items Grid */}
                    <div className="grid md:grid-cols-2 gap-px bg-stone-200/40"> 
                       {section.items.map((item, i) => (
-                        <div key={i} className="bg-[#fffbf7] bg-[url('https://www.transparenttextures.com/patterns/cream-paper.png')] p-4 md:p-8 relative group">
+                        <div key={i} className="bg-[#fffbf7] bg-[url('https://www.transparenttextures.com/patterns/cream-paper.png')] p-4 md:p-8 relative group" itemProp="hasMenuItem" itemScope itemType="https://schema.org/MenuItem">
                            {/* Decorative Corner */}
                            <div className="absolute top-4 right-4 w-2 h-2 border-t border-r border-amber-900/20 opacity-0 group-hover:opacity-100 transition-opacity hidden md:block" />
                            
@@ -479,7 +450,7 @@ function MenuContent() {
 
 function MenuItemCard({ item, menuType, onImageClick }: { item: MenuItem, menuType: string, onImageClick: (url: string) => void }) {
   const [isExpanded, setIsExpanded] = useState(false);
-  const [showVariants, setShowVariants] = useState(false); // State for customization toggling
+  const [showVariants, setShowVariants] = useState(false);
 
   const effectiveTags = [...(item.tags || [])];
   const hasNonVegOrEgg = effectiveTags.some(t => t === "Non-Veg" || t === "Egg");
@@ -487,7 +458,6 @@ function MenuItemCard({ item, menuType, onImageClick }: { item: MenuItem, menuTy
     effectiveTags.push("Veg");
   }
 
-  // Check Availability (Default to true if undefined)
   const isAvailable = item.available !== false; 
 
   const getIcon = (tag: string) => {
@@ -500,7 +470,6 @@ function MenuItemCard({ item, menuType, onImageClick }: { item: MenuItem, menuTy
   return (
     <div className={`flex flex-row gap-4 items-start w-full relative ${!isAvailable ? "select-none" : ""}`}>
       
-      {/* 2. Left: Image */}
       {item.imageUrl && (
         <div 
           className={`shrink-0 w-20 h-20 md:w-28 md:h-28 relative rounded-lg overflow-hidden border border-stone-200 ${isAvailable ? "cursor-pointer group/img shadow-md" : "grayscale opacity-80"}`}
@@ -508,11 +477,11 @@ function MenuItemCard({ item, menuType, onImageClick }: { item: MenuItem, menuTy
         >
           <Image 
             src={item.imageUrl} 
-            alt={item.name} 
+            alt={`${item.name} at Curry & Hops`} 
             fill 
             className="object-cover transition-transform duration-700 group-hover/img:scale-110" 
+            itemProp="image"
           />
-          {/* Magnify Icon Overlay */}
           {isAvailable && (
              <div className="absolute inset-0 z-20 flex items-center justify-center opacity-0 group-hover/img:opacity-100 transition-opacity bg-black/20">
                <PhotoIcon className="w-5 h-5 text-white drop-shadow-md" />
@@ -521,22 +490,20 @@ function MenuItemCard({ item, menuType, onImageClick }: { item: MenuItem, menuTy
         </div>
       )}
 
-      {/* 3. Middle: Content */}
       <div className={`flex-1 min-w-0 flex flex-col justify-center ${!isAvailable ? "opacity-50 blur-[0.5px]" : ""}`}>
         
-        {/* Title + Price Row */}
         <div className="flex justify-between items-start gap-2 mb-1">
-          <h3 className={`${playfair.className} text-lg md:text-2xl font-bold text-stone-900 leading-tight break-words pr-2`}>
+          <h3 itemProp="name" className={`${playfair.className} text-lg md:text-2xl font-bold text-stone-900 leading-tight break-words pr-2`}>
             {item.name}
           </h3>
           
-          {/* Price (Fixed Right - With Bottle/Peg Logic) */}
-          <div className="text-right shrink-0">
+          <div className="text-right shrink-0" itemProp="offers" itemScope itemType="https://schema.org/Offer">
+            <meta itemProp="priceCurrency" content="INR" />
             {menuType === "bar" && item.showBottlePeg ? (
               <div className="flex flex-col items-end gap-0.5">
                 <div className="flex items-center gap-1.5">
                    <span className="text-[10px] text-stone-400 font-bold uppercase tracking-wider">30ml</span>
-                   <span className="text-base md:text-lg font-bold text-stone-900">₹{item.pegPrice}</span>
+                   <span className="text-base md:text-lg font-bold text-stone-900">₹<span itemProp="price">{item.pegPrice}</span></span>
                 </div>
                 {item.bottlePrice && (
                    <div className="flex items-center gap-1.5">
@@ -546,12 +513,11 @@ function MenuItemCard({ item, menuType, onImageClick }: { item: MenuItem, menuTy
                 )}
               </div>
             ) : (
-              <span className="text-base md:text-xl font-bold text-stone-900">₹{item.price}</span>
+              <span className="text-base md:text-xl font-bold text-stone-900">₹<span itemProp="price">{item.price}</span></span>
             )}
           </div>
         </div>
 
-        {/* Tags (With Custom Colors) */}
         {menuType === "food" && (
           <div className="flex items-center gap-2 mb-2 flex-wrap">
             {effectiveTags.map(tag => (
@@ -572,12 +538,11 @@ function MenuItemCard({ item, menuType, onImageClick }: { item: MenuItem, menuTy
           </div>
         )}
 
-        {/* Description - Expandable Logic */}
         <div 
           onClick={() => setIsExpanded(!isExpanded)}
           className="cursor-pointer group/desc"
         >
-          <p className={`${cormorant.className} text-base md:text-lg text-stone-600 leading-snug italic opacity-90 transition-all ${isExpanded ? '' : 'line-clamp-3'}`}>
+          <p itemProp="description" className={`${cormorant.className} text-base md:text-lg text-stone-600 leading-snug italic opacity-90 transition-all ${isExpanded ? '' : 'line-clamp-3'}`}>
             {item.desc}
           </p>
           {item.desc.length > 80 && !isExpanded && (
@@ -587,10 +552,9 @@ function MenuItemCard({ item, menuType, onImageClick }: { item: MenuItem, menuTy
           )}
         </div>
 
-        {/* --- CUSTOMIZABLE BUTTON & LOGIC --- */}
         {item.isCustomizable && item.variants && item.variants.length > 0 && (
            <div className="mt-3">
-              {!showVariants ? (
+             {!showVariants ? (
                 <button 
                   onClick={(e) => { e.stopPropagation(); setShowVariants(true); }}
                   className="flex items-center gap-1.5 px-3 py-1.5 bg-stone-900 text-white text-[10px] uppercase font-bold tracking-widest rounded-full hover:bg-stone-700 transition-colors shadow-sm"
@@ -598,7 +562,7 @@ function MenuItemCard({ item, menuType, onImageClick }: { item: MenuItem, menuTy
                   <SparklesIcon className="w-3 h-3" />
                   Customize It
                 </button>
-              ) : (
+             ) : (
                 <div className="bg-white border border-stone-200 rounded-lg p-3 shadow-inner animate-fade-in mt-1">
                    <div className="flex justify-between items-center mb-2 border-b border-stone-100 pb-1">
                       <span className="text-[10px] font-bold uppercase text-stone-400 tracking-widest">Add-ons</span>
@@ -615,7 +579,7 @@ function MenuItemCard({ item, menuType, onImageClick }: { item: MenuItem, menuTy
                       ))}
                    </div>
                 </div>
-              )}
+             )}
            </div>
         )}
 

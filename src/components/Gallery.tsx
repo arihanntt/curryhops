@@ -62,8 +62,14 @@ export default function Gallery() {
       {/* Heading */}
       <div className="relative z-10 max-w-7xl mx-auto text-center mb-16">
         <h2 className="text-white text-4xl md:text-5xl font-semibold mb-4">
-          TRY OUR SPECIAL DISHES
+          Discover Our Signature Indian Dishes
+
         </h2>
+        <p className="text-gray-300 max-w-3xl mx-auto text-sm md:text-base">
+          Explore signature Indian dishes at Curry & Hops Brewing Co. in Mohali, from 
+          authentic tandoori platters and rich curries to traditional Indian drinks, 
+          served fresh near Chandigarh.
+        </p>
       </div>
 
       {/* Cards */}
@@ -76,7 +82,7 @@ export default function Gallery() {
             <div className="relative w-full h-72">
               <Image
                 src={item.image}
-                alt={item.title}
+                alt={`${item.title} at Curry & Hops Brewing Co. in Mohali`}
                 fill
                 className="object-cover"
               />
@@ -110,8 +116,8 @@ export default function Gallery() {
           <Link href="/menu">
             <div className="relative w-full aspect-[32/5] overflow-hidden">
               <Image
-                src={`${bannerUrl}?v=${Date.now()}`}
-                alt="Banner"
+                src={bannerUrl}
+                alt="Curry & Hops Brewing Co. menu banner – Indian restaurant in Mohali"
                 fill
                 className="object-cover hover:opacity-90 transition"
               />

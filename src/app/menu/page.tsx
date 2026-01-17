@@ -4,7 +4,7 @@ import MenuClient from "./MenuClient";
 export const metadata: Metadata = {
   metadataBase: new URL("https://curryandhops.com"),
 
-  title: "Menu | Curry & Hops",
+  title: "Menu",
   description:
     "Explore the Curry & Hops menu featuring signature curries, tandoori platters, handcrafted cocktails, and more. Where spice meets craft in Mohali, near Chandigarh.",
 

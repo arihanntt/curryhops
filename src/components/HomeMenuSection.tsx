@@ -5,7 +5,7 @@ import Image from 'next/image';
 export default function HomeMenuSection() {
   const menuItems = [
     {
-      name: 'Long island iced tea',
+      name: 'Long Island Iced Tea',
       desc: 'Vodka, Rum, Tequila, Gin, Triple sec, Lime juice, Coke',
       price: '₹299',
     },
@@ -21,42 +21,46 @@ export default function HomeMenuSection() {
     },
     {
       name: 'Hawaiian Iced Tea',
-      desc: 'Vodka, Rum, Tequila, Gin, Triple sec , Sweet & Sour, Pineapple juice',
+      desc: 'Vodka, Rum, Tequila, Gin, Triple sec, Sweet & Sour, Pineapple juice',
       price: '₹299',
     },
-   
   ];
 
   const leftItems = menuItems.slice(0, Math.ceil(menuItems.length / 2));
   const rightItems = menuItems.slice(Math.ceil(menuItems.length / 2));
 
   return (
-    <section className="relative bg-[#f9f5f0] py-20 px-4 sm:px-6 md:px-20 font-['Playfair_Display']">
-      {/* Background Overlays */}
+    <section className="relative bg-[#f9f5f0] py-20 px-4 sm:px-6 md:px-20 font-['Playfair_Display'] overflow-hidden">
+      {/* Background Overlays - Optimized Alt Tags */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <Image
           src="/images/overlay-left.png"
-          alt="Overlay Left"
+          alt="Decorative menu background element for Curry & Hops Mohali"
           width={400}
           height={400}
           className="absolute left-10 top-1/3 opacity-20"
         />
         <Image
           src="/images/overlay-right.png"
-          alt="Overlay Right"
+          alt="Curry & Hops Brewing Co decoration"
           width={500}
           height={500}
           className="absolute right-16 top-1/2 opacity-20"
         />
       </div>
 
-      {/* Section Title */}
+      {/* Section Title - SEO Optimized */}
       <div className="text-center mb-14 relative z-10">
-        <h2 className="text-3xl sm:text-4xl md:text-5xl text-gray-900 tracking-wide">
-          
-Our Liit's
+        <h2 className="text-3xl sm:text-4xl md:text-5xl text-gray-900 tracking-wide uppercase">
+          Our Signature LIITs in Mohali
         </h2>
         <div className="w-16 h-0.5 bg-[#c9a84e] mx-auto mt-4" />
+        {/* SEO Context Paragraph */}
+        <p className="mt-6 text-gray-600 max-w-2xl mx-auto font-sans text-sm md:text-base leading-relaxed">
+          Experience the best Long Island Iced Teas in Mohali. From our classic Tokyo 
+          Iced Tea to the tropical Hawaiian twist, our cocktails are crafted for 
+          the perfect night out near Chandigarh.
+        </p>
       </div>
 
       {/* Two Column Menu */}
@@ -64,40 +68,40 @@ Our Liit's
         {/* Left Column */}
         <div className="space-y-6">
           {leftItems.map((item, i) => (
-            <div
+            <article
               key={i}
               className="flex justify-between items-start border-b border-dotted border-gray-400 pb-2"
             >
               <div>
-                <h4 className="font-semibold text-lg text-gray-900">
+                <h3 className="font-semibold text-lg text-gray-900">
                   {item.name}
-                </h4>
-                <p className="text-sm text-gray-600">{item.desc}</p>
+                </h3>
+                <p className="text-sm text-gray-600 font-sans">{item.desc}</p>
               </div>
-              <span className="font-semibold text-gray-800 whitespace-nowrap">
+              <span className="font-semibold text-gray-800 whitespace-nowrap ml-4">
                 {item.price}
               </span>
-            </div>
+            </article>
           ))}
         </div>
 
         {/* Right Column */}
         <div className="space-y-6">
           {rightItems.map((item, i) => (
-            <div
+            <article
               key={i}
               className="flex justify-between items-start border-b border-dotted border-gray-400 pb-2"
             >
               <div>
-                <h4 className="font-semibold text-lg text-gray-900">
+                <h3 className="font-semibold text-lg text-gray-900">
                   {item.name}
-                </h4>
-                <p className="text-sm text-gray-600">{item.desc}</p>
+                </h3>
+                <p className="text-sm text-gray-600 font-sans">{item.desc}</p>
               </div>
-              <span className="font-semibold text-gray-800 whitespace-nowrap">
+              <span className="font-semibold text-gray-800 whitespace-nowrap ml-4">
                 {item.price}
               </span>
-            </div>
+            </article>
           ))}
         </div>
       </div>

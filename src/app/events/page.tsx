@@ -23,32 +23,48 @@ export default function EventsPage() {
       .catch(() => setLoading(false));
   }, []);
 
-  // Helper to split date into Day and Month
   const getDateParts = (dateString: string) => {
-    if (!dateString) return { day: "??", month: "TBA" };
+    if (!dateString) return { day: "??", month: "TBA", iso: "" };
     const date = new Date(dateString);
-    if (isNaN(date.getTime())) return { day: "??", month: "INV" };
+    if (isNaN(date.getTime())) return { day: "??", month: "INV", iso: "" };
     return {
       day: date.getDate(),
       month: date.toLocaleDateString("en-US", { month: "short" }).toUpperCase(),
       weekday: date.toLocaleDateString("en-US", { weekday: "long" }),
+      iso: date.toISOString(),
     };
+  };
+
+  // ✅ SEO: Create a JSON-LD ItemList for Google to find all events at once
+  const listSchema = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "itemListElement": events.map((ev, index) => ({
+      "@type": "ListItem",
+      "position": index + 1,
+      "url": `https://curryandhops.com/events/${ev.slug}`,
+      "name": ev.title
+    }))
   };
 
   return (
     <main className="bg-[#050505] text-white min-h-screen relative overflow-hidden">
-      {/* Background Texture */}
+      {/* ✅ SEO: Inject the List Schema */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(listSchema) }}
+      />
+
       <div className="fixed inset-0 opacity-[0.03] pointer-events-none z-0" 
            style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")` }}>
       </div>
 
       {/* HERO SECTION */}
       <section className="relative h-[60vh] flex items-center justify-center overflow-hidden">
-        {/* Background Image with Parallax-like feel */}
         <div className="absolute inset-0 z-0">
           <Image
             src="/images/events-hero.jpg"
-            alt="Events Hero"
+            alt="Upcoming live music and Sufi night events in Mohali at Curry & Hops"
             fill
             className="object-cover opacity-50 scale-105"
             priority
@@ -69,7 +85,7 @@ export default function EventsPage() {
               UPCOMING <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-200 to-amber-600">EVENTS</span>
             </h1>
             <p className="max-w-xl mx-auto text-gray-300 text-lg md:text-xl font-light">
-              Live music, special tastings, and unforgettable nights.
+              Live music, Sufi nights, and special tastings in Mohali.
             </p>
           </motion.div>
         </div>
@@ -85,14 +101,14 @@ export default function EventsPage() {
 
         {!loading && events.length === 0 && (
            <div className="text-center py-24 bg-neutral-900/50 border border-white/5 rounded-3xl backdrop-blur-sm">
-              <p className="text-2xl text-gray-500 font-light">No upcoming events scheduled.</p>
-              <p className="text-gray-600 mt-2">Check back soon for updates.</p>
+              <p className="text-2xl text-gray-500 font-light">No upcoming events scheduled in Mohali.</p>
+              <p className="text-gray-600 mt-2">Check back soon for live music updates.</p>
            </div>
         )}
 
         <div className="grid grid-cols-1 gap-12">
           {events.map((ev, index) => {
-            const { day, month, weekday } = getDateParts(ev.date);
+            const { day, month, weekday, iso } = getDateParts(ev.date);
 
             return (
               <motion.div
@@ -102,7 +118,12 @@ export default function EventsPage() {
                 viewport={{ once: true, margin: "-100px" }}
                 transition={{ duration: 0.6, delay: index * 0.1 }}
               >
-                <Link href={ev.slug ? `/events/${ev.slug}` : "#"} className="group block">
+                <Link 
+                  href={ev.slug ? `/events/${ev.slug}` : "#"} 
+                  className="group block"
+                  itemScope 
+                  itemType="https://schema.org/Event"
+                >
                   <article className="relative bg-[#0a0a0a] rounded-3xl overflow-hidden border border-white/5 hover:border-amber-500/30 transition-all duration-500 shadow-2xl hover:shadow-amber-900/10 group-hover:-translate-y-1">
                     
                     <div className="grid md:grid-cols-[400px_1fr] h-full">
@@ -111,12 +132,12 @@ export default function EventsPage() {
                         <div className="absolute inset-0 bg-amber-500/10 group-hover:bg-transparent transition-colors z-10" />
                         <Image
                           src={ev.image || "/images/events-hero.jpg"}
-                          alt={ev.title || "Event"}
+                          alt={`${ev.title} - Live event at Curry & Hops Mohali`}
                           fill
                           className="object-cover transition-transform duration-700 group-hover:scale-110 grayscale group-hover:grayscale-0"
+                          itemProp="image"
                         />
                         
-                        {/* DATE BADGE (Mobile Overlay) */}
                         <div className="absolute top-4 left-4 md:hidden bg-black/80 backdrop-blur-md border border-white/10 rounded-xl p-3 text-center z-20">
                           <span className="block text-xs text-amber-500 font-bold uppercase">{month}</span>
                           <span className="block text-2xl font-black text-white">{day}</span>
@@ -125,7 +146,6 @@ export default function EventsPage() {
 
                       {/* CONTENT SIDE */}
                       <div className="p-8 md:p-10 flex flex-col justify-between relative">
-                        {/* Background Glow */}
                         <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/5 rounded-full blur-3xl pointer-events-none group-hover:bg-amber-500/10 transition duration-700" />
 
                         <div className="relative z-10">
@@ -135,9 +155,11 @@ export default function EventsPage() {
                             <div className="h-8 w-[1px] bg-white/20" />
                             <span className="text-sm font-bold tracking-widest uppercase">{month}</span>
                             <span className="text-sm font-light text-gray-400">/ {weekday}</span>
+                            {/* ✅ SEO: Hidden ISO Date for Google */}
+                            <meta itemProp="startDate" content={iso} />
                           </div>
 
-                          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4 leading-tight group-hover:text-amber-400 transition-colors">
+                          <h2 itemProp="name" className="text-3xl md:text-4xl font-bold text-white mb-4 leading-tight group-hover:text-amber-400 transition-colors">
                             {ev.title || "Untitled Event"}
                           </h2>
 
@@ -150,25 +172,25 @@ export default function EventsPage() {
                               </div>
                             )}
                             {ev.location && (
-                              <div className="flex items-center gap-2">
+                              <div className="flex items-center gap-2" itemProp="location" itemScope itemType="https://schema.org/Place">
                                 <MapPinIcon className="h-5 w-5 text-amber-600" />
-                                {ev.location}
+                                <span itemProp="name">{ev.location}</span>
                               </div>
                             )}
                           </div>
 
-                          <p className="text-gray-400 leading-relaxed max-w-lg line-clamp-2">
-                            {ev.summary || "Click to read full details about this upcoming event."}
+                          <p itemProp="description" className="text-gray-400 leading-relaxed max-w-lg line-clamp-2">
+                            {ev.summary || `Join us at Curry & Hops Mohali for ${ev.title}. Click for tickets and more info.`}
                           </p>
                         </div>
 
                         {/* Bottom Action */}
                         <div className="mt-8 pt-8 border-t border-white/5 flex items-center justify-between">
                           <span className="text-xs font-mono text-gray-600 uppercase tracking-widest group-hover:text-amber-500 transition-colors">
-                            Limited Capacity
+                            Event in Mohali
                           </span>
                           <span className="flex items-center gap-2 text-white font-bold group-hover:translate-x-2 transition-transform duration-300">
-                            Get Tickets / Info 
+                            Event Details
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5 text-amber-500">
                               <path strokeLinecap="round" strokeLinejoin="round" d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3" />
                             </svg>

@@ -2,34 +2,36 @@ import type { Metadata } from "next";
 
 // --- SEO CONFIGURATION FOR CURRY & HOPS EVENTS ---
 export const metadata: Metadata = {
-  title: "Events & Live Evenings | Curry & Hops, Mohali",
+  // ✅ IMPROVED: Added "Live Music" and "Nightlife" hooks
+  title: "Upcoming Events & Live Music",
 
   description:
-    "Join us at Curry & Hops, a family-friendly Indian bistro in Mohali, for live music evenings, special dining events, festive celebrations, and memorable experiences with great food and warm ambience.",
+    "Discover the best live music, Sufi nights, and DJ events in Mohali at Curry & Hops. Join us for unique dining experiences, festive celebrations, and family-friendly weekend events near Chandigarh.",
 
   keywords: [
-    "Curry & Hops Mohali",
-    "Indian restaurant in Mohali",
-    "Family restaurant Mohali",
-    "Restaurant events in Mohali",
-    "Live music restaurant Chandigarh",
-    "Best Indian bistro Mohali",
-    "Weekend family dining",
-    "Food and music Mohali",
+    "Curry & Hops Mohali Events",
+    "Live Music Mohali",
+    "Sufi Night Mohali",
+    "DJ Nights Mohali",
+    "Best nightlife in Mohali",
+    "Restaurant events Chandigarh",
+    "Weekend live music Mohali",
+    "Suncity Mohali nightlife",
+    "Family events Mohali restaurant",
   ],
 
   openGraph: {
-    title: "Events & Special Evenings | Curry & Hops Mohali",
+    title: "Live Music & Upcoming Events at Curry & Hops Mohali",
     description:
-      "Discover upcoming live music evenings, festive celebrations, and special dining events at Curry & Hops – a family-friendly Indian bistro in Mohali.",
+      "Join us for unforgettable Sufi nights, live bands, and special dining events in the heart of Mohali.",
     url: "https://curryandhops.com/events",
-    siteName: "Curry & Hops",
+    siteName: "Curry & Hops Brewing Co.",
     images: [
       {
-        url: "/images/events-hero.jpg", // 1200x630 recommended
+        url: "/images/events-hero.jpg", 
         width: 1200,
         height: 630,
-        alt: "Family enjoying food and live music at Curry & Hops Mohali",
+        alt: "Live music performance and dining atmosphere at Curry & Hops Mohali",
       },
     ],
     locale: "en_IN",
@@ -38,9 +40,9 @@ export const metadata: Metadata = {
 
   twitter: {
     card: "summary_large_image",
-    title: "Events at Curry & Hops | Mohali",
+    title: "Events at Curry & Hops | Mohali & Chandigarh",
     description:
-      "Good food, warm ambience, and memorable evenings. Explore upcoming events at Curry & Hops.",
+      "Check out our schedule for live music, Sufi nights, and special tastings at Curry & Hops.",
     images: ["/images/events-hero.jpg"],
   },
 
