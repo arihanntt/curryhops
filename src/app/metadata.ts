@@ -5,24 +5,29 @@ export const siteMetadata: Metadata = {
     process.env.NEXT_PUBLIC_SITE_URL || "https://curryandhops.com"
   ),
 
+  // ✅ ADDED: Google Search Console Verification
+  verification: {
+    google: "mnG3rprb3_NIKBDb3L7QZSVrwkIev8BIEtt2UtNNSvg",
+  },
+
   title: {
-    default: "Curry & Hops | Brewing Co. | Mohali",
-    template: "%s | Curry & Hops | Brewing Co.",
+    default: "Curry & Hops | Best Indian Restaurant & Brewing Co. in Mohali",
+    template: "%s | Curry & Hops Mohali",
   },
 
   description:
-    "Curry & Hops is a modern Indian restaurant and brewing co. in Mohali, serving bold curries, craft beers, and a refined dining experience near Chandigarh.",
+    "Curry & Hops Mohali: The ultimate destination for craft beer and modern Indian cuisine. Experience live music, signature curries, and the best brewery vibes near Chandigarh.",
 
   keywords: [
-    "Curry & Hops",
-    "Curry and Hops",
+    "Curry & Hops Mohali",
+    "Curry and Hops Chandigarh",
     "Curry & Hops Brewing Co",
-    "Brewing company in Mohali",
-    "Indian restaurant in Mohali",
-    "Craft beer restaurant Mohali",
-    "Restaurant near Chandigarh",
-    "Indian food Mohali",
-    "Where Spice Meets Craft",
+    "Best Brewery in Mohali",
+    "Indian restaurant Mohali",
+    "Microbrewery in Mohali",
+    "Live Music Restaurant Mohali",
+    "Sufi Nights Mohali",
+    "Best Butter Chicken Mohali",
   ],
 
   applicationName: "Curry & Hops",
