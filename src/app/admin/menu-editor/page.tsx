@@ -8,9 +8,9 @@ import {
   TrashIcon, 
   PhotoIcon,
   PlusIcon,
-  EyeIcon,        // New
-  EyeSlashIcon,   // New
-  SparklesIcon    // New
+  EyeIcon,        
+  EyeSlashIcon,   
+  SparklesIcon    
 } from "@heroicons/react/24/outline";
 
 // UPDATED TAGS: Added Gluten Free and Chef's Special
@@ -42,19 +42,28 @@ export default function MenuEditor() {
     };
   }, []);
 
+  // ✅ CRITICAL FIX: Fetch with 'no-store' to bypass Vercel/Browser Cache
   useEffect(() => {
-    fetch("/api/menu")
+    fetch("/api/menu", { 
+      cache: "no-store", 
+      next: { revalidate: 0 } 
+    })
       .then((r) => r.json())
       .then((data) => {
+        if(data.error) throw new Error(data.error);
+        
         let updatedMenu = { ...data };
-        // Ensure unique IDs
+        // Ensure unique IDs if missing
         updatedMenu.sections = updatedMenu.sections.map((s: any, index: number) => ({
            ...s,
            id: s.id || `section-${Date.now()}-${index}` 
         }));
         setMenu(updatedMenu);
       })
-      .catch((err) => console.error("Failed to load menu:", err));
+      .catch((err) => {
+        console.error("Failed to load menu:", err);
+        alert("Could not load menu. Check console.");
+      });
   }, []);
 
   if (!menu) return (
@@ -80,15 +89,21 @@ export default function MenuEditor() {
         body: JSON.stringify({ sections: menu.sections }),
       });
 
-      if (!res.ok) throw new Error("Save failed");
+      const data = await res.json();
+
+      if (!res.ok) {
+        console.error("Save Failed (Server):", data);
+        throw new Error(data.error || "Server rejected the save");
+      }
 
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
-      const fresh = await fetch("/api/menu").then((r) => r.json());
-      setMenu(fresh);
-    } catch (err) {
-      console.error(err);
-      alert("Failed to save");
+      
+      // Update local state with the confirmed data from server
+      setMenu(data);
+    } catch (err: any) {
+      console.error("Save Error:", err);
+      alert(`Failed to save: ${err.message}`);
     } finally {
       setSaving(false);
     }
@@ -550,25 +565,25 @@ export default function MenuEditor() {
         {/* Floating Save Bar */}
         <div className="fixed bottom-0 left-0 right-0 p-4 z-50 pointer-events-none">
            <div className="max-w-5xl mx-auto flex items-center justify-end pointer-events-auto">
-              <div className={`
+             <div className={`
                  flex items-center gap-4 px-6 py-3 rounded-full shadow-xl transition-all duration-500 border border-white/20 backdrop-blur-md
                  ${saving ? "bg-slate-800 text-white" : "bg-white/90 border-slate-200 text-slate-800"}
               `}>
-                  {saved && <span className="text-green-600 font-bold text-sm animate-pulse">✓ Saved!</span>}
-                  
-                  <button
-                    onClick={handleSave}
-                    disabled={saving}
-                    className={`
-                      px-6 py-2 rounded-full font-bold shadow-lg transition-all duration-300 text-sm transform active:scale-95
-                      ${saving 
-                         ? "bg-slate-600 text-slate-400 cursor-not-allowed" 
-                         : "bg-gradient-to-r from-amber-500 to-orange-500 text-white hover:shadow-amber-500/30 hover:-translate-y-0.5"
-                      }
-                    `}
-                  >
-                    {saving ? "Syncing..." : "Save Changes"}
-                  </button>
+                 {saved && <span className="text-green-600 font-bold text-sm animate-pulse">✓ Saved!</span>}
+                 
+                 <button
+                   onClick={handleSave}
+                   disabled={saving}
+                   className={`
+                     px-6 py-2 rounded-full font-bold shadow-lg transition-all duration-300 text-sm transform active:scale-95
+                     ${saving 
+                        ? "bg-slate-600 text-slate-400 cursor-not-allowed" 
+                        : "bg-gradient-to-r from-amber-500 to-orange-500 text-white hover:shadow-amber-500/30 hover:-translate-y-0.5"
+                     }
+                   `}
+                 >
+                   {saving ? "Syncing..." : "Save Changes"}
+                 </button>
              </div>
            </div>
         </div>

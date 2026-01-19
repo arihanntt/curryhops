@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/mongodb";
 import Menu from "@/models/Menu";
+import { revalidatePath } from "next/cache"; // 👈 Import this for instant updates
 
-// ✅ CHANGE: Remove "force-dynamic" to allow Next.js to cache the menu for speed.
-// We will use revalidation instead.
-export const revalidate = 3600; // Cache the menu for 1 hour
+// ✅ CRITICAL FIX: Force Dynamic mode to prevent Vercel from caching the API response
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 /* ---------------- TYPES ---------------- */
 type MenuVariant = {
@@ -18,7 +19,7 @@ type MenuItem = {
   desc?: string;
   tags?: string[];
   imageUrl?: string;
-  available?: boolean; 
+  available?: boolean;
   isCustomizable?: boolean;
   variants?: MenuVariant[];
   showBottlePeg?: boolean;
@@ -33,81 +34,103 @@ type MenuSection = {
   items: MenuItem[];
 };
 
+// Default structure if DB is empty
 const DEFAULT_MENU = {
   sections: [
     { id: "quick-bites", title: "Quick Bites", menuType: "food", items: [] },
     { id: "main-course", title: "Main Course", menuType: "food", items: [] },
-    // ... rest of your categories
   ] as MenuSection[],
 };
 
-/* ---------------- GET ---------------- */
+/* ---------------- GET METHOD ---------------- */
 export async function GET() {
   try {
     await connectDB();
 
-    const menu = await Menu.findOne().lean(); // .lean() makes the query faster
-    
+    const menu = await Menu.findOne().lean();
+
     if (!menu) {
       const newMenu = await Menu.create(DEFAULT_MENU);
       return NextResponse.json(newMenu);
     }
 
-    // ✅ SEO ADVANTAGE: We add a Cache-Control header so Google knows this page is stable
     return NextResponse.json(menu, {
       headers: {
-        "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=59",
+        // ✅ CRITICAL FIX: Tell browser and Vercel CDN to NEVER cache this request
+        "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate",
+        "Pragma": "no-cache",
+        "Expires": "0",
+        "Surrogate-Control": "no-store",
       },
     });
   } catch (error: any) {
+    console.error("GET Menu Error:", error);
     return NextResponse.json({ error: "Failed to fetch menu" }, { status: 500 });
   }
 }
 
-/* ---------------- PUT ---------------- */
+/* ---------------- PUT METHOD ---------------- */
 export async function PUT(req: Request) {
   try {
     await connectDB();
+    
+    // 1. Parse Data
     const body = await req.json();
     const { sections } = body;
 
+    // 2. Validate
     if (!Array.isArray(sections)) {
-      return NextResponse.json({ error: "Invalid payload" }, { status: 400 });
+      return NextResponse.json({ error: "Invalid payload: 'sections' must be an array" }, { status: 400 });
     }
 
-    let menu = await Menu.findOne();
-    if (!menu) {
-      menu = new Menu(DEFAULT_MENU);
-    }
-
+    // 3. Normalize Data (Sanitization to prevent schema errors)
     const normalizedSections = sections.map((inc: any) => ({
-      id: inc.id,
-      title: inc.title || "Untitled",
+      id: inc.id || `sec-${Date.now()}`,
+      title: inc.title || "Untitled Section",
       menuType: inc.menuType || "food",
       items: (inc.items || []).map((item: any) => ({
-        ...item,
+        name: item.name || "New Item",
+        price: item.price || "0",
+        desc: item.desc || "",
         tags: Array.isArray(item.tags) ? item.tags : [],
+        imageUrl: item.imageUrl || "",
         available: item.available !== false,
         isCustomizable: !!item.isCustomizable,
         variants: Array.isArray(item.variants) ? item.variants : [],
-        ...(item.showBottlePeg !== true && {
-          showBottlePeg: undefined,
+        
+        // Conditional fields for Bar Menu
+        ...(item.showBottlePeg === true ? {
+          showBottlePeg: true,
+          bottlePrice: item.bottlePrice || "",
+          pegPrice: item.pegPrice || ""
+        } : {
+          showBottlePeg: false,
           bottlePrice: undefined,
-          pegPrice: undefined,
-        }),
+          pegPrice: undefined
+        })
       })),
     }));
 
-    menu.sections = normalizedSections;
-    menu.markModified("sections");
-    await menu.save();
+    // 4. ATOMIC UPDATE (Database Write)
+    const updatedMenu = await Menu.findOneAndUpdate(
+      {}, 
+      { $set: { sections: normalizedSections } }, 
+      { new: true, upsert: true, runValidators: true } 
+    );
 
-    // ✅ IMPORTANT: When you update the menu, you want the cache to clear
-    // Next.js handles this automatically in most cases when a POST/PUT happens.
+    // 5. 🚀 PURGE CACHE (The Magic Fix)
+    // This tells Next.js to regenerate these pages immediately
+    revalidatePath('/menu');      // The public menu page
+    revalidatePath('/admin/menu'); // The admin editor
+    revalidatePath('/');           // The homepage (if menu is shown there)
 
-    return NextResponse.json(menu);
+    return NextResponse.json(updatedMenu);
+
   } catch (error: any) {
-    console.error("Menu PUT error:", error);
-    return NextResponse.json({ error: "Failed to save" }, { status: 500 });
+    console.error("❌ Menu PUT Error:", error);
+    return NextResponse.json(
+      { error: error.message || "Failed to save menu" }, 
+      { status: 500 }
+    );
   }
 }
