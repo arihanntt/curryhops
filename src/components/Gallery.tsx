@@ -7,21 +7,21 @@ import Link from "next/link";
 const items = [
   {
     title: "AUTHENTIC TANDOORI PLATTERS",
-    subtitle: "From ₹199 / Plate",
+    subtitle: "Fire-Grilled Classics",
     description:
       "Juicy kebabs, smoky paneer tikka, and sizzling tandoori delights straight from the clay oven.",
     image: "/images/tandoori.jpg",
   },
   {
     title: "SIGNATURE INDIAN CURRIES",
-    subtitle: "From ₹149 / Bowl",
+    subtitle: "Slow-cooked gravies layered with rich spices and timeless flavours.",
     description:
-      "Rich, aromatic gravies like butter chicken, paneer butter masala, and spicy chettinad, served with fresh naan.",
+      "Rich Indian Gravies",
     image: "/images/curries.jpg",
   },
   {
     title: "TRADITIONAL INDIAN DRINKS",
-    subtitle: "From ₹49 / Glass",
+    subtitle: "Classic Indian Refreshers",
     description:
       "Cool off with refreshing lassi, masala chai, jaljeera, or thandai—crafted with love and tradition.",
     image: "/images/drinks.jpg",

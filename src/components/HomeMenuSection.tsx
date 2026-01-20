@@ -7,22 +7,22 @@ export default function HomeMenuSection() {
     {
       name: 'Long Island Iced Tea',
       desc: 'Vodka, Rum, Tequila, Gin, Triple sec, Lime juice, Coke',
+      price: '₹595',
+    },
+    {
+      name: 'Bull frog',
+      desc: 'vodka rum, tequila , gin triple sec , blue curacao ,lime',
       price: '₹299',
     },
     {
-      name: 'Tokyo Iced Tea',
-      desc: 'Vodka, Rum, Gin, Triple sec, Melon liquor, Sweet and sour, top up with lemonade',
-      price: '₹299',
+      name: 'Tokyo iced tea',
+      desc: 'Vodka ,Rum , Gin , triple sec , mlon liquer ,sweer and sour, top up with lemonade',
+      price: '₹595',
     },
     {
-      name: 'Texas Iced Tea',
-      desc: 'Vodka, Rum, Tequila, Gin, Triple sec, Whiskey, Sweet & Sour, Coke',
-      price: '₹299',
-    },
-    {
-      name: 'Hawaiian Iced Tea',
-      desc: 'Vodka, Rum, Tequila, Gin, Triple sec, Sweet & Sour, Pineapple juice',
-      price: '₹299',
+      name: 'Texas iced tea',
+      desc: 'Vodka , rum , tequila , Gin ,Triple sec , Whiskey , sweet & sour , coke',
+      price: '₹595',
     },
   ];
 
