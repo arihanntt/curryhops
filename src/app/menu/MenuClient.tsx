@@ -2,8 +2,8 @@
 
 import Image from "next/image";
 import { useEffect, useState, Suspense, useMemo } from "react";
-import { usePathname, useSearchParams } from "next/navigation";
-import MenuSchema from "@/components/MenuSchema";
+import { useSearchParams } from "next/navigation";
+import MenuSchema from "@/components/MenuSchema"; // Ensure this component handles the new structure or remove if not needed immediately
 import { 
   ChevronDownIcon, 
   XMarkIcon, 
@@ -42,63 +42,14 @@ type MenuItem = {
 
 type MenuSectionType = {
   title: string;
+  menuType: "food" | "bar"; // Added type for filtering
+  visible?: boolean;        // Added visibility check
+  imageUrl?: string;        // Added dynamic category image
   items: MenuItem[];
 };
 
-// --- DATA ---
-const FOOD_CATEGORIES = [
-  "quick bites", "salad", "appetizers", "pizza", "pasta", "main course", "biryani", 
-  "breads", "rice and noodles", "dessert", "sushi", "dim sum"
-];
-const BAR_CATEGORIES = [
-  "signature cocktails", "classics", "our liit's", "beer cocktails", "coffee", "hot cocktails", 
-  "rum", "gin", "vodka", "tequila", "indian whisky", "indian single malts", "scotch", 
-  "japanese whisky", "rye/bourbon whiskeys", "canadian / irish whisky", "cognac/brandy", 
-  "liquers", "aperitif", "red wine", "rose wine & sparkling wine", "white wine", 
-  "sangria", "champagne", "shots & shooters", "fresh juices", "soft drinks"
-];
-
-const CATEGORY_BACKGROUNDS: Record<string, string> = {
-  "quick bites": "https://images.pexels.com/photos/3023476/pexels-photo-3023476.jpeg",
-  "salad": "https://images.pexels.com/photos/1213710/pexels-photo-1213710.jpeg",
-  "appetizers": "https://images.pexels.com/photos/33430558/pexels-photo-33430558.jpeg",
-  "pizza": "https://images.pexels.com/photos/1566837/pexels-photo-1566837.jpeg",
-  "pasta": "https://images.pexels.com/photos/1279330/pexels-photo-1279330.jpeg",
-  "main course": "https://images.pexels.com/photos/29850004/pexels-photo-29850004.jpeg",
-  "biryani": "https://images.pexels.com/photos/4224305/pexels-photo-4224305.jpeg",
-  "breads": "/images/breads-bg.jpg",
-  "rice and noodles": "/images/rice-noodles-bg.jpg",
-  "dessert": "https://images.pexels.com/photos/13215194/pexels-photo-13215194.jpeg",
-  "sushi": "https://images.pexels.com/photos/2098085/pexels-photo-2098085.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
-  "dim sum": "https://images.pexels.com/photos/699953/pexels-photo-699953.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
-  "signature cocktails": "https://images.pexels.com/photos/19051904/pexels-photo-19051904.jpeg",
-  "classics": "https://images.pexels.com/photos/2531186/pexels-photo-2531186.jpeg",
-  "our liit's": "https://images.pexels.com/photos/12208200/pexels-photo-12208200.jpeg",
-  "beer cocktails": "https://images.pexels.com/photos/7377026/pexels-photo-7377026.jpeg",
-  "coffee": "https://images.pexels.com/photos/302899/pexels-photo-302899.jpeg",
-  "hot cocktails": "https://images.pexels.com/photos/35602242/pexels-photo-35602242.jpeg",
-  "rum": "https://images.pexels.com/photos/2466319/pexels-photo-2466319.jpeg",
-  "gin": "https://images.pexels.com/photos/616836/pexels-photo-616836.jpeg",
-  "vodka": "https://images.pexels.com/photos/1170598/pexels-photo-1170598.jpeg",
-  "tequila": "https://images.pexels.com/photos/3171837/pexels-photo-3171837.jpeg",
-  "indian whisky": "https://images.pexels.com/photos/8878975/pexels-photo-8878975.jpeg",
-  "indian single malts": "https://images.pexels.com/photos/16849854/pexels-photo-16849854.jpeg",
-  "scotch": "https://images.pexels.com/photos/2796105/pexels-photo-2796105.jpeg",
-  "japanese whisky": "https://images.pexels.com/photos/372959/pexels-photo-372959.jpeg",
-  "canadian / irish whisky": "https://images.pexels.com/photos/14385403/pexels-photo-14385403.jpeg",
-  "cognac/brandy": "/images/cognac-brandy-bg.jpg",
-  "liquers": "https://images.pexels.com/photos/34627168/pexels-photo-34627168.jpeg",
-  "aperitif": "https://images.pexels.com/photos/35547117/pexels-photo-35547117.jpeg",
-  "red wine": "https://images.pexels.com/photos/66636/pexels-photo-66636.jpeg",
-  "rose wine & sparkling wine": "/images/rose-sparkling-bg.jpg",
-  "white wine": "https://images.pexels.com/photos/2584451/pexels-photo-2584451.jpeg",
-  "sangria": "https://images.pexels.com/photos/7376927/pexels-photo-7376927.jpeg",
-  "champagne": "https://images.pexels.com/photos/3171837/pexels-photo-3171837.jpeg",
-  "shots & shooters": "https://images.pexels.com/photos/1304475/pexels-photo-1304475.jpeg",
-  "fresh juices": "https://images.pexels.com/photos/8215110/pexels-photo-8215110.jpeg",
-  "soft drinks": "https://images.pexels.com/photos/50593/coca-cola-cold-drink-soft-drink-coke-50593.jpeg",
-};
-
+// --- CONSTANTS (Only Filters) ---
+// We removed FOOD_CATEGORIES and BACKGROUNDS because they come from DB now.
 const TYPE_OPTIONS = ["All", "Veg", "Non-Veg", "Egg"] as const;
 const DIETARY_OPTIONS = ["Spicy", "Kids", "Vegan", "Gluten Free", "Chef's Special"] as const;
 type TypeFilter = typeof TYPE_OPTIONS[number];
@@ -116,12 +67,14 @@ function MenuContent() {
   const [showFilters, setShowFilters] = useState(false);
   const [expandedImage, setExpandedImage] = useState<string | null>(null);
 
+  // Fetch Menu from DB
   useEffect(() => {
     fetch("/api/menu", { cache: "no-store" })
       .then((res) => res.json())
       .then((data) => setMenu(data));
   }, []);
 
+  // Handle URL Param changes
   useEffect(() => {
     const type = searchParams.get("type");
     if (type === "food" || type === "bar") {
@@ -129,29 +82,34 @@ function MenuContent() {
     }
   }, [searchParams]);
 
+  // Reset filters when switching between Food/Bar
   useEffect(() => {
     setSelectedCategory("all");
     setTypeFilter("All");
     setDietaryFilters([]);
   }, [menuType]);
 
-  const filteredSections = useMemo(() => {
-    return menu.sections.filter((section) => {
-      const title = section.title.toLowerCase();
-      return menuType === "food" 
-        ? FOOD_CATEGORIES.some(c => title.includes(c)) 
-        : BAR_CATEGORIES.some(c => title.includes(c));
-    });
-  }, [menu.sections, menuType]);
-
+  // --- CORE FILTERING LOGIC ---
   const displayedSections = useMemo(() => {
-    return filteredSections
-      .filter((section) =>
-        selectedCategory === "all" ? true : section.title.toLowerCase() === selectedCategory.toLowerCase()
-      )
-      .map((section) => {
+    // 1. Filter Sections by Type (Food/Bar) AND Visibility
+    let activeSections = menu.sections.filter((section) => {
+       const isCorrectType = section.menuType?.toLowerCase() === menuType;
+       const isVisible = section.visible !== false; // Show if true or undefined, hide if false
+       return isCorrectType && isVisible;
+    });
+
+    // 2. Filter by Category Dropdown
+    if (selectedCategory !== "all") {
+      activeSections = activeSections.filter(s => s.title === selectedCategory);
+    }
+
+    // 3. Filter Items inside the sections
+    return activeSections.map((section) => {
         const filteredItems = section.items.filter((item) => {
-          if (item.available === false) return false;
+          // A. Availability Check (Optional: You can remove this if you want to show sold out items)
+          // if (item.available === false) return false; 
+
+          // B. Veg/Non-Veg Filter (Only for Food)
           if (menuType === "food" && typeFilter !== "All") {
             const hasNonVeg = item.tags?.includes("Non-Veg");
             const hasEgg = item.tags?.includes("Egg");
@@ -159,6 +117,8 @@ function MenuContent() {
             if (typeFilter === "Non-Veg" && !hasNonVeg) return false;
             if (typeFilter === "Egg" && !hasEgg) return false;
           }
+
+          // C. Dietary Tags
           if (dietaryFilters.length > 0) {
             return dietaryFilters.some((tag) => item.tags?.includes(tag));
           }
@@ -166,8 +126,15 @@ function MenuContent() {
         });
         return { ...section, items: filteredItems };
       })
-      .filter((section) => section.items.length > 0);
-  }, [filteredSections, selectedCategory, typeFilter, dietaryFilters, menuType]);
+      .filter((section) => section.items.length > 0); // Remove empty sections
+  }, [menu.sections, menuType, selectedCategory, typeFilter, dietaryFilters]);
+
+  // Get list of categories for the Dropdown (Dynamic)
+  const availableCategories = useMemo(() => {
+    return menu.sections
+      .filter(s => s.menuType?.toLowerCase() === menuType && s.visible !== false)
+      .map(s => s.title);
+  }, [menu.sections, menuType]);
 
   const handleCategorySelect = (title: string) => {
     setSelectedCategory(title);
@@ -196,10 +163,10 @@ function MenuContent() {
       {/* Global Grain Texture */}
       <div className="fixed inset-0 pointer-events-none opacity-[0.03] z-[5] bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] mix-blend-multiply" />
 
-      {filteredSections.length > 0 && <MenuSchema sections={filteredSections as any} />}
+      {/* <MenuSchema sections={displayedSections} /> */}
 
       {/* --- HERO HEADER --- */}
-      <section className="relative h-[65vh] min-h-[450px] flex items-center justify-center overflow-hidden">
+      <section className="relative h-[50vh] min-h-[400px] flex items-center justify-center overflow-hidden">
         <Image
           src="/images/restaurant-dinner-black.webp"
           alt="Curry & Hops Ambience"
@@ -238,8 +205,6 @@ function MenuContent() {
               </button>
             </div>
           </div>
-          
-          {/* ✅ PDF BUTTON REMOVED AS REQUESTED */}
         </div>
       </section>
 
@@ -254,9 +219,9 @@ function MenuContent() {
               className="w-full h-12 pl-4 pr-10 bg-white rounded-lg border border-stone-200 text-stone-700 font-serif font-medium text-base md:text-lg shadow-sm focus:ring-1 focus:ring-stone-400 focus:border-stone-400 appearance-none cursor-pointer truncate"
             >
               <option value="all">All Categories</option>
-              {filteredSections.map((s) => (
-                <option key={s.title} value={s.title}>
-                  {s.title}
+              {availableCategories.map((title) => (
+                <option key={title} value={title}>
+                  {title}
                 </option>
               ))}
             </select>
@@ -284,12 +249,14 @@ function MenuContent() {
         </div>
       </div>
 
-      {/* --- MENU LIST --- */}
+      {/* --- MENU LIST (Dynamic) --- */}
       <div className="max-w-6xl mx-auto px-3 md:px-6 py-8 md:py-12 space-y-16 md:space-y-24">
         {displayedSections.length > 0 ? (
           displayedSections.map((section, idx) => {
             const slug = section.title.toLowerCase().replace(/\s+/g, "-");
-            const bgImage = CATEGORY_BACKGROUNDS[section.title.toLowerCase()] || `/images/${slug}-bg.jpg`;
+            
+            // ✅ DYNAMIC BACKGROUND IMAGE (Fallback to a nice default if empty)
+            const bgImage = section.imageUrl || "https://images.pexels.com/photos/958545/pexels-photo-958545.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2";
 
             return (
               <section key={idx} id={slug} className="scroll-mt-40" itemProp="hasMenuSection" itemScope itemType="https://schema.org/MenuSection">
@@ -329,7 +296,7 @@ function MenuContent() {
           })
         ) : (
           <div className="text-center py-20">
-            <h3 className="text-xl font-bold text-gray-500">No items found</h3>
+            <h3 className="text-xl font-bold text-gray-500">No dishes found.</h3>
           </div>
         )}
       </div>

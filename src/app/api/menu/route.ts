@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/mongodb";
 import Menu from "@/models/Menu";
-import { revalidatePath } from "next/cache"; // 👈 Import this for instant updates
+import { revalidatePath } from "next/cache"; 
 
-// ✅ CRITICAL FIX: Force Dynamic mode to prevent Vercel from caching the API response
+// ✅ Force Dynamic mode to prevent Vercel from caching the API response
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
@@ -19,6 +19,7 @@ type MenuItem = {
   desc?: string;
   tags?: string[];
   imageUrl?: string;
+  imageSize?: string;
   available?: boolean;
   isCustomizable?: boolean;
   variants?: MenuVariant[];
@@ -31,14 +32,16 @@ type MenuSection = {
   id: string;
   title: string;
   menuType: "food" | "bar";
+  visible?: boolean;
+  imageUrl?: string; // 👈 This was missing in your types too!
   items: MenuItem[];
 };
 
 // Default structure if DB is empty
 const DEFAULT_MENU = {
   sections: [
-    { id: "quick-bites", title: "Quick Bites", menuType: "food", items: [] },
-    { id: "main-course", title: "Main Course", menuType: "food", items: [] },
+    { id: "quick-bites", title: "Quick Bites", menuType: "food", visible: true, imageUrl: "", items: [] },
+    { id: "main-course", title: "Main Course", menuType: "food", visible: true, imageUrl: "", items: [] },
   ] as MenuSection[],
 };
 
@@ -56,7 +59,6 @@ export async function GET() {
 
     return NextResponse.json(menu, {
       headers: {
-        // ✅ CRITICAL FIX: Tell browser and Vercel CDN to NEVER cache this request
         "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate",
         "Pragma": "no-cache",
         "Expires": "0",
@@ -83,17 +85,28 @@ export async function PUT(req: Request) {
       return NextResponse.json({ error: "Invalid payload: 'sections' must be an array" }, { status: 400 });
     }
 
-    // 3. Normalize Data (Sanitization to prevent schema errors)
+    // 3. Normalize Data (Sanitization & New Fields)
     const normalizedSections = sections.map((inc: any) => ({
       id: inc.id || `sec-${Date.now()}`,
       title: inc.title || "Untitled Section",
       menuType: inc.menuType || "food",
+      
+      // ✅ Handle Visibility
+      visible: inc.visible !== false, 
+
+      // ✅ NEW: Handle Category Image (This was missing!)
+      imageUrl: inc.imageUrl || "",
+
       items: (inc.items || []).map((item: any) => ({
         name: item.name || "New Item",
         price: item.price || "0",
         desc: item.desc || "",
         tags: Array.isArray(item.tags) ? item.tags : [],
         imageUrl: item.imageUrl || "",
+        
+        // ✅ Handle Item Image Size
+        imageSize: item.imageSize || "", 
+
         available: item.available !== false,
         isCustomizable: !!item.isCustomizable,
         variants: Array.isArray(item.variants) ? item.variants : [],
@@ -118,11 +131,10 @@ export async function PUT(req: Request) {
       { new: true, upsert: true, runValidators: true } 
     );
 
-    // 5. 🚀 PURGE CACHE (The Magic Fix)
-    // This tells Next.js to regenerate these pages immediately
-    revalidatePath('/menu');      // The public menu page
-    revalidatePath('/admin/menu'); // The admin editor
-    revalidatePath('/');           // The homepage (if menu is shown there)
+    // 5. 🚀 PURGE CACHE
+    revalidatePath('/menu');       
+    revalidatePath('/admin/menu'); 
+    revalidatePath('/');           
 
     return NextResponse.json(updatedMenu);
 
