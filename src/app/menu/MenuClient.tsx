@@ -3,7 +3,6 @@
 import Image from "next/image";
 import { useEffect, useState, Suspense, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
-import MenuSchema from "@/components/MenuSchema"; // Ensure this component handles the new structure or remove if not needed immediately
 import { 
   ChevronDownIcon, 
   XMarkIcon, 
@@ -11,7 +10,8 @@ import {
   ArrowUpIcon,
   PhotoIcon,
   CheckIcon,
-  SparklesIcon 
+  SparklesIcon,
+  MagnifyingGlassIcon 
 } from "@heroicons/react/24/outline";
 import { Playfair_Display, Inter, Cormorant_Garamond } from "next/font/google";
 
@@ -42,36 +42,67 @@ type MenuItem = {
 
 type MenuSectionType = {
   title: string;
-  menuType: "food" | "bar"; // Added type for filtering
-  visible?: boolean;        // Added visibility check
-  imageUrl?: string;        // Added dynamic category image
+  menuType: "food" | "bar";
+  visible?: boolean;        
+  imageUrl?: string;        
   items: MenuItem[];
 };
 
-// --- CONSTANTS (Only Filters) ---
-// We removed FOOD_CATEGORIES and BACKGROUNDS because they come from DB now.
+// --- CONSTANTS ---
 const TYPE_OPTIONS = ["All", "Veg", "Non-Veg", "Egg"] as const;
 const DIETARY_OPTIONS = ["Spicy", "Kids", "Vegan", "Gluten Free", "Chef's Special"] as const;
 type TypeFilter = typeof TYPE_OPTIONS[number];
 type DietaryFilter = typeof DIETARY_OPTIONS[number];
 
+/* ---------------- HELPER: HIGHLIGHT TEXT ---------------- */
+const highlightText = (text: string, query: string) => {
+  if (!query || query.trim() === "") return text;
+
+  // Split text based on query (case-insensitive), keeping the separator
+  const parts = text.split(new RegExp(`(${query})`, 'gi'));
+
+  return parts.map((part, index) => 
+    part.toLowerCase() === query.toLowerCase() ? (
+      <span key={index} className="bg-amber-200 text-amber-900 rounded px-0.5 font-bold shadow-sm">
+        {part}
+      </span>
+    ) : (
+      part
+    )
+  );
+};
+
 /* ---------------- MAIN COMPONENT ---------------- */
 
 function MenuContent() {
   const [menu, setMenu] = useState<{ sections: MenuSectionType[] }>({ sections: [] });
+  const [isLoading, setIsLoading] = useState(true); 
   const searchParams = useSearchParams();
   const [menuType, setMenuType] = useState<"food" | "bar">("food");
+  
+  // Filters
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [searchQuery, setSearchQuery] = useState<string>(""); 
   const [typeFilter, setTypeFilter] = useState<TypeFilter>("All");
   const [dietaryFilters, setDietaryFilters] = useState<DietaryFilter[]>([]);
+  
+  // UI States
   const [showFilters, setShowFilters] = useState(false);
   const [expandedImage, setExpandedImage] = useState<string | null>(null);
 
-  // Fetch Menu from DB
+  // Fetch Menu
   useEffect(() => {
+    setIsLoading(true);
     fetch("/api/menu", { cache: "no-store" })
       .then((res) => res.json())
-      .then((data) => setMenu(data));
+      .then((data) => {
+        setMenu(data);
+        setIsLoading(false);
+      })
+      .catch((err) => {
+        console.error("Failed to fetch menu", err);
+        setIsLoading(false);
+      });
   }, []);
 
   // Handle URL Param changes
@@ -82,34 +113,37 @@ function MenuContent() {
     }
   }, [searchParams]);
 
-  // Reset filters when switching between Food/Bar
+  // Reset filters
   useEffect(() => {
     setSelectedCategory("all");
+    setSearchQuery("");
     setTypeFilter("All");
     setDietaryFilters([]);
   }, [menuType]);
 
-  // --- CORE FILTERING LOGIC ---
+  // --- FILTERING LOGIC ---
   const displayedSections = useMemo(() => {
-    // 1. Filter Sections by Type (Food/Bar) AND Visibility
     let activeSections = menu.sections.filter((section) => {
        const isCorrectType = section.menuType?.toLowerCase() === menuType;
-       const isVisible = section.visible !== false; // Show if true or undefined, hide if false
+       const isVisible = section.visible !== false;
        return isCorrectType && isVisible;
     });
 
-    // 2. Filter by Category Dropdown
     if (selectedCategory !== "all") {
       activeSections = activeSections.filter(s => s.title === selectedCategory);
     }
 
-    // 3. Filter Items inside the sections
     return activeSections.map((section) => {
         const filteredItems = section.items.filter((item) => {
-          // A. Availability Check (Optional: You can remove this if you want to show sold out items)
-          // if (item.available === false) return false; 
+          // Search Query Check
+          if (searchQuery.trim() !== "") {
+            const query = searchQuery.toLowerCase();
+            const matchName = item.name.toLowerCase().includes(query);
+            const matchDesc = item.desc.toLowerCase().includes(query);
+            if (!matchName && !matchDesc) return false;
+          }
 
-          // B. Veg/Non-Veg Filter (Only for Food)
+          // Veg/Non-Veg Filter
           if (menuType === "food" && typeFilter !== "All") {
             const hasNonVeg = item.tags?.includes("Non-Veg");
             const hasEgg = item.tags?.includes("Egg");
@@ -118,7 +152,7 @@ function MenuContent() {
             if (typeFilter === "Egg" && !hasEgg) return false;
           }
 
-          // C. Dietary Tags
+          // Dietary Tags
           if (dietaryFilters.length > 0) {
             return dietaryFilters.some((tag) => item.tags?.includes(tag));
           }
@@ -126,10 +160,9 @@ function MenuContent() {
         });
         return { ...section, items: filteredItems };
       })
-      .filter((section) => section.items.length > 0); // Remove empty sections
-  }, [menu.sections, menuType, selectedCategory, typeFilter, dietaryFilters]);
+      .filter((section) => section.items.length > 0);
+  }, [menu.sections, menuType, selectedCategory, typeFilter, dietaryFilters, searchQuery]);
 
-  // Get list of categories for the Dropdown (Dynamic)
   const availableCategories = useMemo(() => {
     return menu.sections
       .filter(s => s.menuType?.toLowerCase() === menuType && s.visible !== false)
@@ -143,7 +176,7 @@ function MenuContent() {
     setTimeout(() => {
       const el = document.getElementById(slug);
       if (el) {
-        const offset = 120;
+        const offset = 180; 
         const bodyRect = document.body.getBoundingClientRect().top;
         const elementRect = el.getBoundingClientRect().top;
         const elementPosition = elementRect - bodyRect;
@@ -160,24 +193,25 @@ function MenuContent() {
   return (
     <main className={`min-h-screen bg-[#f8f5f2] text-stone-900 ${inter.className} relative`} itemScope itemType="https://schema.org/Menu">
       
-      {/* Global Grain Texture */}
+      {/* Global Texture */}
       <div className="fixed inset-0 pointer-events-none opacity-[0.03] z-[5] bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] mix-blend-multiply" />
 
-      {/* <MenuSchema sections={displayedSections} /> */}
-
       {/* --- HERO HEADER --- */}
-      <section className="relative h-[50vh] min-h-[400px] flex items-center justify-center overflow-hidden">
+      <section className="relative h-[35vh] min-h-[300px] flex items-center justify-center overflow-hidden">
         <Image
           src="/images/restaurant-dinner-black.webp"
           alt="Curry & Hops Ambience"
           fill
           className="object-cover"
           priority
+          // OPTIMIZATION:
+          sizes="100vw" 
+          quality={80} // Backgrounds don't need 100 quality
         />
         <div className="absolute inset-0 bg-black/50" />
 
-        <div className="relative z-10 text-center px-4 w-full max-w-4xl pt-6 md:pt-10">
-          <h1 className={`${playfair.className} text-5xl md:text-7xl font-medium tracking-[0.2em] text-white/90 leading-tight mb-8`}>
+        <div className="relative z-10 text-center px-4 w-full max-w-4xl pt-4">
+          <h1 className={`${playfair.className} text-4xl md:text-6xl font-medium tracking-[0.2em] text-white/90 leading-tight mb-6`}>
             MENU
           </h1>
           
@@ -185,7 +219,7 @@ function MenuContent() {
             <div className="relative bg-white/5 backdrop-blur-xl border border-white/10 rounded-full p-1.5 flex shadow-2xl ring-1 ring-white/10">
               <button
                 onClick={() => setMenuType("food")}
-                className={`px-8 md:px-10 py-3 rounded-full text-sm font-bold tracking-widest transition-all duration-500 ease-out ${
+                className={`px-6 md:px-10 py-2.5 rounded-full text-xs md:text-sm font-bold tracking-widest transition-all duration-500 ease-out ${
                   menuType === "food" 
                     ? "bg-[#f8f5f2] text-stone-900 shadow-lg scale-105" 
                     : "text-white/60 hover:text-white"
@@ -195,7 +229,7 @@ function MenuContent() {
               </button>
               <button
                 onClick={() => setMenuType("bar")}
-                className={`px-8 md:px-10 py-3 rounded-full text-sm font-bold tracking-widest transition-all duration-500 ease-out ${
+                className={`px-6 md:px-10 py-2.5 rounded-full text-xs md:text-sm font-bold tracking-widest transition-all duration-500 ease-out ${
                   menuType === "bar" 
                     ? "bg-[#f8f5f2] text-stone-900 shadow-lg scale-105" 
                     : "text-white/60 hover:text-white"
@@ -210,13 +244,13 @@ function MenuContent() {
 
       {/* --- STICKY CONTROL BAR --- */}
       <div className="sticky top-0 z-40 bg-[#f8f5f2]/95 backdrop-blur-md border-b border-stone-200/50 shadow-sm transition-all py-3 md:py-4">
-        <div className="max-w-6xl mx-auto px-4 flex gap-3 md:gap-4">
+        <div className="max-w-6xl mx-auto px-4 flex flex-col md:flex-row gap-3">
           
           <div className="relative flex-1">
             <select
               value={selectedCategory}
               onChange={(e) => handleCategorySelect(e.target.value)}
-              className="w-full h-12 pl-4 pr-10 bg-white rounded-lg border border-stone-200 text-stone-700 font-serif font-medium text-base md:text-lg shadow-sm focus:ring-1 focus:ring-stone-400 focus:border-stone-400 appearance-none cursor-pointer truncate"
+              className="w-full h-11 pl-4 pr-10 bg-white rounded-lg border border-stone-200 text-stone-700 font-serif font-medium text-base shadow-sm focus:ring-1 focus:ring-stone-400 focus:border-stone-400 appearance-none cursor-pointer truncate"
             >
               <option value="all">All Categories</option>
               {availableCategories.map((title) => (
@@ -225,44 +259,71 @@ function MenuContent() {
                 </option>
               ))}
             </select>
-            <ChevronDownIcon className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-stone-400 pointer-events-none" />
+            <ChevronDownIcon className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400 pointer-events-none" />
           </div>
 
-          {menuType === "food" && (
-            <button
-              onClick={() => setShowFilters(true)}
-              className={`h-12 px-4 md:px-6 rounded-lg border flex items-center justify-center gap-2 transition-all shadow-sm ${
-                typeFilter !== "All" || dietaryFilters.length > 0
-                  ? "bg-stone-800 border-stone-800 text-white"
-                  : "bg-white border-stone-200 text-stone-600 hover:border-stone-300"
-              }`}
-            >
-              <AdjustmentsHorizontalIcon className="w-5 h-5 flex-shrink-0" />
-              <span className="hidden sm:inline font-bold text-xs uppercase tracking-widest">Filters</span>
-              {(typeFilter !== "All" || dietaryFilters.length > 0) && (
-                <span className="bg-amber-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full ml-1 min-w-[1.25rem] text-center">
-                  {(typeFilter !== "All" ? 1 : 0) + dietaryFilters.length}
-                </span>
-              )}
-            </button>
-          )}
+          <div className="flex gap-3">
+             <div className="relative flex-1 md:w-64">
+                <input
+                  type="text"
+                  placeholder="Search dishes..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full h-11 pl-10 pr-4 bg-white rounded-lg border border-stone-200 text-stone-700 text-sm shadow-sm focus:ring-1 focus:ring-stone-400 focus:border-stone-400 outline-none"
+                />
+                <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-stone-400" />
+                 {searchQuery && (
+                  <button onClick={() => setSearchQuery("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600">
+                    <XMarkIcon className="w-4 h-4" />
+                  </button>
+                )}
+             </div>
+
+            {menuType === "food" && (
+              <button
+                onClick={() => setShowFilters(true)}
+                className={`h-11 px-4 rounded-lg border flex items-center justify-center gap-2 transition-all shadow-sm ${
+                  typeFilter !== "All" || dietaryFilters.length > 0
+                    ? "bg-stone-800 border-stone-800 text-white"
+                    : "bg-white border-stone-200 text-stone-600 hover:border-stone-300"
+                }`}
+              >
+                <AdjustmentsHorizontalIcon className="w-5 h-5 flex-shrink-0" />
+                <span className="hidden sm:inline font-bold text-xs uppercase tracking-widest">Filters</span>
+                {(typeFilter !== "All" || dietaryFilters.length > 0) && (
+                  <span className="bg-amber-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full ml-1 min-w-[1.25rem] text-center">
+                    {(typeFilter !== "All" ? 1 : 0) + dietaryFilters.length}
+                  </span>
+                )}
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
-      {/* --- MENU LIST (Dynamic) --- */}
-      <div className="max-w-6xl mx-auto px-3 md:px-6 py-8 md:py-12 space-y-16 md:space-y-24">
-        {displayedSections.length > 0 ? (
+      {/* --- MENU LIST --- */}
+      <div className="max-w-6xl mx-auto px-3 md:px-6 py-8 md:py-12 space-y-16 md:space-y-24 min-h-[40vh]">
+        
+        {isLoading ? (
+           <LoadingSpinner />
+        ) : displayedSections.length > 0 ? (
           displayedSections.map((section, idx) => {
             const slug = section.title.toLowerCase().replace(/\s+/g, "-");
-            
-            // ✅ DYNAMIC BACKGROUND IMAGE (Fallback to a nice default if empty)
             const bgImage = section.imageUrl || "https://images.pexels.com/photos/958545/pexels-photo-958545.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2";
 
             return (
-              <section key={idx} id={slug} className="scroll-mt-40" itemProp="hasMenuSection" itemScope itemType="https://schema.org/MenuSection">
+              <section key={idx} id={slug} className="scroll-mt-48" itemProp="hasMenuSection" itemScope itemType="https://schema.org/MenuSection">
                 {/* Header */}
                 <div className="relative h-40 md:h-64 rounded-t-2xl overflow-hidden shadow-md z-0">
-                  <Image src={bgImage} alt={`${section.title} at Curry & Hops`} fill className="object-cover" />
+                  <Image 
+                    src={bgImage} 
+                    alt={`${section.title} at Curry & Hops`} 
+                    fill 
+                    className="object-cover" 
+                    // OPTIMIZATION: Load smaller version based on max width of container (approx 1200px)
+                    sizes="(max-width: 768px) 100vw, 1200px"
+                    quality={75}
+                  />
                   <div className="absolute inset-0 bg-stone-900/40 mix-blend-multiply" />
                   <div className="absolute inset-0 flex items-center justify-center">
                     <h2 itemProp="name" className={`${playfair.className} text-3xl md:text-5xl text-[#f8f5f2] font-medium tracking-wide capitalize drop-shadow-lg text-center px-4`}>
@@ -279,12 +340,12 @@ function MenuContent() {
                    <div className="grid md:grid-cols-2 gap-px bg-stone-200/40"> 
                       {section.items.map((item, i) => (
                         <div key={i} className="bg-[#fffbf7] bg-[url('https://www.transparenttextures.com/patterns/cream-paper.png')] p-4 md:p-8 relative group" itemProp="hasMenuItem" itemScope itemType="https://schema.org/MenuItem">
-                           {/* Decorative Corner */}
                            <div className="absolute top-4 right-4 w-2 h-2 border-t border-r border-amber-900/20 opacity-0 group-hover:opacity-100 transition-opacity hidden md:block" />
                            
                            <MenuItemCard 
                              item={item} 
                              menuType={menuType} 
+                             searchQuery={searchQuery} 
                              onImageClick={setExpandedImage} 
                            />
                         </div>
@@ -295,8 +356,12 @@ function MenuContent() {
             );
           })
         ) : (
-          <div className="text-center py-20">
-            <h3 className="text-xl font-bold text-gray-500">No dishes found.</h3>
+          <div className="text-center py-20 flex flex-col items-center justify-center">
+            <div className="w-16 h-16 bg-stone-200 rounded-full flex items-center justify-center mb-4">
+                 <MagnifyingGlassIcon className="w-8 h-8 text-stone-400" />
+            </div>
+            <h3 className="text-xl font-bold text-stone-600">No dishes found.</h3>
+            <p className="text-stone-500 mt-2 text-sm">Try adjusting your search or filters.</p>
           </div>
         )}
       </div>
@@ -318,7 +383,16 @@ function MenuContent() {
             <XMarkIcon className="w-8 h-8" />
           </button>
           <div className="relative w-full max-w-4xl h-[70vh]">
-            <Image src={expandedImage} alt="Detail" fill className="object-contain" quality={100} />
+            <Image
+              src={expandedImage}
+              alt="Detail"
+              fill
+              className="object-contain"
+              // OPTIMIZATION: Keep quality reasonable but sizes restricted
+              quality={70}
+              sizes="(max-width: 768px) 100vw, 1000px"
+              priority 
+            />
           </div>
         </div>
       )}
@@ -335,7 +409,6 @@ function MenuContent() {
 
             {/* Filter Content */}
             <div className="flex-1 space-y-10 overflow-y-auto px-1">
-              {/* Type Section */}
               <div className="space-y-4">
                 <label className="text-xs font-bold text-stone-400 uppercase tracking-widest block pl-1">Category</label>
                 <div className="grid grid-cols-2 gap-3">
@@ -356,7 +429,6 @@ function MenuContent() {
                 </div>
               </div>
 
-              {/* Preferences Section */}
               <div className="space-y-4">
                 <label className="text-xs font-bold text-stone-400 uppercase tracking-widest block pl-1">Dietary Tags</label>
                 <div className="flex flex-col gap-3">
@@ -413,9 +485,35 @@ function MenuContent() {
   );
 }
 
+/* ---------------- CIRCLE SPINNER COMPONENT ---------------- */
+
+function LoadingSpinner() {
+  return (
+    <div className="flex flex-col items-center justify-center py-24 min-h-[50vh]">
+      <div className="relative w-16 h-16">
+         <div className="absolute inset-0 border-4 border-stone-200 rounded-full"></div>
+         <div className="absolute inset-0 border-4 border-stone-800 rounded-full border-t-transparent animate-spin"></div>
+      </div>
+      <p className={`${cormorant.className} text-xl text-stone-600 italic mt-6 animate-pulse`}>
+         Preparing the menu...
+      </p>
+    </div>
+  );
+}
+
 /* ---------------- ITEM CARD COMPONENT ---------------- */
 
-function MenuItemCard({ item, menuType, onImageClick }: { item: MenuItem, menuType: string, onImageClick: (url: string) => void }) {
+function MenuItemCard({ 
+  item, 
+  menuType, 
+  searchQuery, 
+  onImageClick 
+}: { 
+  item: MenuItem, 
+  menuType: string, 
+  searchQuery: string, 
+  onImageClick: (url: string) => void 
+}) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [showVariants, setShowVariants] = useState(false);
 
@@ -448,6 +546,10 @@ function MenuItemCard({ item, menuType, onImageClick }: { item: MenuItem, menuTy
             fill 
             className="object-cover transition-transform duration-700 group-hover/img:scale-110" 
             itemProp="image"
+            // OPTIMIZATION: Critical for saving bandwidth on list views
+            // Mobile (w-20 ~ 80px), Desktop (w-28 ~ 112px). We request slightly larger for clarity.
+            sizes="(max-width: 768px) 96px, 128px"
+            quality={60} // Thumbnails don't need high quality
           />
           {isAvailable && (
              <div className="absolute inset-0 z-20 flex items-center justify-center opacity-0 group-hover/img:opacity-100 transition-opacity bg-black/20">
@@ -461,7 +563,7 @@ function MenuItemCard({ item, menuType, onImageClick }: { item: MenuItem, menuTy
         
         <div className="flex justify-between items-start gap-2 mb-1">
           <h3 itemProp="name" className={`${playfair.className} text-lg md:text-2xl font-bold text-stone-900 leading-tight break-words pr-2`}>
-            {item.name}
+            {highlightText(item.name, searchQuery)}
           </h3>
           
           <div className="text-right shrink-0" itemProp="offers" itemScope itemType="https://schema.org/Offer">
