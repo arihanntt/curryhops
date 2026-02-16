@@ -5,7 +5,7 @@ import Image from "next/image";
 import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { FiMenu, FiX, FiChevronRight } from "react-icons/fi";
-import NavigationSchema from "./NavigationSchema"; // ✅ Added for SEO
+import NavigationSchema from "./NavigationSchema"; 
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -18,15 +18,14 @@ export default function Header() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const toggleMenu = () => setIsMenuOpen(false);
-
-  // ✅ SEO FIX: Updated paths to match Sitemap and Schema
+  // ✅ Updated navLinks to include Party Menu
   const navLinks = [
     { name: "Home", path: "/" },
     { name: "About Us", path: "/about" },
-    { name: "Food & Bar Menu", path: "/menu" }, // Descriptive names help SEO
+    { name: "Food & Bar Menu", path: "/menu" },
+    { name: "Party Menu", path: "/party-menu" }, // ✨ Added Here
     { name: "Upcoming Events", path: "/events" },
-    { name: "Blogs", path: "/blogs" }, // Matched pluralization
+    { name: "Blogs", path: "/blogs" },
     { name: "Contact Us", path: "/contact" },
   ];
 
@@ -36,7 +35,6 @@ export default function Header() {
         scrolled ? "bg-[#FFEFDB] shadow-md" : "bg-transparent"
       }`}
     >
-      {/* ✅ SEO: Navigation Schema for Sitelinks */}
       <NavigationSchema />
 
       <div className="max-w-7xl mx-auto px-6 flex items-center justify-between h-24 sm:h-28">
