@@ -102,7 +102,7 @@ export default function ContactPage() {
             </h2>
             <ul className="mb-6 space-y-2">
               <li>
-                <strong>Address:</strong> SCO 41 42, Aero Arcade Mohali Punjab Pin 140603
+                <strong>Address:</strong> SCO 41 42, Aero Arcade, G-Block, Airport Road, Gmada Aerocity, Sahibzada Ajit Singh Nagar, Punjab 140306
               </li>
               <li>
                 <strong>Phone:</strong> +91 8699966565
@@ -112,12 +112,13 @@ export default function ContactPage() {
               </li>
             </ul>
             <iframe
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3433.046680120312!2d76.76377807536895!3d30.632641974632676!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x390febfa4f7a4b0b%3A0xd8223d3266382fa5!2sDomino&#39;s%20Pizza%20%7C%20Aero%20Arcade%2C%20Mohali!5e0!3m2!1sen!2sin!4v1760984782524!5m2!1sen!2sin"
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d6866.235464917359!2d76.76967494949035!3d30.63063939640226!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x390feb8fdf164bab%3A0x7ee0e032b524972d!2sCurry%20And%20Hops%20Brewing%20Private%20Limited!5e0!3m2!1sen!2sin!4v1772122944617!5m2!1sen!2sin"
               width="100%"
-              height="350"
+              height="450"
               style={{ border: 0 }}
-              loading="lazy"
               allowFullScreen
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
             ></iframe>
           </div>
         </div>

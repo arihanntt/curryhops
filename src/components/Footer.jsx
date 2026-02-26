@@ -26,11 +26,11 @@ export default function Footer() {
         <div className="flex flex-col items-center text-center">
           <h4 className="text-white font-semibold mb-3 text-base uppercase tracking-widest">Our Address</h4>
           <p className="text-sm leading-6">
-            Gmada Aerocity, Near International Airport<br />
-            Sahibzada Ajit Singh Nagar, Punjab 140306
+            SCO 41 42, Aero Arcade, G-Block, Airport Road<br />
+            Gmada Aerocity, Sahibzada Ajit Singh Nagar, Punjab 140306
           </p>
           <a
-            href="https://share.google/RvEeDQElC4XCuHHOJ" // ✅ Linked to your official Maps listing
+            href="https://maps.app.goo.gl/o6SVQPLoDpZU2vvp8" // ✅ Linked to your official Maps listing
             target="_blank"
             rel="noopener noreferrer"
             className="inline-block mt-4 text-[#E6B877] font-semibold border-b border-[#E6B877] hover:text-white transition text-sm"

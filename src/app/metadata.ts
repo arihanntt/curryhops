@@ -11,12 +11,12 @@ export const siteMetadata: Metadata = {
   },
 
   title: {
-    default: "Curry & Hops | Best Indian Restaurant & Brewing Co. in Mohali",
+    default: "Curry And Hops Brewing Private Limited | Best Restaurant in Mohali",
     template: "%s | Curry & Hops Mohali",
   },
 
   description:
-    "Curry & Hops Mohali: The ultimate destination for craft beer and modern Indian cuisine. Experience live music, signature curries, and the best brewery vibes near Chandigarh.",
+    "Curry & Hops Brewing Private Limited: The ultimate destination for craft beer and modern Indian cuisine. Experience live music, signature curries, and the best brewery vibes near Chandigarh.",
 
   keywords: [
     "Curry & Hops Mohali",
@@ -39,7 +39,7 @@ export const siteMetadata: Metadata = {
   },
 
   openGraph: {
-    title: "Curry & Hops | Brewing Co. | Where Spice Meets Craft",
+    title: "Curry And Hops Brewing Private Limited | Where Spice Meets Craft",
     description:
       "Curry & Hops is a modern Indian restaurant and brewing co. in Mohali offering bold curries, craft beers, and a refined dining experience near Chandigarh.",
     url: "https://curryandhops.com/",
@@ -58,7 +58,7 @@ export const siteMetadata: Metadata = {
 
   twitter: {
     card: "summary_large_image",
-    title: "Curry & Hops | Brewing Co. | Where Spice Meets Craft",
+    title: "Curry And Hops Brewing Private Limited | Where Spice Meets Craft",
     description:
       "A modern Indian restaurant and brewing co. in Mohali serving bold curries and craft beers.",
     images: ["/og-image.jpg"],
