@@ -9,7 +9,7 @@ import {
   TrashIcon, 
   PhotoIcon, 
   PlusIcon,
-  EyeIcon,        
+  EyeIcon,         
   EyeSlashIcon,   
   SparklesIcon,
   PencilIcon,
@@ -31,7 +31,7 @@ export default function MenuEditor() {
   const [menu, setMenu] = useState<any>(null);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
-  const [menuType, setMenuType] = useState<"food" | "bar">("food");
+  const [menuType, setMenuType] = useState<"food" | "bar">("food" as any);
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());
   
   // STRICT MODE FIX for DnD
@@ -56,7 +56,6 @@ export default function MenuEditor() {
         if(data.error) throw new Error(data.error);
         
         let updatedMenu = { ...data };
-        // Ensure unique IDs if missing
         updatedMenu.sections = updatedMenu.sections.map((s: any, index: number) => ({
            ...s,
            id: s.id || `section-${Date.now()}-${index}` 
@@ -69,20 +68,6 @@ export default function MenuEditor() {
       });
   }, []);
 
-  if (!menu) return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-50">
-      <div className="flex flex-col items-center gap-3">
-        <div className="h-10 w-10 border-4 border-amber-500 border-t-transparent rounded-full animate-spin"></div>
-        <p className="text-slate-500 font-medium">Loading Menu...</p>
-      </div>
-    </div>
-  );
-
-  const filteredSections = menu?.sections?.filter(
-    (s: any) => s.menuType?.toLowerCase() === menuType.toLowerCase()
-  ) || [];
-
-  // --- ACTIONS ---
   const handleSave = async () => {
     setSaving(true);
     setSaved(false);
@@ -94,10 +79,7 @@ export default function MenuEditor() {
       });
 
       const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.error || "Server rejected the save");
-      }
+      if (!res.ok) throw new Error(data.error || "Server rejected the save");
 
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
@@ -210,6 +192,12 @@ export default function MenuEditor() {
     setMenu({ ...menu, sections: newSections });
   };
 
+  if (!menu) return null;
+
+  const filteredSections = menu?.sections?.filter(
+    (s: any) => s.menuType?.toLowerCase() === menuType.toLowerCase()
+  ) || [];
+
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 pb-32 relative selection:bg-amber-100">
       <div className="fixed top-20 right-0 w-[500px] h-[500px] bg-gradient-to-b from-amber-500/5 to-transparent rounded-full blur-[100px] pointer-events-none" />
@@ -229,7 +217,6 @@ export default function MenuEditor() {
           </div>
         </div>
 
-        {/* Empty State */}
         {filteredSections.length === 0 && (
           <div className="text-center py-20 rounded-3xl border-2 border-dashed border-slate-200 bg-white/50 mb-6">
             <p className="text-slate-400 font-medium">No sections found for {menuType.toUpperCase()}.</p>
@@ -253,7 +240,6 @@ export default function MenuEditor() {
                             {...provided.draggableProps}
                             className={`rounded-2xl border transition-all duration-300 overflow-hidden ${snapshot.isDragging ? "bg-white border-amber-400 shadow-2xl scale-[1.02] z-50 ring-2 ring-amber-100" : "bg-white border-slate-200 hover:border-amber-200 hover:shadow-md"}`}
                           >
-                            {/* --- SECTION HEADER --- */}
                             <div className="flex items-center justify-between p-4 bg-slate-50/50 border-b border-slate-100">
                               <div className="flex items-center gap-4 flex-1">
                                 <div {...provided.dragHandleProps} className="p-2 rounded-lg text-slate-400 hover:bg-slate-100 hover:text-amber-600 transition-colors cursor-grab active:cursor-grabbing">
@@ -272,11 +258,10 @@ export default function MenuEditor() {
                                     </button>
                                   </div>
 
-                                  {/* CATEGORY IMAGE UPLOAD */}
                                   <div className="flex items-center gap-2">
                                     {section.imageUrl ? (
                                       <div className="flex items-center gap-2 bg-white px-2 py-1 rounded border border-slate-200">
-                                        <img src={section.imageUrl} className="w-6 h-6 rounded object-cover"/>
+                                        <img src={section.imageUrl} className="w-6 h-6 rounded object-cover" alt=""/>
                                         <span className="text-[10px] text-green-600 font-bold">Header Image Set</span>
                                         <button onClick={() => updateSection(section.id, 'imageUrl', "")} className="text-red-400 hover:text-red-600"><TrashIcon className="w-3 h-3"/></button>
                                       </div>
@@ -286,9 +271,9 @@ export default function MenuEditor() {
                                         options={{ sources: ['local'], maxFiles: 1 }} 
                                         onSuccess={(res: any) => {
                                           updateSection(section.id, 'imageUrl', res.info.secure_url);
-                                          document.body.style.overflow = "auto"; // 🛠️ FIX STUCK SCROLL
+                                          document.body.style.overflow = "auto";
                                         }}
-                                        onClose={() => { document.body.style.overflow = "auto"; }} // 🛠️ FIX STUCK SCROLL
+                                        onClose={() => { document.body.style.overflow = "auto"; }}
                                       >
                                         {({ open }) => (
                                           <button onClick={() => open()} className="text-[10px] flex items-center gap-1 text-blue-500 hover:underline">
@@ -317,12 +302,10 @@ export default function MenuEditor() {
                               </div>
                             </div>
 
-                            {/* --- ITEMS AREA --- */}
                             {isExpanded && (
                               <div className="p-4 pt-0 space-y-4 mt-4">
                                   {section.items.map((item: any, ii: number) => (
                                     <div key={ii} className={`p-4 rounded-xl border relative transition-all duration-300 ${item.available === false ? "bg-slate-50 border-slate-200 opacity-75 grayscale-[0.5]" : "bg-white border-slate-200 hover:border-amber-200 shadow-sm"}`}>
-                                      
                                       <div className="grid md:grid-cols-12 gap-3 mb-3">
                                         <div className="md:col-span-3">
                                           <input className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-800 text-sm font-bold focus:border-amber-500 outline-none" 
@@ -339,8 +322,6 @@ export default function MenuEditor() {
                                             value={item.price || ""} placeholder="Price"
                                             onChange={(e) => updateItem(sectionId, ii, 'price', e.target.value)} />
                                         </div>
-                                        
-                                        {/* --- ITEM IMAGE UPLOAD --- */}
                                         <div className="md:col-span-2 relative">
                                           <CldUploadWidget 
                                             uploadPreset="curryandhops_menu"
@@ -349,15 +330,15 @@ export default function MenuEditor() {
                                               updateItem(sectionId, ii, 'imageUrl', result.info.secure_url);
                                               const sizeKB = (result.info.bytes / 1024).toFixed(0) + " KB";
                                               updateItem(sectionId, ii, 'imageSize', sizeKB);
-                                              document.body.style.overflow = "auto"; // 🛠️ FIX STUCK SCROLL
+                                              document.body.style.overflow = "auto";
                                             }}
-                                            onClose={() => { document.body.style.overflow = "auto"; }} // 🛠️ FIX STUCK SCROLL
+                                            onClose={() => { document.body.style.overflow = "auto"; }}
                                           >
                                             {({ open }) => (
                                               <div className="flex gap-2">
                                                 {item.imageUrl ? (
                                                   <div className="relative group w-full">
-                                                    <img src={item.imageUrl} className="w-full h-10 rounded-lg object-cover border"/>
+                                                    <img src={item.imageUrl} className="w-full h-10 rounded-lg object-cover border" alt=""/>
                                                     <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center gap-2 rounded-lg transition-opacity">
                                                       <button onClick={() => open()} title="Change Image" className="text-white hover:text-amber-400"><ArrowPathIcon className="w-4 h-4"/></button>
                                                       <button onClick={(e) => { e.stopPropagation(); updateItem(sectionId, ii, 'imageUrl', ""); updateItem(sectionId, ii, 'imageSize', ""); }} title="Delete Image" className="text-white hover:text-red-400"><TrashIcon className="w-4 h-4"/></button>
@@ -375,13 +356,12 @@ export default function MenuEditor() {
                                         </div>
                                       </div>
 
-                                      {/* Row 2: Controls */}
                                       <div className="flex flex-wrap items-center justify-between gap-4 py-3 border-t border-b border-slate-100 mt-2">
                                           <div className="flex items-center gap-3">
                                             <button onClick={() => {
                                                 const newSections = [...menu.sections];
-                                                const current = newSections.find((s) => s.id === sectionId)!.items[ii].available;
-                                                newSections.find((s) => s.id === sectionId)!.items[ii].available = current === false ? true : false;
+                                                const itemToUpdate = newSections.find((s) => s.id === sectionId)!.items[ii];
+                                                itemToUpdate.available = itemToUpdate.available === false ? true : false;
                                                 setMenu({ ...menu, sections: newSections });
                                               }}
                                               className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold border transition-colors ${item.available !== false ? "bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100" : "bg-red-50 text-red-600 border-red-200 hover:bg-red-100"}`}>
@@ -392,8 +372,8 @@ export default function MenuEditor() {
                                             {menuType === 'food' && (
                                               <button onClick={() => {
                                                   const newSections = [...menu.sections];
-                                                  const current = newSections.find((s) => s.id === sectionId)!.items[ii].isCustomizable;
-                                                  newSections.find((s) => s.id === sectionId)!.items[ii].isCustomizable = !current;
+                                                  const itemToUpdate = newSections.find((s) => s.id === sectionId)!.items[ii];
+                                                  itemToUpdate.isCustomizable = !itemToUpdate.isCustomizable;
                                                   setMenu({ ...menu, sections: newSections });
                                                 }}
                                                 className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold border transition-colors ${item.isCustomizable ? "bg-purple-50 text-purple-700 border-purple-200" : "bg-slate-50 text-slate-400 border-slate-200 hover:text-slate-600"}`}>
@@ -411,7 +391,6 @@ export default function MenuEditor() {
                                           </button>
                                       </div>
 
-                                      {/* Row 3: Tags & Variants */}
                                       <div className="pt-3 space-y-4">
                                         {menuType === 'food' && (
                                           <div className="flex flex-wrap gap-2 items-center">
@@ -451,49 +430,74 @@ export default function MenuEditor() {
 
                                         {menuType === "bar" && (
                                           <div className="pt-3 border-t border-slate-100 mt-3">
-                                              <label className="flex items-center gap-2 cursor-pointer select-none">
-                                                <div className={`w-9 h-5 rounded-full relative transition-colors duration-300 ${item.showBottlePeg ? "bg-amber-500" : "bg-slate-300"}`}>
-                                                    <div className={`absolute top-1 left-1 bg-white w-3 h-3 rounded-full transition-transform duration-300 shadow-sm ${item.showBottlePeg ? "translate-x-4" : ""}`} />
-                                                </div>
-                                                <input type="checkbox" className="sr-only" checked={item.showBottlePeg || false}
-                                                  onChange={(e) => {
-                                                      const newSections = [...menu.sections];
-                                                      const targetItem = newSections.find((s) => s.id === sectionId)!.items[ii];
-                                                      targetItem.showBottlePeg = e.target.checked;
-                                                      if (!e.target.checked) { targetItem.bottlePrice = ""; targetItem.pegPrice = ""; }
-                                                      setMenu({ ...menu, sections: newSections });
-                                                  }}
-                                                />
-                                                <span className="text-xs font-semibold text-slate-600">Enable Bottle / Peg Pricing</span>
-                                              </label>
-                                              {item.showBottlePeg && (
-                                                  <div className="flex gap-4 mt-3 animate-in fade-in slide-in-from-left-2">
+                                            {(() => {
+                                              const isFreshBeer = section.title.toLowerCase() === "fresh beers" || section.title.toLowerCase() === "fresh beer";
+                                              const toggleText = isFreshBeer ? "Enable Pint / Mug Pricing" : "Enable Bottle / Peg Pricing";
+                                              const largePlaceholder = isFreshBeer ? "Mug Price" : "Bottle Price";
+                                              const smallPlaceholder = isFreshBeer ? "Pint Price" : "Peg Price";
+                                              const largeUnit = isFreshBeer ? "MUG" : "BTL";
+                                              const smallUnit = isFreshBeer ? "PINT" : "PEG";
+
+                                              return (
+                                                <>
+                                                  <label className="flex items-center gap-2 cursor-pointer select-none">
+                                                    <div className={`w-9 h-5 rounded-full relative transition-colors duration-300 ${item.showBottlePeg ? "bg-amber-500" : "bg-slate-300"}`}>
+                                                      <div className={`absolute top-1 left-1 bg-white w-3 h-3 rounded-full transition-transform duration-300 shadow-sm ${item.showBottlePeg ? "translate-x-4" : ""}`} />
+                                                    </div>
+                                                    <input 
+                                                      type="checkbox" 
+                                                      className="sr-only" 
+                                                      checked={item.showBottlePeg || false}
+                                                      onChange={(e) => {
+                                                        const newSections = [...menu.sections];
+                                                        const targetItem = newSections.find((s) => s.id === sectionId)!.items[ii];
+                                                        targetItem.showBottlePeg = e.target.checked;
+                                                        if (!e.target.checked) { 
+                                                          targetItem.bottlePrice = ""; 
+                                                          targetItem.pegPrice = ""; 
+                                                        }
+                                                        setMenu({ ...menu, sections: newSections });
+                                                      }}
+                                                    />
+                                                    <span className="text-xs font-semibold text-slate-600">{toggleText}</span>
+                                                  </label>
+
+                                                  {item.showBottlePeg && (
+                                                    <div className="flex gap-4 mt-3 animate-in fade-in slide-in-from-left-2">
                                                       <div className="relative">
-                                                          <input className="w-32 bg-slate-50 border border-slate-200 rounded-lg pl-6 py-2 text-xs focus:border-amber-500 outline-none"
-                                                              value={item.bottlePrice || ""} placeholder="Bottle Price"
-                                                              onChange={(e) => {
-                                                                  const newSections = [...menu.sections];
-                                                                  newSections.find((s) => s.id === sectionId)!.items[ii].bottlePrice = e.target.value;
-                                                                  setMenu({ ...menu, sections: newSections });
-                                                              }}
-                                                          />
-                                                          <span className="absolute left-2.5 top-2 text-slate-400 text-xs">₹</span>
-                                                          <span className="absolute right-2.5 top-2 text-[10px] text-slate-400 font-bold uppercase">BTL</span>
+                                                        <input 
+                                                          className="w-32 bg-slate-50 border border-slate-200 rounded-lg pl-6 py-2 text-xs focus:border-amber-500 outline-none"
+                                                          value={item.bottlePrice || ""} 
+                                                          placeholder={largePlaceholder}
+                                                          onChange={(e) => {
+                                                            const newSections = [...menu.sections];
+                                                            newSections.find((s) => s.id === sectionId)!.items[ii].bottlePrice = e.target.value;
+                                                            setMenu({ ...menu, sections: newSections });
+                                                          }}
+                                                        />
+                                                        <span className="absolute left-2.5 top-2 text-slate-400 text-xs">₹</span>
+                                                        <span className="absolute right-2.5 top-2 text-[10px] text-slate-400 font-bold uppercase">{largeUnit}</span>
                                                       </div>
+
                                                       <div className="relative">
-                                                          <input className="w-32 bg-slate-50 border border-slate-200 rounded-lg pl-6 py-2 text-xs focus:border-amber-500 outline-none"
-                                                              value={item.pegPrice || ""} placeholder="Peg Price"
-                                                              onChange={(e) => {
-                                                                  const newSections = [...menu.sections];
-                                                                  newSections.find((s) => s.id === sectionId)!.items[ii].pegPrice = e.target.value;
-                                                                  setMenu({ ...menu, sections: newSections });
-                                                              }}
-                                                          />
-                                                          <span className="absolute left-2.5 top-2 text-slate-400 text-xs">₹</span>
-                                                          <span className="absolute right-2.5 top-2 text-[10px] text-slate-400 font-bold uppercase">Peg</span>
+                                                        <input 
+                                                          className="w-32 bg-slate-50 border border-slate-200 rounded-lg pl-6 py-2 text-xs focus:border-amber-500 outline-none"
+                                                          value={item.pegPrice || ""} 
+                                                          placeholder={smallPlaceholder}
+                                                          onChange={(e) => {
+                                                            const newSections = [...menu.sections];
+                                                            newSections.find((s) => s.id === sectionId)!.items[ii].pegPrice = e.target.value;
+                                                            setMenu({ ...menu, sections: newSections });
+                                                          }}
+                                                        />
+                                                        <span className="absolute left-2.5 top-2 text-slate-400 text-xs">₹</span>
+                                                        <span className="absolute right-2.5 top-2 text-[10px] text-slate-400 font-bold uppercase">{smallUnit}</span>
                                                       </div>
-                                                  </div>
-                                              )}
+                                                    </div>
+                                                  )}
+                                                </>
+                                              );
+                                            })()}
                                           </div>
                                         )}
                                       </div>
@@ -551,7 +555,6 @@ export default function MenuEditor() {
              </div>
            </div>
         </div>
-        
       </div>
     </div>
   );

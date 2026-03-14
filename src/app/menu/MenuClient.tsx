@@ -340,6 +340,7 @@ function MenuContent() {
                              menuType={menuType} 
                              searchQuery={searchQuery} 
                              onImageClick={setExpandedImage} 
+                             sectionTitle={section.title} /* 👈 ADD THIS LINE */
                            />
                         </div>
                       ))}
@@ -436,13 +437,17 @@ function LoadingSpinner() {
 
 /* ---------------- ITEM CARD COMPONENT ---------------- */
 
-function MenuItemCard({ item, menuType, searchQuery, onImageClick }: { item: MenuItem, menuType: string, searchQuery: string, onImageClick: (url: string) => void }) {
+function MenuItemCard({ item, menuType, searchQuery, onImageClick, sectionTitle }: { item: MenuItem, menuType: string, searchQuery: string, onImageClick: (url: string) => void, sectionTitle: string }) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [showVariants, setShowVariants] = useState(false);
   const effectiveTags = [...(item.tags || [])];
   const hasNonVegOrEgg = effectiveTags.some(t => t === "Non-Veg" || t === "Egg");
   if (menuType === "food" && !hasNonVegOrEgg && !effectiveTags.includes("Veg")) effectiveTags.push("Veg");
-
+// 👇 ADD THESE 3 LINES FOR FRESH BEER LOGIC
+  const isFreshBeer = sectionTitle.toLowerCase() === "fresh beers" || sectionTitle.toLowerCase() === "fresh beer";
+  const smallLabel = isFreshBeer ? "Pint" : "30ml";
+  const largeLabel = isFreshBeer ? "Mug" : "Btl";
+  
   const getIcon = (tag: string) => {
     if (tag === "Veg") return <div className="w-3 h-3 border border-green-700 p-[1px] flex items-center justify-center"><div className="w-full h-full bg-green-700 rounded-full" /></div>;
     if (tag === "Non-Veg") return <div className="w-3 h-3 border border-red-700 p-[1px] flex items-center justify-center"><div className="w-full h-full bg-red-700 rounded-full" /></div>;
@@ -469,14 +474,36 @@ function MenuItemCard({ item, menuType, searchQuery, onImageClick }: { item: Men
         <div className="flex justify-between items-start gap-2 mb-1">
           <h3 itemProp="name" className={`${playfair.className} text-lg md:text-2xl font-bold text-stone-900 leading-tight break-words pr-2`}>{highlightText(item.name, searchQuery)}</h3>
           <div className="text-right shrink-0" itemProp="offers" itemScope itemType="https://schema.org/Offer">
-            <meta itemProp="priceCurrency" content="INR" />
-            {menuType === "bar" && item.showBottlePeg ? (
-              <div className="flex flex-col items-end gap-0.5">
-                <div className="flex items-center gap-1.5"><span className="text-[10px] text-stone-400 font-bold uppercase tracking-wider">30ml</span><span className="text-base md:text-lg font-bold text-stone-900">₹<span itemProp="price">{item.pegPrice}</span></span></div>
-                {item.bottlePrice && <div className="flex items-center gap-1.5"><span className="text-[10px] text-stone-400 font-bold uppercase tracking-wider">Btl</span><span className="text-sm md:text-base text-stone-600 font-medium">₹{item.bottlePrice}</span></div>}
-              </div>
-            ) : <span className="text-base md:text-xl font-bold text-stone-900">₹<span itemProp="price">{item.price}</span></span>}
-          </div>
+  <meta itemProp="priceCurrency" content="INR" />
+  {menuType === "bar" && item.showBottlePeg ? (
+    <div className="flex flex-col items-end gap-0.5">
+      {/* Pint / Small Unit Row */}
+      <div className="flex items-center gap-1.5">
+        <span className="text-[10px] text-stone-400 font-bold uppercase tracking-wider">{smallLabel}</span>
+        <span className="text-base md:text-lg font-bold text-stone-900">
+          ₹<span itemProp="price">
+            {/* 🔥 Logic: Split the string at '(' and take the first part, removing spaces */}
+            {item.pegPrice?.toString().split('(')[0].trim()}
+          </span>
+        </span>
+      </div>
+
+      {/* Mug / Large Unit Row */}
+      {item.bottlePrice && (
+        <div className="flex items-center gap-1.5">
+          <span className="text-[10px] text-stone-400 font-bold uppercase tracking-wider">{largeLabel}</span>
+          <span className="text-sm md:text-base text-stone-600 font-medium">
+            ₹{item.bottlePrice?.toString().split('(')[0].trim()}
+          </span>
+        </div>
+      )}
+    </div>
+  ) : (
+    <span className="text-base md:text-xl font-bold text-stone-900">
+      ₹<span itemProp="price">{item.price}</span>
+    </span>
+  )}
+</div>
         </div>
         {menuType === "food" && (
           <div className="flex items-center gap-2 mb-2 flex-wrap">
