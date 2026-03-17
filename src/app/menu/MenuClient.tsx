@@ -445,8 +445,8 @@ function MenuItemCard({ item, menuType, searchQuery, onImageClick, sectionTitle 
   if (menuType === "food" && !hasNonVegOrEgg && !effectiveTags.includes("Veg")) effectiveTags.push("Veg");
 // 👇 ADD THESE 3 LINES FOR FRESH BEER LOGIC
   const isFreshBeer = sectionTitle.toLowerCase() === "fresh beers" || sectionTitle.toLowerCase() === "fresh beer";
-  const smallLabel = isFreshBeer ? "Pint" : "30ml";
-  const largeLabel = isFreshBeer ? "Mug" : "Btl";
+  const smallLabel = isFreshBeer ? "330ml" : "30ml";
+  const largeLabel = isFreshBeer ? "500ml" : "Btl";
   
   const getIcon = (tag: string) => {
     if (tag === "Veg") return <div className="w-3 h-3 border border-green-700 p-[1px] flex items-center justify-center"><div className="w-full h-full bg-green-700 rounded-full" /></div>;
