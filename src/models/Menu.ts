@@ -41,7 +41,7 @@ const SectionSchema = new mongoose.Schema(
   {
     id: { type: String, required: true, trim: true },
     title: { type: String, required: true, trim: true },
-    menuType: { type: String, enum: ["food", "bar"], required: true },
+    menuType: { type: String, enum: ["food", "bar", "kids"], required: true },
     
     // Visibility Toggle for the whole category
     visible: { type: Boolean, default: true }, 
@@ -66,5 +66,10 @@ const MenuSchema = new mongoose.Schema(
   }
 );
 
-// Prevent model re-compilation in hot-reload (Next.js dev mode)
+// In development, delete the cached model so schema changes (e.g. new enum values)
+// are always picked up after a hot-reload. In production, use the cached model.
+if (process.env.NODE_ENV !== "production" && mongoose.models.Menu) {
+  delete mongoose.models.Menu;
+}
+
 export default mongoose.models.Menu || mongoose.model("Menu", MenuSchema);

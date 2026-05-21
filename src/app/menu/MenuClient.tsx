@@ -42,7 +42,7 @@ type MenuItem = {
 
 type MenuSectionType = {
   title: string;
-  menuType: "food" | "bar";
+  menuType: "food" | "bar" | "kids";
   visible?: boolean;        
   imageUrl?: string;        
   items: MenuItem[];
@@ -88,7 +88,7 @@ function MenuContent() {
   const [menu, setMenu] = useState<{ sections: MenuSectionType[] }>({ sections: [] });
   const [isLoading, setIsLoading] = useState(true); 
   const searchParams = useSearchParams();
-  const [menuType, setMenuType] = useState<"food" | "bar">("food");
+  const [menuType, setMenuType] = useState<"food" | "bar" | "kids">("food");
   
   // Filters
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
@@ -118,7 +118,7 @@ function MenuContent() {
   // Handle URL Param changes
   useEffect(() => {
     const type = searchParams.get("type");
-    if (type === "food" || type === "bar") {
+    if (type === "food" || type === "bar" || type === "kids") {
       setMenuType(type);
     }
   }, [searchParams]);
@@ -156,8 +156,8 @@ function MenuContent() {
             if (!matchName && !matchDesc) return false;
           }
 
-          // 3. Veg/Non-Veg Filter
-          if (menuType === "food" && typeFilter !== "All") {
+          // 3. Veg/Non-Veg Filter (applies to food and kids menus)
+          if ((menuType === "food" || menuType === "kids") && typeFilter !== "All") {
             const hasNonVeg = item.tags?.includes("Non-Veg");
             const hasEgg = item.tags?.includes("Egg");
             if (typeFilter === "Veg" && (hasNonVeg || hasEgg)) return false;
@@ -228,7 +228,7 @@ function MenuContent() {
             <div className="relative bg-white/5 backdrop-blur-xl border border-white/10 rounded-full p-1.5 flex shadow-2xl ring-1 ring-white/10">
               <button
                 onClick={() => setMenuType("food")}
-                className={`px-6 md:px-10 py-2.5 rounded-full text-xs md:text-sm font-bold tracking-widest transition-all duration-500 ease-out ${
+                className={`px-4 md:px-8 py-2.5 rounded-full text-xs md:text-sm font-bold tracking-widest transition-all duration-500 ease-out ${
                   menuType === "food" ? "bg-[#f8f5f2] text-stone-900 shadow-lg scale-105" : "text-white/60 hover:text-white"
                 }`}
               >
@@ -236,11 +236,19 @@ function MenuContent() {
               </button>
               <button
                 onClick={() => setMenuType("bar")}
-                className={`px-6 md:px-10 py-2.5 rounded-full text-xs md:text-sm font-bold tracking-widest transition-all duration-500 ease-out ${
+                className={`px-4 md:px-8 py-2.5 rounded-full text-xs md:text-sm font-bold tracking-widest transition-all duration-500 ease-out ${
                   menuType === "bar" ? "bg-[#f8f5f2] text-stone-900 shadow-lg scale-105" : "text-white/60 hover:text-white"
                 }`}
               >
                 DRINKS
+              </button>
+              <button
+                onClick={() => setMenuType("kids")}
+                className={`px-4 md:px-8 py-2.5 rounded-full text-xs md:text-sm font-bold tracking-widest transition-all duration-500 ease-out ${
+                  menuType === "kids" ? "bg-[#f8f5f2] text-stone-900 shadow-lg scale-105" : "text-white/60 hover:text-white"
+                }`}
+              >
+                KIDS MENU
               </button>
             </div>
           </div>
@@ -281,7 +289,7 @@ function MenuContent() {
                 )}
              </div>
 
-            {menuType === "food" && (
+            {(menuType === "food" || menuType === "kids") && (
               <button
                 onClick={() => setShowFilters(true)}
                 className={`h-11 px-4 rounded-lg border flex items-center justify-center gap-2 transition-all shadow-sm ${
@@ -505,7 +513,7 @@ function MenuItemCard({ item, menuType, searchQuery, onImageClick, sectionTitle 
   )}
 </div>
         </div>
-        {menuType === "food" && (
+        {(menuType === "food" || menuType === "kids") && (
           <div className="flex items-center gap-2 mb-2 flex-wrap">
             {effectiveTags.map(tag => (
               <div key={tag} className="flex items-center gap-1">{getIcon(tag)}<span className={`text-[9px] md:text-[10px] font-bold uppercase tracking-wide ${tag === "Spicy" ? "text-red-600" : tag === "Vegan" ? "text-green-600" : tag === "Kids" ? "text-sky-500" : tag === "Gluten Free" ? "text-emerald-600" : tag === "Chef's Special" ? "text-purple-600" : "text-stone-400"}`}>{tag}</span></div>

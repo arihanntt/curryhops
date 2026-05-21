@@ -15,10 +15,11 @@ export default function AdminNavbar() {
   };
 
   const navItems = [
-    { name: "Dashboard", href: "/admin" },
-    { name: "Menu Editor", href: "/admin/menu-editor" },
-    { name: "PDF", href: "/admin/pdf" },
-    { name: "Bookings", href: "/admin/bookings" }, // Added for completeness
+    { name: "Dashboard",    href: "/admin" },
+    { name: "Menu Editor",  href: "/admin/menu-editor" },
+    { name: "Popup Banner", href: "/admin/popup-banner" },
+    { name: "PDF",          href: "/admin/pdf" },
+    { name: "Bookings",     href: "/admin/bookings" },
   ];
 
   return (

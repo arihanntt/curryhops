@@ -31,7 +31,7 @@ export default function MenuEditor() {
   const [menu, setMenu] = useState<any>(null);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
-  const [menuType, setMenuType] = useState<"food" | "bar">("food" as any);
+  const [menuType, setMenuType] = useState<"food" | "bar" | "kids">("food" as any);
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());
   
   // STRICT MODE FIX for DnD
@@ -212,14 +212,16 @@ export default function MenuEditor() {
           </div>
 
           <div className="bg-slate-200/80 p-1 rounded-xl flex gap-1 border border-slate-200 shadow-inner">
-            <button onClick={() => setMenuType("food")} className={`px-6 py-2 rounded-lg text-sm font-semibold transition-all duration-200 ${menuType === "food" ? "bg-white text-slate-900 shadow-sm ring-1 ring-slate-200" : "text-slate-500 hover:text-slate-700"}`}>Food Menu</button>
-            <button onClick={() => setMenuType("bar")} className={`px-6 py-2 rounded-lg text-sm font-semibold transition-all duration-200 ${menuType === "bar" ? "bg-white text-slate-900 shadow-sm ring-1 ring-slate-200" : "text-slate-500 hover:text-slate-700"}`}>Bar Menu</button>
+            <button onClick={() => setMenuType("food")} className={`px-5 py-2 rounded-lg text-sm font-semibold transition-all duration-200 ${menuType === "food" ? "bg-white text-slate-900 shadow-sm ring-1 ring-slate-200" : "text-slate-500 hover:text-slate-700"}`}>Food Menu</button>
+            <button onClick={() => setMenuType("bar")} className={`px-5 py-2 rounded-lg text-sm font-semibold transition-all duration-200 ${menuType === "bar" ? "bg-white text-slate-900 shadow-sm ring-1 ring-slate-200" : "text-slate-500 hover:text-slate-700"}`}>Bar Menu</button>
+            <button onClick={() => setMenuType("kids")} className={`px-5 py-2 rounded-lg text-sm font-semibold transition-all duration-200 ${menuType === "kids" ? "bg-white text-slate-900 shadow-sm ring-1 ring-slate-200" : "text-slate-500 hover:text-slate-700"}`}>Kids Menu</button>
           </div>
         </div>
 
         {filteredSections.length === 0 && (
           <div className="text-center py-20 rounded-3xl border-2 border-dashed border-slate-200 bg-white/50 mb-6">
-            <p className="text-slate-400 font-medium">No sections found for {menuType.toUpperCase()}.</p>
+            <p className="text-slate-400 font-medium">No sections found for {menuType === "kids" ? "Kids Menu" : menuType.toUpperCase()}.</p>
+            <p className="text-slate-400 text-sm mt-2">Use the button below to add your first section.</p>
           </div>
         )}
 
@@ -369,7 +371,7 @@ export default function MenuEditor() {
                                               {item.available !== false ? "Serving Now" : "Sold Out"}
                                             </button>
 
-                                            {menuType === 'food' && (
+                                            {(menuType === 'food' || menuType === 'kids') && (
                                               <button onClick={() => {
                                                   const newSections = [...menu.sections];
                                                   const itemToUpdate = newSections.find((s) => s.id === sectionId)!.items[ii];
@@ -392,7 +394,7 @@ export default function MenuEditor() {
                                       </div>
 
                                       <div className="pt-3 space-y-4">
-                                        {menuType === 'food' && (
+                                        {(menuType === 'food' || menuType === 'kids') && (
                                           <div className="flex flex-wrap gap-2 items-center">
                                             <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mr-2">Tags:</span>
                                             {FOOD_TAGS.map(tag => (
@@ -541,7 +543,7 @@ export default function MenuEditor() {
         <div className="mt-8 flex justify-center pb-24">
           <button onClick={addSection} className="flex items-center gap-2 px-8 py-4 bg-white border border-slate-200 shadow-sm hover:shadow-md hover:border-amber-400 text-slate-700 font-bold rounded-full transition-all group">
             <span className="bg-slate-100 group-hover:bg-amber-100 p-1 rounded-full text-slate-500 group-hover:text-amber-600"><PlusIcon className="w-5 h-5"/></span>
-            Create New {menuType === 'food' ? "Food Category" : "Bar Section"}
+            Create New {menuType === 'food' ? "Food Category" : menuType === 'kids' ? "Kids Menu Section" : "Bar Section"}
           </button>
         </div>
 

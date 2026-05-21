@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import Preloader from "./Preloader";
 import Header from "./Header";
 import Footer from "./Footer";
+import PopupBanner from "./PopupBanner";
 
 export default function LayoutClient({
   children,
@@ -24,6 +25,9 @@ export default function LayoutClient({
       {!isHome && !isAdmin && <Header />}
 
       <main>{children}</main>
+
+      {/* Popup Banner — shown on all public pages (manages its own visibility) */}
+      {!isAdmin && <PopupBanner />}
 
       {/* Footer only on NON-home & NON-admin pages */}
       {!isHome && !isAdmin && <Footer />}
