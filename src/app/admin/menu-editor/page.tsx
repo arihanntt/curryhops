@@ -433,7 +433,7 @@ export default function MenuEditor() {
                                         {menuType === "bar" && (
                                           <div className="pt-3 border-t border-slate-100 mt-3">
                                             {(() => {
-                                              const isFreshBeer = section.title.toLowerCase() === "fresh beers" || section.title.toLowerCase() === "fresh beer";
+                                              const isFreshBeer = ["fresh beers", "fresh beer", "american beers", "american beer"].includes(section.title.toLowerCase());
                                               const toggleText = isFreshBeer ? "Enable Pint / Mug Pricing" : "Enable Bottle / Peg Pricing";
                                               const largePlaceholder = isFreshBeer ? "Mug Price" : "Bottle Price";
                                               const smallPlaceholder = isFreshBeer ? "Pint Price" : "Peg Price";

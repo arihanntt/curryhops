@@ -452,7 +452,7 @@ function MenuItemCard({ item, menuType, searchQuery, onImageClick, sectionTitle 
   const hasNonVegOrEgg = effectiveTags.some(t => t === "Non-Veg" || t === "Egg");
   if (menuType === "food" && !hasNonVegOrEgg && !effectiveTags.includes("Veg")) effectiveTags.push("Veg");
 // 👇 ADD THESE 3 LINES FOR FRESH BEER LOGIC
-  const isFreshBeer = sectionTitle.toLowerCase() === "fresh beers" || sectionTitle.toLowerCase() === "fresh beer";
+  const isFreshBeer = ["fresh beers", "fresh beer", "american beers", "american beer"].includes(sectionTitle.toLowerCase());
   const smallLabel = isFreshBeer ? "330ml" : "30ml";
   const largeLabel = isFreshBeer ? "500ml" : "Btl";
   
